@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DormHub.Models
 {
@@ -6,7 +7,11 @@ namespace DormHub.Models
     {
         [Key]
         public string Id { get; set; }
-        public Person Applicant { get; set; }
+
+        [ForeignKey("Applicant")]
+        public PersonModel Applicant { get; set; }
+
+        [ForeignKey("PreferredBuilding")]
         public BuildingModel PreferredBuilding { get; set; }
     }
 }
