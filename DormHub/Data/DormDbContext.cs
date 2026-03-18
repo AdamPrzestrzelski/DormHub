@@ -11,6 +11,5 @@ namespace DormHub.Data
         public DbSet<Models.RoomModel> Rooms { get; set; }
         public DbSet<Models.ApplicationModel> Applications { get; set; }
         public DbSet<Models.FaultModel> Faults { get; set; }
-    {
     }
 }
