@@ -8,10 +8,13 @@ namespace DormHub.Models
         [Key]
         public string Id { get; set; }
 
-        [ForeignKey("Person")]
-        public PersonModel Applicant { get; set; }
+        [ForeignKey("PersonModel")]
+        public int ApplicantId { get; set; }
 
-        [ForeignKey("Building")]
-        public BuildingModel PreferredBuilding { get; set; }
+        [ForeignKey("RoomTypeModel")]
+        public int PreferredRoomTypeId { get; set; }
+
+        [ForeignKey("BuildingModel")]
+        public int? PreferredBuildingId { get; set; }
     }
 }
