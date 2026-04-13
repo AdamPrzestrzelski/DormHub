@@ -8,11 +8,11 @@ namespace DormHub.Models
         [Key]
         public int Id { get; set; } 
 
-        [Required]
-        public RoomModel Room { get; set; }
+        [ForeignKey("RoomModel")]
+        public int RoomId { get; set; }
 
-        [Required]
-        public ResidentModel ReportedBy { get; set; }
+        [ForeignKey("ResidentModel")]
+        public int ReportedById { get; set; }
 
         [Required(ErrorMessage = "Opis wymagany")]
         public string Description { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DormHub.Models
 {
@@ -10,13 +11,12 @@ namespace DormHub.Models
         [Required(ErrorMessage = "Numer pokoju jest wymagana")]
         public int RoomNumber { get; set; }
 
-        [Required(ErrorMessage = "Budynek jest wymagany")]
-        public int Building { get; set; }
+        [ForeignKey("BuildingModel")]
+        public int BuildingId { get; set; }
 
-        [Required(ErrorMessage = "Należy podać ilu osobowy jest pokój")]
-        public int Capacity { get; set; }
+        [ForeignKey("RoomTypeModel")]
+        public int TypeId { get; set; }
 
-        public bool isDeluxe { get; set; } = false;
-
+        public List<ResidentModel>? Residents { get; set; }
     }
 }
