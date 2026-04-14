@@ -26,7 +26,48 @@ namespace DormHub.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PersonModel",
+                name: "RoomTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Capacity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoomTypes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Rooms",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoomNumber = table.Column<int>(type: "int", nullable: false),
+                    BuildingId = table.Column<int>(type: "int", nullable: false),
+                    TypeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rooms_Buildings_BuildingId",
+                        column: x => x.BuildingId,
+                        principalTable: "Buildings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Rooms_RoomTypes_TypeId",
+                        column: x => x.TypeId,
+                        principalTable: "RoomTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Persons",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -37,29 +78,19 @@ namespace DormHub.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: false),
-                    RoomNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
                     MoveInDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MoveOutDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PersonModel", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Rooms",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoomNumber = table.Column<int>(type: "int", nullable: false),
-                    Building = table.Column<int>(type: "int", nullable: false),
-                    Capacity = table.Column<int>(type: "int", nullable: false),
-                    isDeluxe = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.PrimaryKey("PK_Persons", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Persons_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -67,22 +98,28 @@ namespace DormHub.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Person = table.Column<int>(type: "int", nullable: false),
-                    Building = table.Column<int>(type: "int", nullable: false)
+                    ApplicantId = table.Column<int>(type: "int", nullable: false),
+                    PreferredRoomTypeId = table.Column<int>(type: "int", nullable: false),
+                    PreferredBuildingId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Applications", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Applications_Buildings_Building",
-                        column: x => x.Building,
+                        name: "FK_Applications_Buildings_PreferredBuildingId",
+                        column: x => x.PreferredBuildingId,
                         principalTable: "Buildings",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Applications_Persons_ApplicantId",
+                        column: x => x.ApplicantId,
+                        principalTable: "Persons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Applications_PersonModel_Person",
-                        column: x => x.Person,
-                        principalTable: "PersonModel",
+                        name: "FK_Applications_RoomTypes_PreferredRoomTypeId",
+                        column: x => x.PreferredRoomTypeId,
+                        principalTable: "RoomTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -104,11 +141,11 @@ namespace DormHub.Migrations
                 {
                     table.PrimaryKey("PK_Faults", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Faults_PersonModel_ReportedById",
+                        name: "FK_Faults_Persons_ReportedById",
                         column: x => x.ReportedById,
-                        principalTable: "PersonModel",
+                        principalTable: "Persons",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Faults_Rooms_RoomId",
                         column: x => x.RoomId,
@@ -118,14 +155,19 @@ namespace DormHub.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Applications_Building",
+                name: "IX_Applications_ApplicantId",
                 table: "Applications",
-                column: "Building");
+                column: "ApplicantId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Applications_Person",
+                name: "IX_Applications_PreferredBuildingId",
                 table: "Applications",
-                column: "Person");
+                column: "PreferredBuildingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Applications_PreferredRoomTypeId",
+                table: "Applications",
+                column: "PreferredRoomTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Faults_ReportedById",
@@ -136,6 +178,21 @@ namespace DormHub.Migrations
                 name: "IX_Faults_RoomId",
                 table: "Faults",
                 column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Persons_RoomId",
+                table: "Persons",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_BuildingId",
+                table: "Rooms",
+                column: "BuildingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rooms_TypeId",
+                table: "Rooms",
+                column: "TypeId");
         }
 
         /// <inheritdoc />
@@ -148,13 +205,16 @@ namespace DormHub.Migrations
                 name: "Faults");
 
             migrationBuilder.DropTable(
-                name: "Buildings");
-
-            migrationBuilder.DropTable(
-                name: "PersonModel");
+                name: "Persons");
 
             migrationBuilder.DropTable(
                 name: "Rooms");
+
+            migrationBuilder.DropTable(
+                name: "Buildings");
+
+            migrationBuilder.DropTable(
+                name: "RoomTypes");
         }
     }
 }

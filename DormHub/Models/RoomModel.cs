@@ -11,11 +11,15 @@ namespace DormHub.Models
         [Required(ErrorMessage = "Numer pokoju jest wymagana")]
         public int RoomNumber { get; set; }
 
-        [ForeignKey("BuildingModel")]
+        [Required]
         public int BuildingId { get; set; }
+        [ForeignKey("BuildingId")]
+        public BuildingModel Building { get; set; }
 
-        [ForeignKey("RoomTypeModel")]
+        [Required]
         public int TypeId { get; set; }
+        [ForeignKey("TypeId")]
+        public RoomTypeModel RoomType { get; set; }
 
         public List<ResidentModel>? Residents { get; set; }
     }

@@ -6,18 +6,23 @@ namespace DormHub.Models
     public class FaultModel
     {
         [Key]
-        public int Id { get; set; } 
+        public int Id { get; set; }
 
-        [ForeignKey("RoomModel")]
+        [Required]
         public int RoomId { get; set; }
+        [ForeignKey("RoomId")]
+        public RoomModel Room { get; set; }
 
-        [ForeignKey("ResidentModel")]
+        [Required]
         public int ReportedById { get; set; }
+        [ForeignKey("ReportedById")]
+        public ResidentModel ReportedBy { get; set; }
 
         [Required(ErrorMessage = "Opis wymagany")]
         public string Description { get; set; }
 
         [Required(ErrorMessage = "Data zgłoszenia wymagana")]
+        [DataType(DataType.Date)]
         public DateTime ReportedAt { get; set; }
 
         public bool IsResolved { get; set; } = false;
