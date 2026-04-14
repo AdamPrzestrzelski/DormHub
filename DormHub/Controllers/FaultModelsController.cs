@@ -10,6 +10,7 @@ using DormHub.Models;
 
 namespace DormHub.Controllers
 {
+    [Route("usterki")]
     public class FaultModelsController : Controller
     {
         private readonly DormDbContext _context;
@@ -19,14 +20,14 @@ namespace DormHub.Controllers
             _context = context;
         }
 
-        // GET: FaultModels
+        [Route("")]
         public async Task<IActionResult> Index()
         {
             var dormDbContext = _context.Faults.Include(f => f.ReportedBy).Include(f => f.Room);
             return View(await dormDbContext.ToListAsync());
         }
 
-        // GET: FaultModels/Details/5
+        [HttpGet("szczegoly/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,7 +47,7 @@ namespace DormHub.Controllers
             return View(faultModel);
         }
 
-        // GET: FaultModels/Create
+        [HttpGet("dodaj")]
         public IActionResult Create()
         {
             ViewData["ReportedById"] = new SelectList(_context.Residents, "Id", "Discriminator");
@@ -72,7 +73,7 @@ namespace DormHub.Controllers
             return View(faultModel);
         }
 
-        // GET: FaultModels/Edit/5
+        [HttpGet("edytuj/{id}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -127,7 +128,7 @@ namespace DormHub.Controllers
             return View(faultModel);
         }
 
-        // GET: FaultModels/Delete/5
+        [HttpGet("usun/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

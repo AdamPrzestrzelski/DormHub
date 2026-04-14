@@ -10,6 +10,7 @@ using DormHub.Models;
 
 namespace DormHub.Controllers
 {
+    [Route("mieszkancy")]
     public class ResidentModelsController : Controller
     {
         private readonly DormDbContext _context;
@@ -19,14 +20,14 @@ namespace DormHub.Controllers
             _context = context;
         }
 
-        // GET: ResidentModels
+        [Route("")]
         public async Task<IActionResult> Index()
         {
             var dormDbContext = _context.Residents.Include(r => r.Room);
             return View(await dormDbContext.ToListAsync());
         }
 
-        // GET: ResidentModels/Details/5
+        [HttpGet("szczegoly/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -45,7 +46,7 @@ namespace DormHub.Controllers
             return View(residentModel);
         }
 
-        // GET: ResidentModels/Create
+        [HttpGet("dodaj")]
         public IActionResult Create()
         {
             ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id");
@@ -69,7 +70,7 @@ namespace DormHub.Controllers
             return View(residentModel);
         }
 
-        // GET: ResidentModels/Edit/5
+        [HttpGet("edytuj/{id}")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -122,7 +123,7 @@ namespace DormHub.Controllers
             return View(residentModel);
         }
 
-        // GET: ResidentModels/Delete/5
+        [HttpGet("usun/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

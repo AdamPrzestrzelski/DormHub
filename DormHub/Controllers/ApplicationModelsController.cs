@@ -10,6 +10,7 @@ using DormHub.Models;
 
 namespace DormHub.Controllers
 {
+    [Route("wnioski")]
     public class ApplicationModelsController : Controller
     {
         private readonly DormDbContext _context;
@@ -19,14 +20,14 @@ namespace DormHub.Controllers
             _context = context;
         }
 
-        // GET: ApplicationModels
+        [Route("")]
         public async Task<IActionResult> Index()
         {
             var dormDbContext = _context.Applications.Include(a => a.Applicant).Include(a => a.PreferredBuilding).Include(a => a.PreferredRoomType);
             return View(await dormDbContext.ToListAsync());
         }
 
-        // GET: ApplicationModels/Details/5
+        [HttpGet("szczegoly/{id}")]
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -47,7 +48,7 @@ namespace DormHub.Controllers
             return View(applicationModel);
         }
 
-        // GET: ApplicationModels/Create
+        [HttpGet("dodaj")]
         public IActionResult Create()
         {
             ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator");
@@ -75,7 +76,7 @@ namespace DormHub.Controllers
             return View(applicationModel);
         }
 
-        // GET: ApplicationModels/Edit/5
+        [HttpGet("edytuj/{id}")]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -132,7 +133,7 @@ namespace DormHub.Controllers
             return View(applicationModel);
         }
 
-        // GET: ApplicationModels/Delete/5
+        [HttpGet("usun/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)

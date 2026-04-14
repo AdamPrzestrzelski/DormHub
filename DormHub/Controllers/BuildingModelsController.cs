@@ -117,7 +117,7 @@ namespace DormHub.Controllers
             return View(buildingModel);
         }
 
-        // GET: BuildingModels/Delete/5
+        [HttpGet("usun/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
