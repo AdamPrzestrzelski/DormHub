@@ -50,7 +50,7 @@ namespace DormHub.Controllers
         [HttpGet("dodaj")]
         public IActionResult Create()
         {
-            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Address");
+            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Name");
             ViewData["TypeId"] = new SelectList(_context.RoomTypes, "Id", "Name");
             return View();
         }
@@ -58,7 +58,7 @@ namespace DormHub.Controllers
         // POST: RoomModels/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,RoomNumber,BuildingId,TypeId")] RoomModel roomModel)
         {
@@ -68,7 +68,7 @@ namespace DormHub.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Address", roomModel.BuildingId);
+            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Name", roomModel.BuildingId);
             ViewData["TypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", roomModel.TypeId);
             return View(roomModel);
         }
@@ -86,7 +86,7 @@ namespace DormHub.Controllers
             {
                 return NotFound();
             }
-            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Address", roomModel.BuildingId);
+            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Name", roomModel.BuildingId);
             ViewData["TypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", roomModel.TypeId);
             return View(roomModel);
         }
@@ -94,7 +94,7 @@ namespace DormHub.Controllers
         // POST: RoomModels/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,RoomNumber,BuildingId,TypeId")] RoomModel roomModel)
         {
@@ -123,7 +123,7 @@ namespace DormHub.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Address", roomModel.BuildingId);
+            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Name", roomModel.BuildingId);
             ViewData["TypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", roomModel.TypeId);
             return View(roomModel);
         }
@@ -149,7 +149,7 @@ namespace DormHub.Controllers
         }
 
         // POST: RoomModels/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost("usun/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {

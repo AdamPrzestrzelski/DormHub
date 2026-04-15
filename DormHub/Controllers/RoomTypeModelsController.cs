@@ -53,7 +53,7 @@ namespace DormHub.Controllers
         // POST: RoomTypeModels/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Capacity")] RoomTypeModel roomTypeModel)
         {
@@ -85,7 +85,7 @@ namespace DormHub.Controllers
         // POST: RoomTypeModels/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Capacity")] RoomTypeModel roomTypeModel)
         {
@@ -136,7 +136,7 @@ namespace DormHub.Controllers
         }
 
         // POST: RoomTypeModels/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost("usun/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {

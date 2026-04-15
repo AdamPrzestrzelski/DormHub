@@ -52,7 +52,7 @@ namespace DormHub.Controllers
         public IActionResult Create()
         {
             ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator");
-            ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Address");
+            ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name");
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name");
             return View();
         }
@@ -60,7 +60,7 @@ namespace DormHub.Controllers
         // POST: ApplicationModels/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId")] ApplicationModel applicationModel)
         {
@@ -71,7 +71,7 @@ namespace DormHub.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator", applicationModel.ApplicantId);
-            ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Address", applicationModel.PreferredBuildingId);
+            ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name", applicationModel.PreferredBuildingId);
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", applicationModel.PreferredRoomTypeId);
             return View(applicationModel);
         }
@@ -90,7 +90,7 @@ namespace DormHub.Controllers
                 return NotFound();
             }
             ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator", applicationModel.ApplicantId);
-            ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Address", applicationModel.PreferredBuildingId);
+            ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name", applicationModel.PreferredBuildingId);
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", applicationModel.PreferredRoomTypeId);
             return View(applicationModel);
         }
@@ -98,7 +98,7 @@ namespace DormHub.Controllers
         // POST: ApplicationModels/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId")] ApplicationModel applicationModel)
         {
@@ -128,7 +128,7 @@ namespace DormHub.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator", applicationModel.ApplicantId);
-            ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Address", applicationModel.PreferredBuildingId);
+            ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name", applicationModel.PreferredBuildingId);
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", applicationModel.PreferredRoomTypeId);
             return View(applicationModel);
         }
@@ -155,7 +155,7 @@ namespace DormHub.Controllers
         }
 
         // POST: ApplicationModels/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost("usun/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {

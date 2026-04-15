@@ -58,7 +58,7 @@ namespace DormHub.Controllers
         // POST: FaultModels/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,RoomId,ReportedById,Description,ReportedAt,IsResolved,ResolvedAt")] FaultModel faultModel)
         {
@@ -94,7 +94,7 @@ namespace DormHub.Controllers
         // POST: FaultModels/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,RoomId,ReportedById,Description,ReportedAt,IsResolved,ResolvedAt")] FaultModel faultModel)
         {
@@ -149,7 +149,7 @@ namespace DormHub.Controllers
         }
 
         // POST: FaultModels/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost("usun/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
