@@ -25,5 +25,15 @@ namespace DormHub.Models
         [Required(ErrorMessage = "Numer telefonu jest wymagany")]
         [Phone(ErrorMessage = "Błędny numer telefonu")]
         public string PhoneNumber { get; set; }
+
+        // --- dodatkowe atrybuty dla autoryzacji / uwierzytelniania ---
+        // Hash hasła (format: base64(salt) + ":" + base64(hash))
+        public string PasswordHash { get; set; }
+
+        // Prosta rola (np. "Admin", "User"). Można rozszerzyć do kolekcji ról/claimów.
+        public string Role { get; set; }
+
+        // Dodatkowe pole bool pokazujące aktywność konta
+        public bool IsActive { get; set; } = true;
     }
 }
