@@ -1,11 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 using DormHub.Data;
 using DormHub.Models;
-using DormHub.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using DormHub.Services;
 
 namespace DormHub.Controllers
 {
@@ -15,7 +19,52 @@ namespace DormHub.Controllers
 
         public AccountController(DormDbContext db)
         {
-            _db = db;
+            _db = db ?? throw new ArgumentNullException(nameof(db));
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            var vm = new RegisterViewModel
+            {
+                DateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-18))
+            };
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            //var existing = await _db.Persons
+            //    .AsNoTracking()
+            //    .FirstOrDefaultAsync(p => p.Email.ToLower() == model.Email.Trim().ToLower());
+
+            //if (existing != null)
+            //{
+            //    ModelState.AddModelError(nameof(model.Email), "Konto z tym adresem email ju¿ istnieje");
+            //    return View(model);
+            //}
+
+            var person = new PersonModel
+            {
+                FirstName = model.FirstName.Trim(),
+                LastName = model.LastName.Trim(),
+                DateOfBirth = model.DateOfBirth,
+                Email = model.Email.Trim(),
+                PhoneNumber = model.PhoneNumber?.Trim(),
+                PasswordHash = CreatePasswordHash(model.Password),
+                Role = "User",
+                IsActive = true
+            };
+
+            _db.Persons.Add(person);
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("Login", "Account");
         }
 
         [HttpGet]
@@ -45,7 +94,6 @@ namespace DormHub.Controllers
                 return View(model);
             }
 
-            // Build claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -58,7 +106,6 @@ namespace DormHub.Controllers
                 claims.Add(new Claim(ClaimTypes.Role, user.Role));
             }
 
-            // Example additional claim
             claims.Add(new Claim("PhoneNumber", user.PhoneNumber ?? string.Empty));
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -67,7 +114,8 @@ namespace DormHub.Controllers
                 IsPersistent = model.RememberMe
             };
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
@@ -88,11 +136,10 @@ namespace DormHub.Controllers
         [HttpGet]
         public IActionResult AccessDenied()
         {
-            return View(); // optional view to show access denied message
+            return View();
         }
 
-        // Optional: endpoint to create a test user (useful in development only)
-        // NOTE: Remove or protect in production.
+        // Optional: endpoint to create a test user (development only)
         [HttpPost]
         public async Task<IActionResult> CreateTestUser(string email, string password, string role = "User")
         {
@@ -117,6 +164,22 @@ namespace DormHub.Controllers
             await _db.SaveChangesAsync();
 
             return Ok();
+        }
+
+        private static string CreatePasswordHash(string password)
+        {
+            const int saltSize = 16;
+            const int iterations = 100_000;
+            const int hashSize = 32;
+
+            using var rng = RandomNumberGenerator.Create();
+            var salt = new byte[saltSize];
+            rng.GetBytes(salt);
+
+            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
+            var hash = pbkdf2.GetBytes(hashSize);
+
+            return Convert.ToBase64String(salt) + ":" + Convert.ToBase64String(hash);
         }
     }
 }
