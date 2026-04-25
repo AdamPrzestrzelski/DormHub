@@ -26,14 +26,26 @@ namespace DormHub.Models
         [Phone(ErrorMessage = "Błędny numer telefonu")]
         public string PhoneNumber { get; set; }
 
+        public string Discriminator { get; set; } // Pole do rozróżniania typów osób (np. Student, Employee)
+
+
         // --- dodatkowe atrybuty dla autoryzacji / uwierzytelniania ---
         // Hash hasła (format: base64(salt) + ":" + base64(hash))
+        [Required(ErrorMessage = "Hasło jest wymagane")]
         public string PasswordHash { get; set; }
 
+
         // Prosta rola (np. "Admin", "User"). Można rozszerzyć do kolekcji ról/claimów.
+        [Required(ErrorMessage = "Rola jest wymagana")]
         public string Role { get; set; }
 
         // Dodatkowe pole bool pokazujące aktywność konta
         public bool IsActive { get; set; } = true;
+        
+       
+        [DataType(DataType.Date)]
+        public string MoveinDate { get; set; } // Data wprowadzenia się, jeśli osoba jest studentem
+        [DataType(DataType.Date)]
+        public string MoveoutDate { get; set; } // Data wyprowadzki, jeśli osoba jest studentem
     }
 }
