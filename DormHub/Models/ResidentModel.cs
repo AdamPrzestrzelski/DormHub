@@ -6,7 +6,7 @@ namespace DormHub.Models
     public class ResidentModel : PersonModel
     {
         [Required]
-        public int RoomId { get; set; }
+        public int? RoomId { get; set; }
         [ForeignKey("RoomId")]
         public RoomModel? Room { get; set; }
 
