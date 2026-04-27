@@ -40,9 +40,9 @@ namespace DormHub.Models
         
        
         [DataType(DataType.Date)]
-        public string ?MoveinDate { get; set; } 
+        public DateTime? MoveinDate { get; set; } 
 
         [DataType(DataType.Date)]
-        public string ?MoveoutDate { get; set; } 
+        public DateTime? MoveoutDate { get; set; } 
     }
 }
