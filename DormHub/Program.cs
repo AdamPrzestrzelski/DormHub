@@ -7,8 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-
 builder.Services.AddDbContext<DormDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // AUTH
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -23,22 +23,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
-    .AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
-
-else
-app.UseStaticFiles();
-
-    app.UseDeveloperExceptionPage();
-}
-else
-{
-    // optional: show detailed errors in dev
-    app.UseDeveloperExceptionPage();
-}
+var app = builder.Build();
 
 app.UseHttpsRedirection();
-app.MapRazorPages();
-
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -46,9 +33,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
-// Map Razor Pages and MVC routes
 app.MapRazorPages();
 
 app.MapControllerRoute(
