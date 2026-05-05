@@ -14,12 +14,12 @@ namespace DormHub.Models
         [Required]
         public int BuildingId { get; set; }
         [ForeignKey("BuildingId")]
-        public BuildingModel Building { get; set; }
+        public BuildingModel? Building { get; set; }
 
         [Required]
         public int TypeId { get; set; }
         [ForeignKey("TypeId")]
-        public RoomTypeModel RoomType { get; set; }
+        public RoomTypeModel? RoomType { get; set; }
 
         public List<ResidentModel>? Residents { get; set; }
     }

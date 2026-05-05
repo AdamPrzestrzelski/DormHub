@@ -11,12 +11,12 @@ namespace DormHub.Models
         [Required]
         public int ApplicantId { get; set; }
         [ForeignKey("ApplicantId")]
-        public PersonModel Applicant { get; set; }
+        public PersonModel? Applicant { get; set; }
 
         [Required]
         public int PreferredRoomTypeId { get; set; }
         [ForeignKey("PreferredRoomTypeId")]
-        public RoomTypeModel PreferredRoomType { get; set; }
+        public RoomTypeModel? PreferredRoomType { get; set; }
 
         public int? PreferredBuildingId { get; set; }
         [ForeignKey("PreferredBuildingId")]

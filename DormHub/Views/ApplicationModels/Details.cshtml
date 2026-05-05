@@ -1,0 +1,36 @@
+﻿@model DormHub.Models.ApplicationModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>ApplicationModel</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Applicant)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Applicant.FirstName) @Html.DisplayFor(model => model.Applicant.LastName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PreferredRoomType)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PreferredRoomType.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PreferredBuilding)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PreferredBuilding.Address)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

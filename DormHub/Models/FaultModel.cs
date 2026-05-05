@@ -11,12 +11,12 @@ namespace DormHub.Models
         [Required]
         public int RoomId { get; set; }
         [ForeignKey("RoomId")]
-        public RoomModel Room { get; set; }
+        public RoomModel? Room { get; set; }
 
         [Required]
         public int ReportedById { get; set; }
         [ForeignKey("ReportedById")]
-        public ResidentModel ReportedBy { get; set; }
+        public ResidentModel? ReportedBy { get; set; }
 
         [Required(ErrorMessage = "Opis wymagany")]
         public string Description { get; set; }

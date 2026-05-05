@@ -25,5 +25,24 @@ namespace DormHub.Models
         [Required(ErrorMessage = "Numer telefonu jest wymagany")]
         [Phone(ErrorMessage = "Błędny numer telefonu")]
         public string PhoneNumber { get; set; }
+
+        public string Discriminator { get; set; } 
+
+
+        [Required(ErrorMessage = "Hasło jest wymagane")]
+        public string PasswordHash { get; set; }
+
+
+        [Required(ErrorMessage = "Rola jest wymagana")]
+        public string Role { get; set; }
+
+        public bool IsActive { get; set; } = true;
+        
+       
+        [DataType(DataType.Date)]
+        public DateTime? MoveinDate { get; set; } 
+
+        [DataType(DataType.Date)]
+        public DateTime? MoveoutDate { get; set; } 
     }
 }
