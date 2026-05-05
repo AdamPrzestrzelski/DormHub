@@ -39,15 +39,15 @@ namespace DormHub.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            //var existing = await _db.Persons
-            //    .AsNoTracking()
-            //    .FirstOrDefaultAsync(p => p.Email.ToLower() == model.Email.Trim().ToLower());
+            var existing = await _db.Persons
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Email.ToLower() == model.Email.Trim().ToLower());
 
-            //if (existing != null)
-            //{
-            //    ModelState.AddModelError(nameof(model.Email), "Konto z tym adresem email ju¿ istnieje");
-            //    return View(model);
-            //}
+            if (existing != null)
+            {
+                ModelState.AddModelError(nameof(model.Email), "Konto z tym adresem email ju¿ istnieje");
+                return View(model);
+            }
 
             var person = new PersonModel
             {
