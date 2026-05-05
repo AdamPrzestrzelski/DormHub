@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Panel Admina";
+}
+
+<h2>Panel Administracyjny</h2>
+
+<div style="display:flex; flex-direction:column; gap:10px; max-width:300px;">
+
+    <a class="btn btn-primary" asp-controller="Admin" asp-action="RodzajPokoju">Rodzaje pokoi</a>
+    <a class="btn btn-primary" asp-controller="Admin" asp-action="Pokoje">Pokoje</a>
+    <a class="btn btn-primary" asp-controller="Admin" asp-action="Budynki">Budynki</a>
+    <a class="btn btn-primary" asp-controller="Admin" asp-action="Usterki">Usterki</a>
+    <a class="btn btn-primary" asp-controller="Admin" asp-action="Osoby">Osoby</a>
+    <a class="btn btn-primary" asp-controller="Admin" asp-action="Mieszkancy">Mieszkańcy</a>
+    <a class="btn btn-primary" asp-controller="Admin" asp-action="Wnioski">Wnioski</a>
+
+</div>

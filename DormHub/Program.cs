@@ -4,15 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
-
 builder.Services.AddRazorPages();
 
-builder.Services.AddDbContext<DormDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Authentication (Cookie) and Authorization
+builder.Services.AddDbContext<DormDbContext>(options =>
+
+// AUTH
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -23,16 +21,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 
-builder.Services.AddAuthorizationBuilder()
+builder.Services.AddAuthorization();
+
     .AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
 
-var app = builder.Build();
+else
+app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseDeveloperExceptionPage();
 }
 else
 {
@@ -41,8 +37,8 @@ else
 }
 
 app.UseHttpsRedirection();
+app.MapRazorPages();
 
-// ensure static files are served (needed for layout assets)
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -57,7 +53,6 @@ app.MapRazorPages();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
