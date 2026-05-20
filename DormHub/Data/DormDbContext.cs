@@ -1,4 +1,4 @@
-﻿using DormHub.Models;
+using DormHub.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DormHub.Data
@@ -15,6 +15,8 @@ namespace DormHub.Data
         public DbSet<FaultModel> Faults { get; set; }
         public DbSet<PersonModel> Persons { get; set; }
         public DbSet<ResidentModel> Residents { get; set; }
+        public DbSet<PaymentModel> Payments { get; set; }
+        public DbSet<AnnouncementModel> Announcements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,6 +33,30 @@ namespace DormHub.Data
                 .WithMany()
                 .HasForeignKey(f => f.ReportedById)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FaultModel>()
+                .HasOne(f => f.ResolvedBy)
+                .WithMany()
+                .HasForeignKey(f => f.ResolvedById)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<PaymentModel>()
+                .HasOne(p => p.Resident)
+                .WithMany()
+                .HasForeignKey(p => p.ResidentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AnnouncementModel>()
+                .HasOne(a => a.Author)
+                .WithMany()
+                .HasForeignKey(a => a.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AnnouncementModel>()
+                .HasOne(a => a.Building)
+                .WithMany()
+                .HasForeignKey(a => a.BuildingId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

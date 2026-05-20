@@ -1,71 +1,232 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pl" id="html-root">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DormHub</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] – DormHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DormHub.styles.css" asp-append-version="true" />
 </head>
+<body class="dh-layout">
 
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">DormHub</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+@{
+    var currentPath = Context.Request.Path.Value ?? "";
+    bool isAdmin = User.IsInRole("Admin");
+    var userName = User.Identity?.Name ?? "";
+}
 
-                    <ul class="navbar-nav">
-                        @if (User?.Identity?.IsAuthenticated ?? false)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark">Witaj, @User.Identity.Name</a>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link">Wyloguj</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Zaloguj</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+<!-- ── SIDEBAR ── -->
+<aside class="dh-sidebar">
+
+    <!-- Logo -->
+    <div class="dh-sidebar-logo">
+        <div class="dh-logo-icon">
+            <i class="fa-solid fa-building"></i>
+        </div>
+        <span class="dh-logo-text">Dorm<span>Hub</span></span>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - DormHub - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Nawigacja -->
+    <nav class="dh-sidebar-nav">
+
+        <!-- Overview -->
+        <div class="dh-nav-section">
+            <p class="dh-nav-section-label" data-pl="Przegląd" data-en="Overview">Przegląd</p>
+            <ul>
+                <li>
+                    <a href="/" class="dh-nav-link @(currentPath == "/" ? "active" : "")">
+                        <i class="fa-solid fa-border-all"></i>
+                        <span data-pl="Dashboard" data-en="Dashboard">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/platnosci" class="dh-nav-link @(currentPath.StartsWith("/platnosci") ? "active" : "")">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span data-pl="Płatności" data-en="Payments">Płatności</span>
+                    </a>
+                </li>
+            </ul>
         </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
+        <!-- Community -->
+        <div class="dh-nav-section">
+            <p class="dh-nav-section-label" data-pl="Społeczność" data-en="Community">Społeczność</p>
+            <ul>
+                <li>
+                    <a href="/ogloszenia" class="dh-nav-link @(currentPath.StartsWith("/ogloszenia") ? "active" : "")">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <span data-pl="Ogłoszenia" data-en="Announcements">Ogłoszenia</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Serwis -->
+        <div class="dh-nav-section">
+            <p class="dh-nav-section-label" data-pl="Serwis" data-en="Services">Serwis</p>
+            <ul>
+                <li>
+                    <a href="/usterki" class="dh-nav-link @(currentPath.StartsWith("/usterki") ? "active" : "")">
+                        <i class="fa-solid fa-wrench"></i>
+                        <span data-pl="Usterki" data-en="Maintenance">Usterki</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/wnioski" class="dh-nav-link @(currentPath.StartsWith("/wnioski") ? "active" : "")">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span data-pl="Wnioski" data-en="Applications">Wnioski</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        @if (isAdmin)
+        {
+            <!-- Administracja -->
+            <div class="dh-nav-section">
+                <p class="dh-nav-section-label" data-pl="Administracja" data-en="Administration">Administracja</p>
+                <ul>
+                    <li>
+                        <a href="/mieszkancy" class="dh-nav-link @(currentPath.StartsWith("/mieszkancy") ? "active" : "")">
+                            <i class="fa-solid fa-users"></i>
+                            <span data-pl="Mieszkańcy" data-en="Residents">Mieszkańcy</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/pokoje" class="dh-nav-link @(currentPath.StartsWith("/pokoje") ? "active" : "")">
+                            <i class="fa-solid fa-door-open"></i>
+                            <span data-pl="Pokoje" data-en="Rooms">Pokoje</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/budynki" class="dh-nav-link @(currentPath.StartsWith("/budynki") ? "active" : "")">
+                            <i class="fa-solid fa-building"></i>
+                            <span data-pl="Budynki" data-en="Buildings">Budynki</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/osoby" class="dh-nav-link @(currentPath.StartsWith("/osoby") ? "active" : "")">
+                            <i class="fa-solid fa-user-gear"></i>
+                            <span data-pl="Osoby" data-en="Persons">Osoby</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/rodzaj_pokoju" class="dh-nav-link @(currentPath.StartsWith("/rodzaj_pokoju") ? "active" : "")">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span data-pl="Typy pokojów" data-en="Room Types">Typy pokojów</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        }
+
+    </nav>
+
+    <!-- Profil użytkownika -->
+    <div class="dh-sidebar-user">
+        @if (User.Identity?.IsAuthenticated ?? false)
+        {
+            <a href="#">
+                <div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fa-solid fa-user" style="color:var(--muted);font-size:.9rem;"></i>
+                </div>
+                <div style="overflow:hidden;">
+                    <div class="dh-user-name">@userName</div>
+                    <div class="dh-user-sub" data-pl="@(isAdmin ? "Administrator" : "Mieszkaniec")" data-en="@(isAdmin ? "Administrator" : "Resident")">@(isAdmin ? "Administrator" : "Mieszkaniec")</div>
+                </div>
+                <i class="fa-solid fa-gear"></i>
+            </a>
+        }
+    </div>
+
+</aside>
+
+<!-- ── GŁÓWNA KOLUMNA ── -->
+<div class="dh-main">
+
+    <!-- Header -->
+    <header class="dh-header">
+        <div class="dh-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Szukaj..." id="dh-search-input"
+                   data-pl-placeholder="Szukaj..." data-en-placeholder="Search...">
+        </div>
+
+        <div class="dh-header-actions">
+            <!-- Przełącznik języka -->
+            <button class="dh-lang-btn active" id="lang-pl" onclick="setLang('pl')">PL</button>
+            <button class="dh-lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+
+            <div class="dh-divider-v"></div>
+
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0">
+                    <button type="submit" class="dh-btn dh-btn-ghost dh-btn-sm">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span data-pl="Wyloguj" data-en="Logout">Wyloguj</span>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a href="/Account/Login" class="dh-btn dh-btn-primary dh-btn-sm">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span data-pl="Zaloguj" data-en="Login">Zaloguj</span>
+                </a>
+            }
+        </div>
+    </header>
+
+    <!-- Treść -->
+    <main class="dh-content">
+        <div class="dh-content-inner">
+            @RenderBody()
+        </div>
+    </main>
+
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<script>
+/* ── Przełącznik języka ── */
+(function () {
+    var saved = localStorage.getItem('dh-lang') || 'pl';
+    applyLang(saved);
+})();
+
+function setLang(lang) {
+    localStorage.setItem('dh-lang', lang);
+    applyLang(lang);
+}
+
+function applyLang(lang) {
+    // przyciski
+    document.getElementById('lang-pl').classList.toggle('active', lang === 'pl');
+    document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+
+    // elementy z data-pl / data-en (tekst)
+    document.querySelectorAll('[data-pl][data-en]').forEach(function(el) {
+        el.textContent = el.getAttribute('data-' + lang);
+    });
+
+    // input placeholder
+    var inp = document.getElementById('dh-search-input');
+    if (inp) inp.placeholder = inp.getAttribute('data-' + lang + '-placeholder');
+
+    // html lang
+    document.getElementById('html-root').lang = lang;
+}
+</script>
+
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

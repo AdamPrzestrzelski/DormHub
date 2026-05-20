@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using DormHub.Models;
 
 namespace DormHub.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("mieszkancy")]
     public class ResidentModelsController : Controller
     {
@@ -49,7 +51,7 @@ namespace DormHub.Controllers
         [HttpGet("dodaj")]
         public IActionResult Create()
         {
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id");
+            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "RoomNumber");
             return View();
         }
 
@@ -58,15 +60,19 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RoomId,MoveInDate,MoveOutDate,Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber")] ResidentModel residentModel)
+        public async Task<IActionResult> Create([Bind("RoomId,MoveInDate,MoveOutDate,Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber,PasswordHash")] ResidentModel residentModel)
         {
+            residentModel.Role = "Resident";
+            ModelState.Remove("Role");
+            ModelState.Remove("Discriminator");
             if (ModelState.IsValid)
             {
-                _context.Add(residentModel);
+                residentModel.PasswordHash = DormHub.Services.PasswordHasher.Hash(residentModel.PasswordHash);
+                _context.Residents.Add(residentModel);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id", residentModel.RoomId);
+            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "RoomNumber", residentModel.RoomId);
             return View(residentModel);
         }
 
@@ -92,17 +98,29 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RoomId,MoveInDate,MoveOutDate,Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber")] ResidentModel residentModel)
+        public async Task<IActionResult> Edit(int id, [Bind("RoomId,MoveInDate,MoveOutDate,Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber")] ResidentModel residentModel, string? newPassword)
         {
             if (id != residentModel.Id)
             {
                 return NotFound();
             }
 
+            ModelState.Remove("PasswordHash");
+            ModelState.Remove("Role");
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var existingPerson = await _context.Residents.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+                    if (existingPerson == null) return NotFound();
+
+                    if (!string.IsNullOrEmpty(newPassword))
+                        residentModel.PasswordHash = DormHub.Services.PasswordHasher.Hash(newPassword);
+                    else
+                        residentModel.PasswordHash = existingPerson.PasswordHash;
+
+                    residentModel.Role = existingPerson.Role;
+
                     _context.Update(residentModel);
                     await _context.SaveChangesAsync();
                 }

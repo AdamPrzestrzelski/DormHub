@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Authorize(Roles = "Admin")]
@@ -13,29 +13,37 @@ public class AdminController : Controller
 
     [HttpGet("RodzajPokoju")]
     public IActionResult RodzajPokoju()
-        => Redirect("https://localhost:7289/rodzaj_pokoju");
+        => Redirect("/rodzaj_pokoju");
 
     [HttpGet("Pokoje")]
     public IActionResult Pokoje()
-        => Redirect("https://localhost:7289/pokoje");
+        => Redirect("/pokoje");
 
     [HttpGet("Budynki")]
     public IActionResult Budynki()
-        => Redirect("https://localhost:7289/budynki");
+        => Redirect("/budynki");
 
     [HttpGet("Usterki")]
     public IActionResult Usterki()
-        => Redirect("https://localhost:7289/usterki");
+        => Redirect("/usterki");
 
     [HttpGet("Osoby")]
     public IActionResult Osoby()
-        => Redirect("https://localhost:7289/osoby");
+        => Redirect("/osoby");
 
     [HttpGet("Mieszkancy")]
     public IActionResult Mieszkancy()
-        => Redirect("https://localhost:7289/mieszkancy");
+        => Redirect("/mieszkancy");
 
     [HttpGet("Wnioski")]
     public IActionResult Wnioski()
-        => Redirect("https://localhost:7289/wnioski");
+        => Redirect("/wnioski");
+
+    [HttpGet("Platnosci")]
+    public IActionResult Platnosci()
+        => Redirect("/platnosci");
+
+    [HttpGet("Ogloszenia")]
+    public IActionResult Ogloszenia()
+        => Redirect("/ogloszenia");
 }

@@ -1,47 +1,67 @@
-﻿@model IEnumerable<DormHub.Models.ApplicationModel>
+@model IEnumerable<DormHub.Models.ApplicationModel>
+@{ ViewData["Title"] = "Wnioski"; }
 
-@{
-    ViewData["Title"] = "Index";
-}
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-clipboard-list" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Wnioski" data-en="Applications">Wnioski</span></div>
+    <a asp-action="Create" class="dh-btn dh-btn-primary">
+        <i class="fa-solid fa-plus"></i>
+        <span data-pl="Nowy wniosek" data-en="New application">Nowy wniosek</span>
+    </a>
+</div>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Applicant)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PreferredRoomType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PreferredBuilding)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @(item.Applicant == null ? "" : item.Applicant.FirstName + " " + item.Applicant.LastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PreferredRoomType.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PreferredBuilding.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="dh-card dh-fade dh-fade-1">
+    <div style="overflow-x:auto;">
+        <table class="dh-table">
+            <thead>
+                <tr>
+                    <th data-pl="Wnioskodawca" data-en="Applicant">Wnioskodawca</th>
+                    <th data-pl="Typ pokoju" data-en="Room type">Typ pokoju</th>
+                    <th data-pl="Budynek" data-en="Building">Budynek</th>
+                    <th data-pl="Data złożenia" data-en="Submitted">Data złożenia</th>
+                    <th data-pl="Status" data-en="Status">Status</th>
+                    <th data-pl="Notatki" data-en="Notes">Notatki</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="td-bold">@(item.Applicant == null ? "–" : item.Applicant.FirstName + " " + item.Applicant.LastName)</td>
+                        <td class="td-muted">@(item.PreferredRoomType?.Name ?? "–")</td>
+                        <td class="td-muted">@(item.PreferredBuilding?.Name ?? "–")</td>
+                        <td class="td-muted">@item.SubmittedAt.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            @{
+                                var (sc, sp, se) = item.Status switch {
+                                    DormHub.Models.ApplicationStatus.Accepted => ("dh-badge-green",  "Zaakceptowany", "Accepted"),
+                                    DormHub.Models.ApplicationStatus.Rejected => ("dh-badge-red",    "Odrzucony",     "Rejected"),
+                                    _                                          => ("dh-badge-yellow", "Oczekujący",    "Pending")
+                                };
+                            }
+                            <span class="dh-badge @sc" data-pl="@sp" data-en="@se">@sp</span>
+                        </td>
+                        <td class="td-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@(item.AdminNotes ?? "–")</td>
+                        <td>
+                            <div class="dh-table-actions">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
+                                @if (item.Status == DormHub.Models.ApplicationStatus.Pending)
+                                {
+                                    <form asp-action="Accept" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dh-btn dh-btn-success dh-btn-sm"><i class="fa-solid fa-check"></i></button>
+                                    </form>
+                                    <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dh-btn dh-btn-danger dh-btn-sm"><i class="fa-solid fa-xmark"></i></button>
+                                    </form>
+                                }
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="dh-btn dh-btn-danger dh-btn-sm"><i class="fa-solid fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

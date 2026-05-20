@@ -1,8 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DormHub.Models
 {
+    public enum ApplicationStatus
+    {
+        Pending,   // Oczekujący
+        Accepted,  // Zaakceptowany
+        Rejected   // Odrzucony
+    }
+
     public class ApplicationModel
     {
         [Key]
@@ -21,5 +28,13 @@ namespace DormHub.Models
         public int? PreferredBuildingId { get; set; }
         [ForeignKey("PreferredBuildingId")]
         public BuildingModel? PreferredBuilding { get; set; }
+
+        public ApplicationStatus Status { get; set; } = ApplicationStatus.Pending;
+
+        [DataType(DataType.DateTime)]
+        public DateTime SubmittedAt { get; set; } = DateTime.Now;
+
+        [MaxLength(500)]
+        public string? AdminNotes { get; set; }
     }
 }

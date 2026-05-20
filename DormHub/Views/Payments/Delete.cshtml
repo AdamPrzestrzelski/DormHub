@@ -1,0 +1,26 @@
+@model DormHub.Models.PaymentModel
+
+@{
+    ViewData["Title"] = "Usuń płatność";
+}
+
+<h1>🗑️ Usuń płatność</h1>
+<hr />
+<div class="alert alert-danger">Czy na pewno chcesz usunąć tę płatność?</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Mieszkaniec</dt>
+    <dd class="col-sm-9">@Model.Resident?.FirstName @Model.Resident?.LastName</dd>
+    <dt class="col-sm-3">Opis</dt>
+    <dd class="col-sm-9">@(Model.Description ?? "–")</dd>
+    <dt class="col-sm-3">Kwota</dt>
+    <dd class="col-sm-9">@Model.Amount.ToString("C")</dd>
+    <dt class="col-sm-3">Termin</dt>
+    <dd class="col-sm-9">@Model.DueDate.ToString("dd.MM.yyyy")</dd>
+</dl>
+
+<form asp-action="Delete">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger">Tak, usuń</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Anuluj</a>
+</form>

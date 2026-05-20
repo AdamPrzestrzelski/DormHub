@@ -1,28 +1,82 @@
-﻿@model DormHub.Models.LoginViewModel
+@model DormHub.Models.LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Logowanie";
+    Layout = null;
 }
+<!DOCTYPE html>
+<html lang="pl" id="html-root">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>Logowanie – DormHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+</head>
+<body class="dh-login-body">
 
-<h2>Logowanie</h2>
+<div class="dh-login-card">
+    <!-- Logo -->
+    <div class="dh-login-logo">
+        <div class="dh-logo-icon">
+            <i class="fa-solid fa-building"></i>
+        </div>
+        <span class="dh-logo-text">Dorm<span>Hub</span></span>
+    </div>
 
-<form asp-action="Login" method="post" class="mt-3">
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-    <div class="form-check mb-3">
-        <input asp-for="RememberMe" class="form-check-input" />
-        <label asp-for="RememberMe" class="form-check-label"></label>
-    </div>
-    <button type="submit" class="btn btn-primary">Zaloguj</button>
-</form>
+    <h2 class="dh-login-title" data-pl="Witaj ponownie" data-en="Welcome back">Witaj ponownie</h2>
+    <p class="dh-login-sub" data-pl="Zaloguj się do systemu akademika." data-en="Sign in to your dormitory account.">
+        Zaloguj się do systemu akademika.
+    </p>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <form asp-action="Login" method="post">
+        <div asp-validation-summary="All" class="dh-validation-summary" style="display:none;"></div>
+
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Adres e-mail" data-en="Email address">Adres e-mail</label>
+            <input asp-for="Email" class="dh-input" type="email" placeholder="twoj@email.com"/>
+            <div class="dh-form-error"><span asp-validation-for="Email"></span></div>
+        </div>
+
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Hasło" data-en="Password">Hasło</label>
+            <input asp-for="Password" class="dh-input" type="password" placeholder="••••••••"/>
+            <div class="dh-form-error"><span asp-validation-for="Password"></span></div>
+        </div>
+
+        <div class="dh-form-group" style="display:flex;align-items:center;justify-content:space-between;">
+            <label class="dh-check">
+                <input asp-for="RememberMe" type="checkbox"/>
+                <span style="font-size:.85rem;color:var(--muted);" data-pl="Zapamiętaj mnie" data-en="Remember me">Zapamiętaj mnie</span>
+            </label>
+        </div>
+
+        <button type="submit" class="dh-btn dh-btn-primary" style="width:100%;justify-content:center;padding:.75rem;">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span data-pl="Zaloguj się" data-en="Sign in">Zaloguj się</span>
+        </button>
+    </form>
+
+    <!-- Przełącznik języka -->
+    <div style="display:flex;justify-content:center;gap:8px;margin-top:1.5rem;">
+        <button class="dh-lang-btn active" id="lang-pl" onclick="setLang('pl')">PL</button>
+        <button class="dh-lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+(function () { var s = localStorage.getItem('dh-lang') || 'pl'; applyLang(s); })();
+function setLang(lang) { localStorage.setItem('dh-lang', lang); applyLang(lang); }
+function applyLang(lang) {
+    document.getElementById('lang-pl').classList.toggle('active', lang === 'pl');
+    document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+    document.querySelectorAll('[data-pl][data-en]').forEach(function(el) { el.textContent = el.getAttribute('data-' + lang); });
+    document.getElementById('html-root').lang = lang;
 }
+</script>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
+</body>
+</html>

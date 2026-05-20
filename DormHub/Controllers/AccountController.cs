@@ -45,8 +45,8 @@ namespace DormHub.Controllers
 
             if (existing != null)
             {
-                ModelState.AddModelError(nameof(model.Email), "Konto z tym adresem email ju¿ istnieje");
-                return View(model);
+               ModelState.AddModelError(nameof(model.Email), "Konto z tym adresem email juÅ¼ istnieje");
+               return View(model);
             }
 
             var person = new PersonModel
@@ -84,13 +84,13 @@ namespace DormHub.Controllers
             var user = await _db.Persons.FirstOrDefaultAsync(p => p.Email == model.Email);
             if (user == null || !user.IsActive)
             {
-                ModelState.AddModelError(string.Empty, "Nieprawid³owy login lub has³o.");
+                ModelState.AddModelError(string.Empty, "NieprawidÂ³owy login lub hasÂ³o.");
                 return View(model);
             }
 
             if (!PasswordHasher.Verify(model.Password, user.PasswordHash))
             {
-                ModelState.AddModelError(string.Empty, "Nieprawid³owy login lub has³o.");
+                ModelState.AddModelError(string.Empty, "NieprawidÂ³owy login lub hasÂ³o.");
                 return View(model);
             }
 

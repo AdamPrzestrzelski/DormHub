@@ -1,41 +1,55 @@
-﻿@model IEnumerable<DormHub.Models.BuildingModel>
+@model IEnumerable<DormHub.Models.BuildingModel>
+@{ ViewData["Title"] = "Budynki"; }
 
-@{
-    ViewData["Title"] = "Index";
-}
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-building" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Budynki" data-en="Buildings">Budynki</span></div>
+    <a asp-action="Create" class="dh-btn dh-btn-primary">
+        <i class="fa-solid fa-plus"></i>
+        <span data-pl="Dodaj budynek" data-en="Add building">Dodaj budynek</span>
+    </a>
+</div>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="dh-card dh-fade dh-fade-1">
+    <div style="overflow-x:auto;">
+        <table class="dh-table">
+            <thead>
+                <tr>
+                    <th data-pl="Nazwa" data-en="Name">Nazwa</th>
+                    <th data-pl="Adres" data-en="Address">Adres</th>
+                    <th data-pl="Piętra" data-en="Floors">Piętra</th>
+                    <th data-pl="Telefon" data-en="Phone">Telefon</th>
+                    <th data-pl="Status" data-en="Status">Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="td-bold">@item.Name</td>
+                        <td class="td-muted">@item.Address</td>
+                        <td class="td-muted">@item.TotalFloors</td>
+                        <td class="td-muted">@(item.PhoneNumber ?? "–")</td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="dh-badge dh-badge-green" data-pl="Aktywny" data-en="Active">Aktywny</span>
+                            }
+                            else
+                            {
+                                <span class="dh-badge dh-badge-gray" data-pl="Nieaktywny" data-en="Inactive">Nieaktywny</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="dh-table-actions">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-pen"></i></a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="dh-btn dh-btn-danger dh-btn-sm"><i class="fa-solid fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
