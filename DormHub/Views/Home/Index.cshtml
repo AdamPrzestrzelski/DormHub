@@ -264,3 +264,11 @@
     </div>
 
 </div>
+@if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <a class="btn btn-danger"
+       asp-controller="Admin"
+       asp-action="Index">
+        Panel sterowania
+    </a>
+}
