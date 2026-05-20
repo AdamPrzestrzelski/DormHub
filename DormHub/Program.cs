@@ -39,4 +39,12 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Jednorazowy fix danych: uzupelnij pusty Discriminator (legacy records)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DormHub.Data.DormDbContext>();
+    await db.Database.ExecuteSqlRawAsync(
+        "UPDATE [Persons] SET [Discriminator] = 'PersonModel' WHERE [Discriminator] IS NULL OR [Discriminator] = ''");
+}
+
 app.Run();

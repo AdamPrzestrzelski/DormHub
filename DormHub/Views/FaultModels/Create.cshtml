@@ -6,42 +6,52 @@
     <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
 </div>
 
+@if (TempData["Error"] != null)
+{
+    <div class="dh-validation-summary">@TempData["Error"]</div>
+}
+
 <div class="dh-card dh-fade dh-fade-1" style="max-width:620px;">
     <form asp-action="Create">
         <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Pokój" data-en="Room">Pokój</label>
-            <select asp-for="RoomId" class="dh-select" asp-items="ViewBag.RoomId">
-                <option value="">-- wybierz --</option>
-            </select>
-        </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Zgłaszający" data-en="Reported by">Zgłaszający</label>
-            <select asp-for="ReportedById" class="dh-select" asp-items="ViewBag.ReportedById">
-                <option value="">-- wybierz --</option>
-            </select>
-        </div>
+
+        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+        {
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Pokój" data-en="Room">Pokój</label>
+                <select asp-for="RoomId" class="dh-select" asp-items="ViewBag.RoomId">
+                    <option value="">-- wybierz --</option>
+                </select>
+            </div>
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Zgłaszający" data-en="Reported by">Zgłaszający</label>
+                <select asp-for="ReportedById" class="dh-select" asp-items="ViewBag.ReportedById">
+                    <option value="">-- wybierz --</option>
+                </select>
+            </div>
+        }
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
             <div class="dh-form-group">
                 <label class="dh-label" data-pl="Kategoria" data-en="Category">Kategoria</label>
-                <select asp-for="Category" class="dh-select" asp-items="@Html.GetEnumSelectList<DormHub.Models.FaultCategory>()"></select>
+                <select asp-for="CategoryId" class="dh-select" asp-items="ViewBag.CategoryId">
+                    <option value="">-- wybierz --</option>
+                </select>
             </div>
             <div class="dh-form-group">
                 <label class="dh-label" data-pl="Priorytet" data-en="Priority">Priorytet</label>
-                <select asp-for="Priority" class="dh-select" asp-items="@Html.GetEnumSelectList<DormHub.Models.FaultPriority>()"></select>
+                <select asp-for="PriorityId" class="dh-select" asp-items="ViewBag.PriorityId">
+                    <option value="">-- wybierz --</option>
+                </select>
             </div>
         </div>
         <div class="dh-form-group">
             <label class="dh-label" data-pl="Opis usterki" data-en="Fault description">Opis usterki</label>
-            <textarea asp-for="Description" class="dh-textarea" rows="4"></textarea>
+            <textarea asp-for="Description" class="dh-textarea" rows="4" placeholder="Opisz problem..."></textarea>
             <div class="dh-form-error"><span asp-validation-for="Description"></span></div>
         </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Data zgłoszenia" data-en="Report date">Data zgłoszenia</label>
-            <input asp-for="ReportedAt" class="dh-input" type="date"/>
-        </div>
         <div style="display:flex;gap:.75rem;margin-top:1rem;">
-            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
+            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zgłoś" data-en="Submit">Zgłoś</span></button>
             <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
         </div>
     </form>

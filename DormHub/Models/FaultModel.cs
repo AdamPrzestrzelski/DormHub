@@ -3,24 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DormHub.Models
 {
-    public enum FaultPriority
-    {
-        Low,      // Niski
-        Medium,   // Średni
-        High,     // Wysoki
-        Critical  // Krytyczny
-    }
-
-    public enum FaultCategory
-    {
-        Plumbing,    // Hydraulika
-        Electrical,  // Elektryka
-        Furniture,   // Meble
-        Windows,     // Okna/Drzwi
-        Internet,    // Internet/TV
-        Other        // Inne
-    }
-
     public class FaultModel
     {
         [Key]
@@ -37,15 +19,21 @@ namespace DormHub.Models
         public ResidentModel? ReportedBy { get; set; }
 
         [Required(ErrorMessage = "Opis wymagany")]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Data zgłoszenia wymagana")]
+        [Required(ErrorMessage = "Data zgloszenia wymagana")]
         [DataType(DataType.Date)]
         public DateTime ReportedAt { get; set; }
 
-        public FaultPriority Priority { get; set; } = FaultPriority.Medium;
+        [Required]
+        public int PriorityId { get; set; } = 2;
+        [ForeignKey("PriorityId")]
+        public FaultPriorityModel? Priority { get; set; }
 
-        public FaultCategory Category { get; set; } = FaultCategory.Other;
+        [Required]
+        public int CategoryId { get; set; } = 6;
+        [ForeignKey("CategoryId")]
+        public FaultCategoryModel? Category { get; set; }
 
         public bool IsResolved { get; set; } = false;
 

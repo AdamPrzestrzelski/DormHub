@@ -73,7 +73,7 @@ namespace DormHub.Controllers
             {
                 applicationModel.Id = Guid.NewGuid().ToString();
                 applicationModel.SubmittedAt = DateTime.Now;
-                applicationModel.Status = ApplicationStatus.Pending;
+                applicationModel.StatusId = 1;
                 _context.Add(applicationModel);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -97,6 +97,7 @@ namespace DormHub.Controllers
                 "Id", "FullName", applicationModel.ApplicantId);
             ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name", applicationModel.PreferredBuildingId);
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", applicationModel.PreferredRoomTypeId);
+            ViewData["StatusId"] = new SelectList(_context.ApplicationStatuses, "Id", "Name", applicationModel.StatusId);
             return View(applicationModel);
         }
 
@@ -105,7 +106,7 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId,Status,AdminNotes")] ApplicationModel applicationModel)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId,StatusId,AdminNotes")] ApplicationModel applicationModel)
         {
             if (id != applicationModel.Id)
             {
@@ -185,7 +186,7 @@ namespace DormHub.Controllers
         {
             var app = await _context.Applications.FindAsync(id);
             if (app == null) return NotFound();
-            app.Status = ApplicationStatus.Accepted;
+            app.StatusId = 2;
             app.AdminNotes = adminNotes;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -197,7 +198,7 @@ namespace DormHub.Controllers
         {
             var app = await _context.Applications.FindAsync(id);
             if (app == null) return NotFound();
-            app.Status = ApplicationStatus.Rejected;
+            app.StatusId = 3;
             app.AdminNotes = adminNotes;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

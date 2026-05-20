@@ -14,12 +14,11 @@
         <table class="dh-table">
             <thead>
                 <tr>
-                    <th data-pl="Nr pokoju" data-en="Room No.">Nr pokoju</th>
+                    <th data-pl="Nr pokoju" data-en="Room no.">Nr pokoju</th>
                     <th data-pl="Budynek" data-en="Building">Budynek</th>
-                    <th data-pl="Piętro" data-en="Floor">Piętro</th>
                     <th data-pl="Typ" data-en="Type">Typ</th>
+                    <th data-pl="Piętro" data-en="Floor">Piętro</th>
                     <th data-pl="Status" data-en="Status">Status</th>
-                    <th data-pl="Uwagi" data-en="Notes">Uwagi</th>
                     <th></th>
                 </tr>
             </thead>
@@ -27,22 +26,22 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="td-bold">@item.RoomNumber</td>
-                        <td class="td-muted">@item.Building?.Name</td>
+                        <td class="td-bold">#@item.RoomNumber</td>
+                        <td class="td-muted">@(item.Building?.Name ?? "–")</td>
+                        <td class="td-muted">@(item.RoomType?.Name ?? "–")</td>
                         <td class="td-muted">@item.Floor</td>
-                        <td class="td-muted">@item.RoomType?.Name</td>
                         <td>
                             @{
-                                var (sc, sp, se) = item.Status switch {
-                                    DormHub.Models.RoomStatus.Available        => ("dh-badge-green",  "Dostępny",  "Available"),
-                                    DormHub.Models.RoomStatus.Occupied         => ("dh-badge-orange", "Zajęty",    "Occupied"),
-                                    DormHub.Models.RoomStatus.UnderMaintenance => ("dh-badge-yellow", "W remoncie","Maintenance"),
-                                    _                                           => ("dh-badge-gray",   "–",         "–")
+                                var statusName = item.Status?.Name ?? "–";
+                                var badgeClass = item.Status?.Id switch {
+                                    1 => "dh-badge-green",
+                                    2 => "dh-badge-orange",
+                                    3 => "dh-badge-yellow",
+                                    _ => "dh-badge-gray"
                                 };
                             }
-                            <span class="dh-badge @sc" data-pl="@sp" data-en="@se">@sp</span>
+                            <span class="dh-badge @badgeClass">@statusName</span>
                         </td>
-                        <td class="td-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@(item.Notes ?? "–")</td>
                         <td>
                             <div class="dh-table-actions">
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-pen"></i></a>

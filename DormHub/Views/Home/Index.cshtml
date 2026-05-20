@@ -184,14 +184,14 @@
                                 <td class="td-muted">@f.ReportedAt.ToString("dd.MM.yyyy")</td>
                                 <td>
                                     @{
-                                        var (bc, bl, blE) = f.Priority switch {
-                                            DormHub.Models.FaultPriority.Critical => ("dh-badge-red",    "Krytyczny", "Critical"),
-                                            DormHub.Models.FaultPriority.High     => ("dh-badge-yellow", "Wysoki",    "High"),
-                                            DormHub.Models.FaultPriority.Medium   => ("dh-badge-orange", "Średni",    "Medium"),
-                                            _                                      => ("dh-badge-gray",   "Niski",     "Low")
+                                        var bc = f.PriorityId switch {
+                                            4 => "dh-badge-red",
+                                            3 => "dh-badge-yellow",
+                                            2 => "dh-badge-orange",
+                                            _ => "dh-badge-gray"
                                         };
                                     }
-                                    <span class="dh-badge @bc" data-pl="@bl" data-en="@blE">@bl</span>
+                                    <span class="dh-badge @bc">@(f.Priority?.Name ?? "–")</span>
                                 </td>
                             </tr>
                         }

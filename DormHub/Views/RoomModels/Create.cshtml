@@ -12,12 +12,12 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
             <div class="dh-form-group">
                 <label class="dh-label" data-pl="Numer pokoju" data-en="Room number">Numer pokoju</label>
-                <input asp-for="RoomNumber" class="dh-input"/>
+                <input asp-for="RoomNumber" class="dh-input" />
                 <div class="dh-form-error"><span asp-validation-for="RoomNumber"></span></div>
             </div>
             <div class="dh-form-group">
                 <label class="dh-label" data-pl="Piętro" data-en="Floor">Piętro</label>
-                <input asp-for="Floor" class="dh-input" type="number" min="0"/>
+                <input asp-for="Floor" class="dh-input" type="number" min="0" />
             </div>
         </div>
         <div class="dh-form-group">
@@ -34,11 +34,9 @@
         </div>
         <div class="dh-form-group">
             <label class="dh-label" data-pl="Status" data-en="Status">Status</label>
-            <select asp-for="Status" class="dh-select" asp-items="@Html.GetEnumSelectList<DormHub.Models.RoomStatus>()"></select>
-        </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Uwagi" data-en="Notes">Uwagi</label>
-            <textarea asp-for="Notes" class="dh-textarea" rows="2"></textarea>
+            <select asp-for="StatusId" class="dh-select" asp-items="ViewBag.StatusId">
+                <option value="">-- wybierz --</option>
+            </select>
         </div>
         <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>

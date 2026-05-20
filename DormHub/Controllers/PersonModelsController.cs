@@ -59,8 +59,6 @@ namespace DormHub.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber,PasswordHash,Role")] PersonModel personModel)
         {
-            // EF manages Discriminator automatically – ignore it in validation
-            ModelState.Remove("Discriminator");
             if (ModelState.IsValid)
             {
                 personModel.PasswordHash = DormHub.Services.PasswordHasher.Hash(personModel.PasswordHash);
@@ -111,8 +109,6 @@ namespace DormHub.Controllers
                         personModel.PasswordHash = DormHub.Services.PasswordHasher.Hash(newPassword);
                     else
                         personModel.PasswordHash = existingPerson.PasswordHash;
-
-                    personModel.Discriminator = existingPerson.Discriminator;
 
                     _context.Update(personModel);
                     await _context.SaveChangesAsync();

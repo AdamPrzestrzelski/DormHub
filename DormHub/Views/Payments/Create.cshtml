@@ -1,41 +1,37 @@
 @model DormHub.Models.PaymentModel
-@{ ViewData["Title"] = "Dodaj płatność"; }
+@{ ViewData["Title"] = "Zgłoś płatność"; }
 
 <div class="dh-page-header dh-fade">
-    <div class="dh-page-title"><i class="fa-solid fa-wallet" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Dodaj płatność" data-en="Add payment">Dodaj płatność</span></div>
+    <div class="dh-page-title"><i class="fa-solid fa-wallet" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Zgłoś płatność" data-en="Submit payment">Zgłoś płatność</span></div>
     <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
 </div>
 
-<div class="dh-card dh-fade dh-fade-1" style="max-width:540px;">
+<div class="dh-card dh-fade dh-fade-1" style="max-width:480px;">
     <form asp-action="Create">
         <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
+
+        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+        {
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Mieszkaniec" data-en="Resident">Mieszkaniec</label>
+                <select asp-for="ResidentId" class="dh-select" asp-items="ViewBag.ResidentId">
+                    <option value="">-- wybierz --</option>
+                </select>
+            </div>
+        }
+
         <div class="dh-form-group">
-            <label class="dh-label" data-pl="Mieszkaniec" data-en="Resident">Mieszkaniec</label>
-            <select asp-for="ResidentId" class="dh-select" asp-items="ViewBag.ResidentId">
-                <option value="">-- wybierz --</option>
-            </select>
-        </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Opis (np. Czynsz – Czerwiec)" data-en="Description (e.g. Rent – June)">Opis</label>
+            <label class="dh-label" data-pl="Opis (np. Czynsz – Czerwiec)" data-en="Description">Opis</label>
             <input asp-for="Description" class="dh-input" placeholder="Czynsz – Czerwiec 2026"/>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div class="dh-form-group">
-                <label class="dh-label" data-pl="Kwota (PLN)" data-en="Amount (PLN)">Kwota (PLN)</label>
-                <input asp-for="Amount" class="dh-input" type="number" step="0.01"/>
-                <div class="dh-form-error"><span asp-validation-for="Amount"></span></div>
-            </div>
-            <div class="dh-form-group">
-                <label class="dh-label" data-pl="Termin płatności" data-en="Due date">Termin płatności</label>
-                <input asp-for="DueDate" class="dh-input" type="date"/>
-            </div>
-        </div>
         <div class="dh-form-group">
-            <label class="dh-label" data-pl="Status" data-en="Status">Status</label>
-            <select asp-for="Status" class="dh-select" asp-items="@Html.GetEnumSelectList<DormHub.Models.PaymentStatus>()"></select>
+            <label class="dh-label" data-pl="Kwota (PLN)" data-en="Amount (PLN)">Kwota (PLN)</label>
+            <input asp-for="Amount" class="dh-input" type="number" step="0.01" min="0.01"/>
+            <div class="dh-form-error"><span asp-validation-for="Amount"></span></div>
         </div>
-        <div style="display:flex;gap:.75rem;margin-top:1rem;">
-            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
+
+        <div style="display:flex;gap:.75rem;margin-top:1.25rem;">
+            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-check"></i> <span data-pl="Potwierdź płatność" data-en="Confirm payment">Potwierdź płatność</span></button>
             <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
         </div>
     </form>

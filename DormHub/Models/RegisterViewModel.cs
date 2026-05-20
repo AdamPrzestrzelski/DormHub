@@ -1,17 +1,16 @@
-using System;
-using System.ComponentModel.DataAnnotations;
+ï»¿using System.ComponentModel.DataAnnotations;
 
 namespace DormHub.Models
 {
     public class RegisterViewModel
     {
-        [Required(ErrorMessage = "Imiê jest wymagane")]
-        [Display(Name = "Imiê")]
-        public string FirstName { get; set; }
+        [Required(ErrorMessage = "Imie jest wymagane")]
+        [Display(Name = "Imie")]
+        public string FirstName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Nazwisko jest wymagane")]
         [Display(Name = "Nazwisko")]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Data urodzenia jest wymagane")]
         [DataType(DataType.Date)]
@@ -20,27 +19,27 @@ namespace DormHub.Models
         public DateOnly DateOfBirth { get; set; }
 
         [Required(ErrorMessage = "Email jest wymagany")]
-        [EmailAddress(ErrorMessage = "B³êdny adres email")]
+        [EmailAddress(ErrorMessage = "Bledny adres email")]
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Numer telefonu jest wymagany")]
-        [Phone(ErrorMessage = "B³êdny numer telefonu")]
+        [Phone(ErrorMessage = "Bledny numer telefonu")]
         [DataType(DataType.PhoneNumber)]
         [Display(Name = "Numer telefonu")]
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Has³o jest wymagane")]
+        [Required(ErrorMessage = "Haslo jest wymagane")]
         [DataType(DataType.Password)]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "Has³o musi mieæ co najmniej 6 znaków")]
-        [Display(Name = "Has³o")]
-        public string Password { get; set; }
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Haslo musi miec co najmniej 6 znakow")]
+        [Display(Name = "Haslo")]
+        public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Potwierdzenie has³a jest wymagane")]
+        [Required(ErrorMessage = "Potwierdzenie hasla jest wymagane")]
         [DataType(DataType.Password)]
-        [Compare(nameof(Password), ErrorMessage = "Has³a nie s¹ zgodne")]
-        [Display(Name = "PotwierdŸ has³o")]
-        public string ConfirmPassword { get; set; }
+        [Compare(nameof(Password), ErrorMessage = "Hasla nie sa zgodne")]
+        [Display(Name = "Potwierdz haslo")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }

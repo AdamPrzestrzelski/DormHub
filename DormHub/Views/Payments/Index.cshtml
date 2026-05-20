@@ -3,13 +3,10 @@
 
 <div class="dh-page-header dh-fade">
     <div class="dh-page-title"><i class="fa-solid fa-wallet" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Płatności" data-en="Payments">Płatności</span></div>
-    @if (User.IsInRole("Admin"))
-    {
-        <a asp-action="Create" class="dh-btn dh-btn-primary">
-            <i class="fa-solid fa-plus"></i>
-            <span data-pl="Dodaj płatność" data-en="Add payment">Dodaj płatność</span>
-        </a>
-    }
+    <a asp-action="Create" class="dh-btn dh-btn-primary">
+        <i class="fa-solid fa-plus"></i>
+        <span data-pl="Zgłoś płatność" data-en="Submit payment">Zgłoś płatność</span>
+    </a>
 </div>
 
 <div class="dh-card dh-fade dh-fade-1">
@@ -36,19 +33,19 @@
                         <td class="td-muted">@p.DueDate.ToString("dd.MM.yyyy")</td>
                         <td>
                             @{
-                                var (pc, pp, pe) = p.Status switch {
-                                    DormHub.Models.PaymentStatus.Paid    => ("dh-badge-green",  "Zapłacona",  "Paid"),
-                                    DormHub.Models.PaymentStatus.Overdue => ("dh-badge-red",    "Zaległa",    "Overdue"),
-                                    _                                     => ("dh-badge-yellow", "Oczekująca", "Pending")
+                                var pc = p.StatusId switch {
+                                    2 => "dh-badge-green",
+                                    3 => "dh-badge-red",
+                                    _ => "dh-badge-yellow"
                                 };
                             }
-                            <span class="dh-badge @pc" data-pl="@pp" data-en="@pe">@pp</span>
+                            <span class="dh-badge @pc">@(p.Status?.Name ?? "–")</span>
                         </td>
                         <td class="td-muted">@(p.PaidAt.HasValue ? p.PaidAt.Value.ToString("dd.MM.yyyy") : "–")</td>
                         <td>
                             <div class="dh-table-actions">
                                 <a asp-action="Details" asp-route-id="@p.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
-                                @if (User.IsInRole("Admin") && p.Status != DormHub.Models.PaymentStatus.Paid)
+                                @if (User.IsInRole("Admin") && p.StatusId != 2)
                                 {
                                     <form asp-action="MarkAsPaid" asp-route-id="@p.Id" method="post" style="display:inline;">
                                         @Html.AntiForgeryToken()

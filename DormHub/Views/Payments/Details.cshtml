@@ -1,42 +1,45 @@
 @model DormHub.Models.PaymentModel
+@{ ViewData["Title"] = "Szczegóły płatności"; }
 
-@{
-    ViewData["Title"] = "Szczegóły płatności";
-}
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-receipt" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Szczegóły płatności" data-en="Payment details">Szczegóły płatności</span></div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
+</div>
 
-<h1>💰 Szczegóły płatności</h1>
-<hr />
-
-<dl class="row">
-    <dt class="col-sm-3">Mieszkaniec</dt>
-    <dd class="col-sm-9">@Model.Resident?.FirstName @Model.Resident?.LastName</dd>
-
-    <dt class="col-sm-3">Opis</dt>
-    <dd class="col-sm-9">@(Model.Description ?? "–")</dd>
-
-    <dt class="col-sm-3">Kwota</dt>
-    <dd class="col-sm-9">@Model.Amount.ToString("C")</dd>
-
-    <dt class="col-sm-3">Termin płatności</dt>
-    <dd class="col-sm-9">@Model.DueDate.ToString("dd.MM.yyyy")</dd>
-
-    <dt class="col-sm-3">Status</dt>
-    <dd class="col-sm-9">
+<div class="dh-card dh-fade dh-fade-1" style="max-width:560px;">
+    <div class="dh-form-group">
+        <span class="dh-label" data-pl="Mieszkaniec" data-en="Resident">Mieszkaniec</span>
+        <p class="td-bold">@Model.Resident?.FirstName @Model.Resident?.LastName</p>
+    </div>
+    <div class="dh-form-group">
+        <span class="dh-label" data-pl="Opis" data-en="Description">Opis</span>
+        <p class="td-muted">@(Model.Description ?? "–")</p>
+    </div>
+    <div class="dh-form-group">
+        <span class="dh-label" data-pl="Kwota" data-en="Amount">Kwota</span>
+        <p class="td-bold">@Model.Amount.ToString("C")</p>
+    </div>
+    <div class="dh-form-group">
+        <span class="dh-label" data-pl="Termin płatności" data-en="Due date">Termin płatności</span>
+        <p class="td-muted">@Model.DueDate.ToString("dd.MM.yyyy")</p>
+    </div>
+    <div class="dh-form-group">
+        <span class="dh-label" data-pl="Status" data-en="Status">Status</span>
         @{
-            var (cls, lbl) = Model.Status switch {
-                DormHub.Models.PaymentStatus.Paid    => ("bg-success", "Zapłacona"),
-                DormHub.Models.PaymentStatus.Overdue => ("bg-danger",  "Zaległa"),
-                _                                     => ("bg-warning text-dark", "Oczekująca")
+            var cls = Model.StatusId switch {
+                2 => "dh-badge-green",
+                3 => "dh-badge-red",
+                _ => "dh-badge-yellow"
             };
         }
-        <span class="badge @cls">@lbl</span>
-    </dd>
-
-    <dt class="col-sm-3">Data zapłaty</dt>
-    <dd class="col-sm-9">@(Model.PaidAt.HasValue ? Model.PaidAt.Value.ToString("dd.MM.yyyy HH:mm") : "–")</dd>
-
-    <dt class="col-sm-3">Utworzono</dt>
-    <dd class="col-sm-9">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
-</dl>
-
-<a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+        <p><span class="dh-badge @cls">@(Model.Status?.Name ?? "–")</span></p>
+    </div>
+    <div class="dh-form-group">
+        <span class="dh-label" data-pl="Data zapłaty" data-en="Paid at">Data zapłaty</span>
+        <p class="td-muted">@(Model.PaidAt.HasValue ? Model.PaidAt.Value.ToString("dd.MM.yyyy HH:mm") : "–")</p>
+    </div>
+    <div class="dh-form-group">
+        <span class="dh-label" data-pl="Utworzono" data-en="Created">Utworzono</span>
+        <p class="td-muted">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</p>
+    </div>
+</div>

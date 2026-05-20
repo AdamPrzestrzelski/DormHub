@@ -25,159 +25,167 @@ namespace DormHub.Controllers
         [Route("")]
         public async Task<IActionResult> Index()
         {
-            var dormDbContext = _context.Residents.Include(r => r.Room);
-            return View(await dormDbContext.ToListAsync());
+            var residents = _context.Residents.Include(r => r.Room);
+            return View(await residents.ToListAsync());
         }
 
         [HttpGet("szczegoly/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var residentModel = await _context.Residents
                 .Include(r => r.Room)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (residentModel == null)
-            {
-                return NotFound();
-            }
-
+            if (residentModel == null) return NotFound();
             return View(residentModel);
         }
 
+        // GET: Dodaj mieszkańca – wybierz z istniejących osób
         [HttpGet("dodaj")]
         public IActionResult Create()
         {
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "RoomNumber");
+            // Lista osób które NIE są jeszcze mieszkańcami (nie mają rekordu w Residents)
+            var existingResidentIds = _context.Residents.Select(r => r.Id).ToHashSet();
+            var availablePersons = _context.Persons
+                .Where(p => !existingResidentIds.Contains(p.Id))
+                .Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName + " (" + p.Email + ")" })
+                .ToList();
+
+            ViewData["PersonId"] = new SelectList(availablePersons, "Id", "FullName");
+            ViewData["RoomId"]   = new SelectList(_context.Rooms, "Id", "RoomNumber");
             return View();
         }
 
-        // POST: ResidentModels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Konwertuje PersonModel na ResidentModel przez UPDATE discriminatora
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RoomId,MoveInDate,MoveOutDate,Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber,PasswordHash")] ResidentModel residentModel)
+        public async Task<IActionResult> Create(int PersonId, int? RoomId, DateTime MoveInDate, DateTime? MoveOutDate)
         {
-            residentModel.Role = "Resident";
-            ModelState.Remove("Role");
-            ModelState.Remove("Discriminator");
-            if (ModelState.IsValid)
+            // Walidacja
+            var person = await _context.Persons.FindAsync(PersonId);
+            if (person == null)
             {
-                residentModel.PasswordHash = DormHub.Services.PasswordHasher.Hash(residentModel.PasswordHash);
-                _context.Residents.Add(residentModel);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("PersonId", "Nie znaleziono wybranej osoby.");
+                goto ReturnView;
             }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "RoomNumber", residentModel.RoomId);
-            return View(residentModel);
+
+            if (await _context.Residents.AnyAsync(r => r.Id == PersonId))
+            {
+                ModelState.AddModelError("PersonId", "Ta osoba jest juz mieszkancem.");
+                goto ReturnView;
+            }
+
+            // Bezpieczna konwersja: UPDATE discriminatora + pol mieszkanca w jednym zapytaniu
+            // (bez Delete + Insert = brak ryzyka utraty danych)
+            await _context.Database.ExecuteSqlRawAsync(
+                "UPDATE [Persons] SET [Discriminator] = 'ResidentModel', [RoomId] = {0}, [MoveInDate] = {1}, [MoveOutDate] = {2} WHERE [Id] = {3}",
+                (object?)RoomId ?? DBNull.Value,
+                MoveInDate,
+                (object?)MoveOutDate ?? DBNull.Value,
+                PersonId);
+
+            // Automatyczna aktualizacja statusu pokoju
+            if (RoomId.HasValue)
+            {
+                await UpdateRoomStatusAsync(RoomId.Value);
+            }
+
+            return RedirectToAction(nameof(Index));
+
+            ReturnView:
+            var existingResidentIds = _context.Residents.Select(r => r.Id).ToHashSet();
+            var availablePersons = _context.Persons
+                .Where(p => !existingResidentIds.Contains(p.Id))
+                .Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName + " (" + p.Email + ")" })
+                .ToList();
+            ViewData["PersonId"] = new SelectList(availablePersons, "Id", "FullName", PersonId);
+            ViewData["RoomId"]   = new SelectList(_context.Rooms, "Id", "RoomNumber", RoomId);
+            return View();
         }
 
         [HttpGet("edytuj/{id}")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var residentModel = await _context.Residents.FindAsync(id);
-            if (residentModel == null)
-            {
-                return NotFound();
-            }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id", residentModel.RoomId);
+            if (residentModel == null) return NotFound();
+            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "RoomNumber", residentModel.RoomId);
             return View(residentModel);
         }
 
-        // POST: ResidentModels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RoomId,MoveInDate,MoveOutDate,Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber")] ResidentModel residentModel, string? newPassword)
+        public async Task<IActionResult> Edit(int id,
+            [Bind("RoomId,MoveInDate,MoveOutDate,Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber")]
+            ResidentModel residentModel,
+            string? newPassword)
         {
-            if (id != residentModel.Id)
-            {
-                return NotFound();
-            }
+            if (id != residentModel.Id) return NotFound();
 
             ModelState.Remove("PasswordHash");
             ModelState.Remove("Role");
+            ModelState.Remove("Discriminator");
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var existingPerson = await _context.Residents.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-                    if (existingPerson == null) return NotFound();
+                    var existing = await _context.Residents.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+                    if (existing == null) return NotFound();
 
-                    if (!string.IsNullOrEmpty(newPassword))
-                        residentModel.PasswordHash = DormHub.Services.PasswordHasher.Hash(newPassword);
-                    else
-                        residentModel.PasswordHash = existingPerson.PasswordHash;
-
-                    residentModel.Role = existingPerson.Role;
+                    residentModel.PasswordHash = !string.IsNullOrEmpty(newPassword)
+                        ? DormHub.Services.PasswordHasher.Hash(newPassword)
+                        : existing.PasswordHash;
+                    residentModel.Role = existing.Role;
 
                     _context.Update(residentModel);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ResidentModelExists(residentModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_context.Residents.Any(e => e.Id == residentModel.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id", residentModel.RoomId);
+            ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "RoomNumber", residentModel.RoomId);
             return View(residentModel);
         }
 
         [HttpGet("usun/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var residentModel = await _context.Residents
                 .Include(r => r.Room)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (residentModel == null)
-            {
-                return NotFound();
-            }
-
+            if (residentModel == null) return NotFound();
             return View(residentModel);
         }
 
-        // POST: ResidentModels/Delete/5
         [HttpPost("usun/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var residentModel = await _context.Residents.FindAsync(id);
-            if (residentModel != null)
-            {
-                _context.Residents.Remove(residentModel);
-            }
-
+            int? roomId = residentModel?.RoomId;
+            if (residentModel != null) _context.Residents.Remove(residentModel);
             await _context.SaveChangesAsync();
+            if (roomId.HasValue) await UpdateRoomStatusAsync(roomId.Value);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ResidentModelExists(int id)
+        private async Task UpdateRoomStatusAsync(int roomId)
         {
-            return _context.Residents.Any(e => e.Id == id);
+            var room = await _context.Rooms
+                .Include(r => r.RoomType)
+                .FirstOrDefaultAsync(r => r.Id == roomId);
+            if (room == null) return;
+
+            var currentCount = await _context.Residents.CountAsync(r => r.RoomId == roomId);
+            var capacity = room.RoomType?.Capacity ?? 1;
+            room.StatusId = currentCount >= capacity ? 2 : 1;
+            await _context.SaveChangesAsync();
         }
     }
 }

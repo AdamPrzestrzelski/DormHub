@@ -30,45 +30,29 @@
                         <td class="td-mono">@item.Room?.RoomNumber</td>
                         <td class="td-muted">
                             @{
-                                var catIcon = item.Category switch {
-                                    DormHub.Models.FaultCategory.Plumbing   => "fa-droplet",
-                                    DormHub.Models.FaultCategory.Electrical => "fa-bolt",
-                                    DormHub.Models.FaultCategory.Furniture  => "fa-couch",
-                                    DormHub.Models.FaultCategory.Windows    => "fa-window-maximize",
-                                    DormHub.Models.FaultCategory.Internet   => "fa-wifi",
-                                    _                                        => "fa-box"
-                                };
-                                var catPl = item.Category switch {
-                                    DormHub.Models.FaultCategory.Plumbing   => "Hydraulika",
-                                    DormHub.Models.FaultCategory.Electrical => "Elektryka",
-                                    DormHub.Models.FaultCategory.Furniture  => "Meble",
-                                    DormHub.Models.FaultCategory.Windows    => "Okna/Drzwi",
-                                    DormHub.Models.FaultCategory.Internet   => "Internet/TV",
-                                    _                                        => "Inne"
-                                };
-                                var catEn = item.Category switch {
-                                    DormHub.Models.FaultCategory.Plumbing   => "Plumbing",
-                                    DormHub.Models.FaultCategory.Electrical => "Electrical",
-                                    DormHub.Models.FaultCategory.Furniture  => "Furniture",
-                                    DormHub.Models.FaultCategory.Windows    => "Windows/Doors",
-                                    DormHub.Models.FaultCategory.Internet   => "Internet/TV",
-                                    _                                        => "Other"
+                                var catIcon = item.CategoryId switch {
+                                    1 => "fa-droplet",
+                                    2 => "fa-bolt",
+                                    3 => "fa-couch",
+                                    4 => "fa-window-maximize",
+                                    5 => "fa-wifi",
+                                    _ => "fa-box"
                                 };
                             }
                             <i class="fa-solid @catIcon" style="color:var(--orange);margin-right:6px;"></i>
-                            <span data-pl="@catPl" data-en="@catEn">@catPl</span>
+                            <span>@(item.Category?.Name ?? "–")</span>
                         </td>
                         <td class="td-bold">@(item.Description.Length > 45 ? item.Description.Substring(0,45)+"…" : item.Description)</td>
                         <td>
                             @{
-                                var (pc, pp, pe) = item.Priority switch {
-                                    DormHub.Models.FaultPriority.Critical => ("dh-badge-red",    "Krytyczny", "Critical"),
-                                    DormHub.Models.FaultPriority.High     => ("dh-badge-yellow", "Wysoki",    "High"),
-                                    DormHub.Models.FaultPriority.Medium   => ("dh-badge-orange", "Średni",    "Medium"),
-                                    _                                      => ("dh-badge-gray",   "Niski",     "Low")
+                                var pc = item.PriorityId switch {
+                                    4 => "dh-badge-red",
+                                    3 => "dh-badge-yellow",
+                                    2 => "dh-badge-orange",
+                                    _ => "dh-badge-gray"
                                 };
                             }
-                            <span class="dh-badge @pc" data-pl="@pp" data-en="@pe">@pp</span>
+                            <span class="dh-badge @pc">@(item.Priority?.Name ?? "–")</span>
                         </td>
                         <td class="td-muted">@item.ReportedAt.ToString("dd.MM.yyyy")</td>
                         <td>

@@ -25,27 +25,23 @@ namespace DormHub.Controllers
         [Route("")]
         public async Task<IActionResult> Index()
         {
-            var dormDbContext = _context.Rooms.Include(r => r.Building).Include(r => r.RoomType);
-            return View(await dormDbContext.ToListAsync());
+            var rooms = _context.Rooms
+                .Include(r => r.Building)
+                .Include(r => r.RoomType)
+                .Include(r => r.Status);
+            return View(await rooms.ToListAsync());
         }
 
         [HttpGet("szczegoly/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var roomModel = await _context.Rooms
                 .Include(r => r.Building)
                 .Include(r => r.RoomType)
+                .Include(r => r.Status)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (roomModel == null)
-            {
-                return NotFound();
-            }
-
+            if (roomModel == null) return NotFound();
             return View(roomModel);
         }
 
@@ -53,16 +49,14 @@ namespace DormHub.Controllers
         public IActionResult Create()
         {
             ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Name");
-            ViewData["TypeId"] = new SelectList(_context.RoomTypes, "Id", "Name");
+            ViewData["TypeId"]     = new SelectList(_context.RoomTypes,  "Id", "Name");
+            ViewData["StatusId"]   = new SelectList(_context.RoomStatuses, "Id", "Name");
             return View();
         }
 
-        // POST: RoomModels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,RoomNumber,BuildingId,TypeId,Floor,Status,Notes")] RoomModel roomModel)
+        public async Task<IActionResult> Create([Bind("Id,RoomNumber,BuildingId,TypeId,StatusId,Floor")] RoomModel roomModel)
         {
             if (ModelState.IsValid)
             {
@@ -70,41 +64,29 @@ namespace DormHub.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Name", roomModel.BuildingId);
-            ViewData["TypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", roomModel.TypeId);
+            ViewData["BuildingId"] = new SelectList(_context.Buildings,   "Id", "Name", roomModel.BuildingId);
+            ViewData["TypeId"]     = new SelectList(_context.RoomTypes,   "Id", "Name", roomModel.TypeId);
+            ViewData["StatusId"]   = new SelectList(_context.RoomStatuses,"Id", "Name", roomModel.StatusId);
             return View(roomModel);
         }
 
         [HttpGet("edytuj/{id}")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var roomModel = await _context.Rooms.FindAsync(id);
-            if (roomModel == null)
-            {
-                return NotFound();
-            }
-            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Name", roomModel.BuildingId);
-            ViewData["TypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", roomModel.TypeId);
+            if (roomModel == null) return NotFound();
+            ViewData["BuildingId"] = new SelectList(_context.Buildings,   "Id", "Name", roomModel.BuildingId);
+            ViewData["TypeId"]     = new SelectList(_context.RoomTypes,   "Id", "Name", roomModel.TypeId);
+            ViewData["StatusId"]   = new SelectList(_context.RoomStatuses,"Id", "Name", roomModel.StatusId);
             return View(roomModel);
         }
 
-        // POST: RoomModels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomNumber,BuildingId,TypeId,Floor,Status,Notes")] RoomModel roomModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomNumber,BuildingId,TypeId,StatusId,Floor")] RoomModel roomModel)
         {
-            if (id != roomModel.Id)
-            {
-                return NotFound();
-            }
-
+            if (id != roomModel.Id) return NotFound();
             if (ModelState.IsValid)
             {
                 try
@@ -114,60 +96,38 @@ namespace DormHub.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RoomModelExists(roomModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_context.Rooms.Any(e => e.Id == roomModel.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BuildingId"] = new SelectList(_context.Buildings, "Id", "Name", roomModel.BuildingId);
-            ViewData["TypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", roomModel.TypeId);
+            ViewData["BuildingId"] = new SelectList(_context.Buildings,   "Id", "Name", roomModel.BuildingId);
+            ViewData["TypeId"]     = new SelectList(_context.RoomTypes,   "Id", "Name", roomModel.TypeId);
+            ViewData["StatusId"]   = new SelectList(_context.RoomStatuses,"Id", "Name", roomModel.StatusId);
             return View(roomModel);
         }
 
         [HttpGet("usun/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var roomModel = await _context.Rooms
                 .Include(r => r.Building)
                 .Include(r => r.RoomType)
+                .Include(r => r.Status)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (roomModel == null)
-            {
-                return NotFound();
-            }
-
+            if (roomModel == null) return NotFound();
             return View(roomModel);
         }
 
-        // POST: RoomModels/Delete/5
         [HttpPost("usun/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var roomModel = await _context.Rooms.FindAsync(id);
-            if (roomModel != null)
-            {
-                _context.Rooms.Remove(roomModel);
-            }
-
+            if (roomModel != null) _context.Rooms.Remove(roomModel);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool RoomModelExists(int id)
-        {
-            return _context.Rooms.Any(e => e.Id == id);
         }
     }
 }

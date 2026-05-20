@@ -33,19 +33,19 @@
                         <td class="td-muted">@item.SubmittedAt.ToString("dd.MM.yyyy")</td>
                         <td>
                             @{
-                                var (sc, sp, se) = item.Status switch {
-                                    DormHub.Models.ApplicationStatus.Accepted => ("dh-badge-green",  "Zaakceptowany", "Accepted"),
-                                    DormHub.Models.ApplicationStatus.Rejected => ("dh-badge-red",    "Odrzucony",     "Rejected"),
-                                    _                                          => ("dh-badge-yellow", "Oczekujący",    "Pending")
+                                var sc = item.StatusId switch {
+                                    2 => "dh-badge-green",
+                                    3 => "dh-badge-red",
+                                    _ => "dh-badge-yellow"
                                 };
                             }
-                            <span class="dh-badge @sc" data-pl="@sp" data-en="@se">@sp</span>
+                            <span class="dh-badge @sc">@(item.Status?.Name ?? "–")</span>
                         </td>
                         <td class="td-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@(item.AdminNotes ?? "–")</td>
                         <td>
                             <div class="dh-table-actions">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
-                                @if (item.Status == DormHub.Models.ApplicationStatus.Pending)
+                                @if (item.StatusId == 1)
                                 {
                                     <form asp-action="Accept" asp-route-id="@item.Id" method="post" style="display:inline;">
                                         @Html.AntiForgeryToken()

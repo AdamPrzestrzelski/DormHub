@@ -30,7 +30,7 @@
         </div>
         <div class="dh-form-group">
             <label class="dh-label" data-pl="Status" data-en="Status">Status</label>
-            <select asp-for="Status" class="dh-select" asp-items="@Html.GetEnumSelectList<DormHub.Models.ApplicationStatus>()"></select>
+            <select asp-for="StatusId" class="dh-select" asp-items="ViewBag.StatusId"></select>
         </div>
         <div class="dh-form-group">
             <label class="dh-label" data-pl="Notatki admina" data-en="Admin notes">Notatki admina</label>
