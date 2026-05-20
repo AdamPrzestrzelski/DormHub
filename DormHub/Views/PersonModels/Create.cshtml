@@ -1,53 +1,56 @@
-﻿@model DormHub.Models.PersonModel
+@model DormHub.Models.PersonModel
+@{ ViewData["Title"] = "Dodaj osobę"; }
 
-@{
-    ViewData["Title"] = "Create";
-}
-
-<h1>Create</h1>
-
-<h4>PersonModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label"></label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateOfBirth" class="control-label"></label>
-                <input asp-for="DateOfBirth" class="form-control" />
-                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-user-plus" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Dodaj osobę" data-en="Add person">Dodaj osobę</span></div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="dh-card dh-fade dh-fade-1" style="max-width:560px;">
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Imię" data-en="First name">Imię</label>
+                <input asp-for="FirstName" class="dh-input"/>
+                <div class="dh-form-error"><span asp-validation-for="FirstName"></span></div>
+            </div>
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Nazwisko" data-en="Last name">Nazwisko</label>
+                <input asp-for="LastName" class="dh-input"/>
+                <div class="dh-form-error"><span asp-validation-for="LastName"></span></div>
+            </div>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Data urodzenia" data-en="Date of birth">Data urodzenia</label>
+            <input asp-for="DateOfBirth" class="dh-input" type="date"/>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="E-mail" data-en="Email">E-mail</label>
+            <input asp-for="Email" class="dh-input" type="email"/>
+            <div class="dh-form-error"><span asp-validation-for="Email"></span></div>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Telefon" data-en="Phone">Telefon</label>
+            <input asp-for="PhoneNumber" class="dh-input"/>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Rola" data-en="Role">Rola</label>
+            <select asp-for="Role" class="dh-select">
+                <option value="Admin">Admin</option>
+                <option value="Staff">Staff</option>
+                <option value="Resident">Resident</option>
+            </select>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Hasło" data-en="Password">Hasło</label>
+            <input asp-for="PasswordHash" type="password" class="dh-input"/>
+            <div class="dh-form-error"><span asp-validation-for="PasswordHash"></span></div>
+        </div>
+        <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
+            <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
+        </div>
+    </form>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

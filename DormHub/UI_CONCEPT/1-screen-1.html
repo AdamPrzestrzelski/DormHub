@@ -1,0 +1,439 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+  /* Scrollbar Rules */
+  .hide-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .auto-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+  .auto-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .auto-scroll::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 20px;
+  }
+  .auto-scroll:hover::-webkit-scrollbar-thumb {
+    background-color: #FF6B00;
+  }
+
+  /* Custom Animations */
+  @keyframes fade-in-up {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+</style>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            black: '#030303',
+            surface: '#0F0F0F',
+            surface2: '#1A1A1A',
+            border: '#262626',
+            orange: '#FF6B00',
+            orangeHover: '#E66000',
+            orangeGlow: 'rgba(255, 107, 0, 0.15)',
+          }
+        },
+        fontFamily: {
+          sans: ['Outfit', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div id="main-content" class="flex h-screen w-full bg-brand-black text-neutral-200 font-sans overflow-hidden selection:bg-brand-orange selection:text-white">
+  
+  <!-- Sidebar -->
+  <aside id="sidebar-main" class="w-72 bg-brand-surface border-r border-brand-border flex flex-col z-20 relative">
+    <!-- Logo -->
+    <div class="h-24 flex items-center px-8 border-b border-brand-border">
+      <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-brand-orange to-orange-800 shadow-[0_0_15px_rgba(255,107,0,0.3)] mr-4">
+        <i class="fa-solid fa-building text-white text-lg"></i>
+      </div>
+      <span class="text-2xl font-bold tracking-wide text-white">Dorm<span class="text-brand-orange">Hub</span></span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 overflow-y-auto auto-scroll py-6 px-4 space-y-8">
+      
+      <!-- Menu Section 1 -->
+      <div>
+        <p class="px-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Overview</p>
+        <ul class="space-y-1">
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 rounded-xl bg-brand-orange/10 text-brand-orange font-medium border border-brand-orange/20 transition-all">
+              <i class="fa-solid fa-border-all w-6 text-lg"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-brand-surface2 transition-all group">
+              <i class="fa-solid fa-door-open w-6 text-lg group-hover:text-brand-orange transition-colors"></i>
+              <span>My Room</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-brand-surface2 transition-all group">
+              <i class="fa-solid fa-wallet w-6 text-lg group-hover:text-brand-orange transition-colors"></i>
+              <span>Payments</span>
+              <span class="ml-auto bg-brand-border text-xs py-0.5 px-2 rounded-full text-neutral-300 group-hover:bg-brand-orange group-hover:text-white transition-colors">Due</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Menu Section 2 -->
+      <div>
+        <p class="px-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Community</p>
+        <ul class="space-y-1">
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-brand-surface2 transition-all group">
+              <i class="fa-solid fa-bullhorn w-6 text-lg group-hover:text-brand-orange transition-colors"></i>
+              <span>Announcements</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-brand-surface2 transition-all group">
+              <i class="fa-solid fa-calendar-days w-6 text-lg group-hover:text-brand-orange transition-colors"></i>
+              <span>Events</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-brand-surface2 transition-all group">
+              <i class="fa-solid fa-users w-6 text-lg group-hover:text-brand-orange transition-colors"></i>
+              <span>Roommates</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Menu Section 3 -->
+      <div>
+        <p class="px-4 text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3">Services</p>
+        <ul class="space-y-1">
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-brand-surface2 transition-all group">
+              <i class="fa-solid fa-wrench w-6 text-lg group-hover:text-brand-orange transition-colors"></i>
+              <span>Maintenance</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center px-4 py-3 rounded-xl text-neutral-400 hover:text-white hover:bg-brand-surface2 transition-all group">
+              <i class="fa-solid fa-box w-6 text-lg group-hover:text-brand-orange transition-colors"></i>
+              <span>Packages</span>
+              <span class="ml-auto bg-brand-orange text-xs py-0.5 px-2 rounded-full text-white">2</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- User Profile Bottom -->
+    <div class="p-4 border-t border-brand-border bg-brand-surface">
+      <a href="#" class="flex items-center p-3 rounded-xl hover:bg-brand-surface2 transition-all border border-transparent hover:border-brand-border group">
+        <img src="https://i.pravatar.cc/150?u=alex" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-brand-border group-hover:border-brand-orange transition-colors object-cover">
+        <div class="ml-3 overflow-hidden">
+          <p class="text-sm font-medium text-white truncate">Alex Mercer</p>
+          <p class="text-xs text-neutral-500 truncate">Room 402-B</p>
+        </div>
+        <i class="fa-solid fa-gear ml-auto text-neutral-500 group-hover:text-white transition-colors"></i>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+    
+    <!-- Background Glow Effects -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-brand-orange/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[150px] pointer-events-none"></div>
+
+    <!-- Header -->
+    <header id="header-top" class="h-24 px-8 flex items-center justify-between border-b border-brand-border/50 bg-brand-black/80 backdrop-blur-md z-10 sticky top-0">
+      
+      <!-- Search -->
+      <div class="relative w-96 group">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 group-focus-within:text-brand-orange transition-colors"></i>
+        <input type="text" placeholder="Search residents, events, or requests..." class="w-full bg-brand-surface border border-brand-border rounded-full py-2.5 pl-11 pr-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-brand-orange/50 focus:ring-1 focus:ring-brand-orange/50 transition-all">
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center space-x-4">
+        <button class="w-10 h-10 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-neutral-400 hover:text-white hover:border-brand-orange/50 transition-all relative">
+          <i class="fa-regular fa-bell"></i>
+          <span class="absolute top-2 right-2.5 w-2 h-2 bg-brand-orange rounded-full border-2 border-brand-surface"></span>
+        </button>
+        <button class="w-10 h-10 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-neutral-400 hover:text-white hover:border-brand-orange/50 transition-all">
+          <i class="fa-regular fa-envelope"></i>
+        </button>
+        <div class="h-6 w-px bg-brand-border mx-2"></div>
+        <button class="flex items-center space-x-2 bg-brand-orange hover:bg-brand-orangeHover text-white px-5 py-2.5 rounded-full text-sm font-medium transition-all shadow-[0_0_15px_rgba(255,107,0,0.2)] hover:shadow-[0_0_20px_rgba(255,107,0,0.4)]">
+          <i class="fa-solid fa-plus mr-1"></i>
+          <span>New Request</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Scrollable Content -->
+    <main class="flex-1 overflow-y-auto auto-scroll p-8 z-0">
+      <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Welcome Banner -->
+        <section id="section-welcome" class="opacity-0 animate-fade-in-up">
+          <div class="relative overflow-hidden rounded-3xl bg-brand-surface border border-brand-border p-8 md:p-10 flex flex-col md:flex-row items-center justify-between group">
+            <!-- Decorative background elements -->
+            <div class="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-brand-orange/10 to-transparent opacity-50"></div>
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-brand-orange/20 rounded-full blur-3xl group-hover:bg-brand-orange/30 transition-all duration-700"></div>
+            
+            <div class="relative z-10 max-w-2xl">
+              <h1 class="text-3xl md:text-4xl font-bold text-white mb-3">Welcome back, <span class="text-brand-orange">Alex!</span> 👋</h1>
+              <p class="text-neutral-400 text-lg mb-6">You have 2 packages waiting at the front desk and your rent is due in 5 days.</p>
+              <div class="flex flex-wrap gap-4">
+                <button class="bg-white text-black px-6 py-3 rounded-xl font-semibold hover:bg-neutral-200 transition-colors">
+                  Pay Rent Now
+                </button>
+                <button class="bg-brand-surface2 border border-brand-border text-white px-6 py-3 rounded-xl font-medium hover:border-brand-orange/50 hover:text-brand-orange transition-all">
+                  View Packages
+                </button>
+              </div>
+            </div>
+
+            <div class="relative z-10 hidden md:block">
+              <div class="w-40 h-40 rounded-full border-4 border-brand-surface2 flex items-center justify-center bg-brand-black relative shadow-[0_0_30px_rgba(255,107,0,0.15)]">
+                <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" stroke="#1A1A1A" stroke-width="8" fill="none" />
+                  <circle cx="50" cy="50" r="40" stroke="#FF6B00" stroke-width="8" fill="none" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-linecap="round" class="drop-shadow-[0_0_8px_rgba(255,107,0,0.5)]" />
+                </svg>
+                <div class="absolute flex flex-col items-center justify-center">
+                  <span class="text-2xl font-bold text-white">75%</span>
+                  <span class="text-[10px] text-neutral-400 uppercase tracking-wider">Semester</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Stats Grid -->
+        <section id="section-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-0 animate-fade-in-up delay-100">
+          
+          <!-- Stat Card 1 -->
+          <div id="card-stat-rent" class="bg-brand-surface border border-brand-border rounded-2xl p-6 hover:border-brand-orange/30 transition-all hover:-translate-y-1 group cursor-pointer relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-brand-orange/5 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
+            <div class="flex justify-between items-start mb-4 relative z-10">
+              <div class="w-12 h-12 rounded-xl bg-brand-surface2 border border-brand-border flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-colors">
+                <i class="fa-solid fa-file-invoice-dollar text-xl"></i>
+              </div>
+              <span class="bg-red-500/10 text-red-500 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20">Due Soon</span>
+            </div>
+            <div class="relative z-10">
+              <p class="text-neutral-500 text-sm font-medium mb-1">Upcoming Rent</p>
+              <h3 class="text-2xl font-bold text-white">$850.00</h3>
+              <p class="text-xs text-neutral-400 mt-2"><i class="fa-regular fa-clock mr-1"></i> Due Oct 1st, 2025</p>
+            </div>
+          </div>
+
+          <!-- Stat Card 2 -->
+          <div id="card-stat-maintenance" class="bg-brand-surface border border-brand-border rounded-2xl p-6 hover:border-brand-orange/30 transition-all hover:-translate-y-1 group cursor-pointer relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-brand-orange/5 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
+            <div class="flex justify-between items-start mb-4 relative z-10">
+              <div class="w-12 h-12 rounded-xl bg-brand-surface2 border border-brand-border flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-colors">
+                <i class="fa-solid fa-screwdriver-wrench text-xl"></i>
+              </div>
+              <span class="bg-yellow-500/10 text-yellow-500 text-xs font-bold px-2.5 py-1 rounded-full border border-yellow-500/20">In Progress</span>
+            </div>
+            <div class="relative z-10">
+              <p class="text-neutral-500 text-sm font-medium mb-1">Maintenance</p>
+              <h3 class="text-2xl font-bold text-white">1 Active</h3>
+              <p class="text-xs text-neutral-400 mt-2">AC Unit Repair • Updated 2h ago</p>
+            </div>
+          </div>
+
+          <!-- Stat Card 3 -->
+          <div id="card-stat-packages" class="bg-brand-surface border border-brand-border rounded-2xl p-6 hover:border-brand-orange/30 transition-all hover:-translate-y-1 group cursor-pointer relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-brand-orange/5 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
+            <div class="flex justify-between items-start mb-4 relative z-10">
+              <div class="w-12 h-12 rounded-xl bg-brand-surface2 border border-brand-border flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-colors">
+                <i class="fa-solid fa-box-open text-xl"></i>
+              </div>
+              <span class="bg-green-500/10 text-green-500 text-xs font-bold px-2.5 py-1 rounded-full border border-green-500/20">Ready</span>
+            </div>
+            <div class="relative z-10">
+              <p class="text-neutral-500 text-sm font-medium mb-1">Packages</p>
+              <h3 class="text-2xl font-bold text-white">2 Waiting</h3>
+              <p class="text-xs text-neutral-400 mt-2">Front Desk • Closes at 8 PM</p>
+            </div>
+          </div>
+
+          <!-- Stat Card 4 -->
+          <div id="card-stat-events" class="bg-brand-surface border border-brand-border rounded-2xl p-6 hover:border-brand-orange/30 transition-all hover:-translate-y-1 group cursor-pointer relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-brand-orange/5 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
+            <div class="flex justify-between items-start mb-4 relative z-10">
+              <div class="w-12 h-12 rounded-xl bg-brand-surface2 border border-brand-border flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-colors">
+                <i class="fa-solid fa-ticket text-xl"></i>
+              </div>
+            </div>
+            <div class="relative z-10">
+              <p class="text-neutral-500 text-sm font-medium mb-1">Next Event</p>
+              <h3 class="text-xl font-bold text-white truncate">Movie Night</h3>
+              <p class="text-xs text-brand-orange mt-2 font-medium">Tonight, 7:00 PM • Lounge</p>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- Main Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 opacity-0 animate-fade-in-up delay-200">
+          
+          <!-- Left Column: Announcements & Feed -->
+          <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Announcements -->
+            <section id="section-announcements" class="bg-brand-surface border border-brand-border rounded-3xl p-6 md:p-8">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                  <i class="fa-solid fa-thumbtack text-brand-orange mr-3"></i>
+                  Building Announcements
+                </h2>
+                <a href="#" class="text-sm text-brand-orange hover:text-brand-orangeHover font-medium transition-colors">View All</a>
+              </div>
+
+              <div class="space-y-4">
+                <!-- Announcement Item 1 -->
+                <div class="group p-5 rounded-2xl bg-brand-black border border-brand-border hover:border-brand-orange/30 transition-all">
+                  <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-brand-surface2 flex items-center justify-center flex-shrink-0 border border-brand-border">
+                      <i class="fa-solid fa-fire-extinguisher text-neutral-400 group-hover:text-brand-orange transition-colors"></i>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-3 mb-1">
+                        <h3 class="text-white font-semibold text-base">Fire Alarm Testing</h3>
+                        <span class="text-[10px] uppercase tracking-wider bg-brand-surface2 text-neutral-400 px-2 py-0.5 rounded-md border border-brand-border">Management</span>
+                      </div>
+                      <p class="text-sm text-neutral-400 leading-relaxed mb-3">We will be conducting mandatory fire alarm testing this Thursday between 10 AM and 2 PM. Please expect loud noises and strobe lights during this period.</p>
+                      <span class="text-xs text-neutral-500"><i class="fa-regular fa-clock mr-1"></i> Posted 2 hours ago</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Announcement Item 2 -->
+                <div class="group p-5 rounded-2xl bg-brand-black border border-brand-border hover:border-brand-orange/30 transition-all">
+                  <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-full bg-brand-surface2 flex items-center justify-center flex-shrink-0 border border-brand-border">
+                      <i class="fa-solid fa-wifi text-neutral-400 group-hover:text-brand-orange transition-colors"></i>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-3 mb-1">
+                        <h3 class="text-white font-semibold text-base">Network Maintenance</h3>
+                        <span class="text-[10px] uppercase tracking-wider bg-brand-surface2 text-neutral-400 px-2 py-0.5 rounded-md border border-brand-border">IT Support</span>
+                      </div>
+                      <p class="text-sm text-neutral-400 leading-relaxed mb-3">Brief internet outages may occur tonight from 2 AM to 4 AM as we upgrade the building's core routers for faster speeds.</p>
+                      <span class="text-xs text-neutral-500"><i class="fa-regular fa-clock mr-1"></i> Posted yesterday</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Recent Maintenance Requests Table -->
+            <section id="section-maintenance-table" class="bg-brand-surface border border-brand-border rounded-3xl p-6 md:p-8">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                  <i class="fa-solid fa-clipboard-list text-brand-orange mr-3"></i>
+                  My Requests
+                </h2>
+                <button class="w-8 h-8 rounded-full bg-brand-surface2 border border-brand-border flex items-center justify-center text-neutral-400 hover:text-white hover:border-brand-orange transition-all">
+                  <i class="fa-solid fa-ellipsis"></i>
+                </button>
+              </div>
+
+              <div class="overflow-x-auto hide-scroll">
+                <table id="table-requests" class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="border-b border-brand-border text-xs uppercase tracking-wider text-neutral-500">
+                      <th class="pb-4 font-medium pl-2">ID</th>
+                      <th class="pb-4 font-medium">Issue</th>
+                      <th class="pb-4 font-medium">Date Submitted</th>
+                      <th class="pb-4 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-sm">
+                    <tr class="border-b border-brand-border/50 hover:bg-brand-surface2/50 transition-colors group">
+                      <td class="py-4 pl-2 text-neutral-400 font-mono">#REQ-802</td>
+                      <td class="py-4 text-white font-medium">AC Unit not cooling</td>
+                      <td class="py-4 text-neutral-400">Sep 24, 2025</td>
+                      <td class="py-4">
+                        <span class="inline-flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 text-xs font-medium px-2.5 py-1 rounded-full border border-yellow-500/20">
+                          <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> In Progress
+                        </span>
+                      </td>
+                    </tr>
+                    <tr class="border-b border-brand-border/50 hover:bg-brand-surface2/50 transition-colors group">
+                      <td class="py-4 pl-2 text-neutral-400 font-mono">#REQ-754</td>
+                      <td class="py-4 text-white font-medium">Leaky bathroom faucet</td>
+                      <td class="py-4 text-neutral-400">Sep 10, 2025</td>
+                      <td class="py-4">
+                        <span class="inline-flex items-center gap-1.5 bg-green-500/10 text-green-500 text-xs font-medium px-2.5 py-1 rounded-full border border-green-500/20">
+                          <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Completed
+                        </span>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-brand-surface2/50 transition-colors group">
+                      <td class="py-4 pl-2 text-neutral-400 font-mono">#REQ-621</td>
+                      <td class="py-4 text-white font-medium">Broken blind slat</td>
+                      <td class="py-4 text-neutral-400">Aug 15, 2025</td>
+                      <td class="py-4">
+                        <span class="inline-flex items-center gap-1.5 bg-green-500/10 text-green-500 text-xs font-medium px-2.5 py-1 rounded-full border border-green-500/20">
+                          <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Completed
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- Right Column: Community & Roommates -->
+          <div class="space-y-8 opacity-0 animate-fade-in-up delay-300">
+            
+            <!-- Roommates Widget -->
+            <section id="block-roommates" class="bg-brand-surface border border-brand-border rounded-3xl p-6">
+              <h2 class="text-lg font-bold text-white mb-5 flex items-center">
+                <i class="fa-solid fa-user-group text-brand-orange mr-3"></i>
+                Room 402-B
+              </h2>
+              
+              <div class="space-y-4">
+                <!-- Roommate 1 -->
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-brand-black border border-brand-border">
+                  <div class="flex items-center gap-3">
+                    <div class="relative">
+                      <img src="https://i.pravatar.cc/150?u=sarah" alt="Sarah" class="w-10 h-10 rounded-full object-cover border border-brand-border">
+                      <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-brand-black rounded-full"></span>
+                    </div>
+                    <div>
+                      <p class="text-sm font-medium text-white">Sarah Jenkins</p>

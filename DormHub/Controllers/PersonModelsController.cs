@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using DormHub.Models;
 
 namespace DormHub.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("osoby")]
     public class PersonModelsController : Controller
     {
@@ -55,11 +57,14 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber")] PersonModel personModel)
+        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber,PasswordHash,Role")] PersonModel personModel)
         {
+            // EF manages Discriminator automatically – ignore it in validation
+            ModelState.Remove("Discriminator");
             if (ModelState.IsValid)
             {
-                _context.Add(personModel);
+                personModel.PasswordHash = DormHub.Services.PasswordHasher.Hash(personModel.PasswordHash);
+                _context.Persons.Add(personModel);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -87,17 +92,28 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber")] PersonModel personModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber,Role")] PersonModel personModel, string? newPassword)
         {
             if (id != personModel.Id)
             {
                 return NotFound();
             }
 
+            ModelState.Remove("PasswordHash");
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var existingPerson = await _context.Persons.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+                    if (existingPerson == null) return NotFound();
+
+                    if (!string.IsNullOrEmpty(newPassword))
+                        personModel.PasswordHash = DormHub.Services.PasswordHasher.Hash(newPassword);
+                    else
+                        personModel.PasswordHash = existingPerson.PasswordHash;
+
+                    personModel.Discriminator = existingPerson.Discriminator;
+
                     _context.Update(personModel);
                     await _context.SaveChangesAsync();
                 }

@@ -1,39 +1,48 @@
-﻿@model DormHub.Models.BuildingModel
+@model DormHub.Models.BuildingModel
+@{ ViewData["Title"] = "Edytuj budynek"; }
 
-@{
-    ViewData["Title"] = "Edit";
-}
-
-<h1>Edit</h1>
-
-<h4>BuildingModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-pen" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Edytuj budynek" data-en="Edit building">Edytuj budynek</span></div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="dh-card dh-fade dh-fade-1" style="max-width:580px;">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
+        <input type="hidden" asp-for="Id" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Nazwa budynku" data-en="Building name">Nazwa budynku</label>
+                <input asp-for="Name" class="dh-input" />
+                <div class="dh-form-error"><span asp-validation-for="Name"></span></div>
+            </div>
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Liczba pięter" data-en="Total floors">Liczba pięter</label>
+                <input asp-for="TotalFloors" class="dh-input" type="number" min="1" />
+            </div>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Adres" data-en="Address">Adres</label>
+            <input asp-for="Address" class="dh-input" />
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Telefon" data-en="Phone">Telefon</label>
+            <input asp-for="PhoneNumber" class="dh-input" />
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Opis" data-en="Description">Opis</label>
+            <textarea asp-for="Description" class="dh-textarea" rows="3"></textarea>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-check">
+                <input asp-for="IsActive" type="checkbox" />
+                <span style="font-size:.88rem;color:var(--muted);" data-pl="Budynek aktywny" data-en="Building active">Budynek aktywny</span>
+            </label>
+        </div>
+        <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
+            <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
+        </div>
+    </form>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

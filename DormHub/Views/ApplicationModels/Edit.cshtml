@@ -1,44 +1,45 @@
-﻿@model DormHub.Models.ApplicationModel
+@model DormHub.Models.ApplicationModel
+@{ ViewData["Title"] = "Edytuj wniosek"; }
 
-@{
-    ViewData["Title"] = "Edit";
-}
-
-<h1>Edit</h1>
-
-<h4>ApplicationModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="ApplicantId" class="control-label"></label>
-                <select asp-for="ApplicantId" class="form-control" asp-items="ViewBag.ApplicantId"></select>
-                <span asp-validation-for="ApplicantId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PreferredRoomTypeId" class="control-label"></label>
-                <select asp-for="PreferredRoomTypeId" class="form-control" asp-items="ViewBag.PreferredRoomTypeId"></select>
-                <span asp-validation-for="PreferredRoomTypeId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PreferredBuildingId" class="control-label"></label>
-                <select asp-for="PreferredBuildingId" class="form-control" asp-items="ViewBag.PreferredBuildingId"></select>
-                <span asp-validation-for="PreferredBuildingId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-pen" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Edytuj wniosek" data-en="Edit application">Edytuj wniosek</span></div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="dh-card dh-fade dh-fade-1" style="max-width:560px;">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
+        <input type="hidden" asp-for="Id" />
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Wnioskodawca" data-en="Applicant">Wnioskodawca</label>
+            <select asp-for="ApplicantId" class="dh-select" asp-items="ViewBag.ApplicantId">
+                <option value="">-- wybierz --</option>
+            </select>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Preferowany typ pokoju" data-en="Preferred room type">Preferowany typ pokoju</label>
+            <select asp-for="PreferredRoomTypeId" class="dh-select" asp-items="ViewBag.PreferredRoomTypeId">
+                <option value="">-- dowolny --</option>
+            </select>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Preferowany budynek" data-en="Preferred building">Preferowany budynek</label>
+            <select asp-for="PreferredBuildingId" class="dh-select" asp-items="ViewBag.PreferredBuildingId">
+                <option value="">-- dowolny --</option>
+            </select>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Status" data-en="Status">Status</label>
+            <select asp-for="Status" class="dh-select" asp-items="@Html.GetEnumSelectList<DormHub.Models.ApplicationStatus>()"></select>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Notatki admina" data-en="Admin notes">Notatki admina</label>
+            <textarea asp-for="AdminNotes" class="dh-textarea" rows="3"></textarea>
+        </div>
+        <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
+            <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
+        </div>
+    </form>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

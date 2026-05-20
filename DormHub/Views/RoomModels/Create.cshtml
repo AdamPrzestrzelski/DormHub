@@ -1,41 +1,49 @@
-﻿@model DormHub.Models.RoomModel
+@model DormHub.Models.RoomModel
+@{ ViewData["Title"] = "Dodaj pokój"; }
 
-@{
-    ViewData["Title"] = "Create";
-}
-
-<h1>Create</h1>
-
-<h4>RoomModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="RoomNumber" class="control-label"></label>
-                <input asp-for="RoomNumber" class="form-control" />
-                <span asp-validation-for="RoomNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="BuildingId" class="control-label"></label>
-                <select asp-for="BuildingId" class ="form-control" asp-items="ViewBag.BuildingId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="TypeId" class="control-label"></label>
-                <select asp-for="TypeId" class ="form-control" asp-items="ViewBag.TypeId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-door-open" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Dodaj pokój" data-en="Add room">Dodaj pokój</span></div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="dh-card dh-fade dh-fade-1" style="max-width:540px;">
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Numer pokoju" data-en="Room number">Numer pokoju</label>
+                <input asp-for="RoomNumber" class="dh-input"/>
+                <div class="dh-form-error"><span asp-validation-for="RoomNumber"></span></div>
+            </div>
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Piętro" data-en="Floor">Piętro</label>
+                <input asp-for="Floor" class="dh-input" type="number" min="0"/>
+            </div>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Budynek" data-en="Building">Budynek</label>
+            <select asp-for="BuildingId" class="dh-select" asp-items="ViewBag.BuildingId">
+                <option value="">-- wybierz --</option>
+            </select>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Typ pokoju" data-en="Room type">Typ pokoju</label>
+            <select asp-for="TypeId" class="dh-select" asp-items="ViewBag.TypeId">
+                <option value="">-- wybierz --</option>
+            </select>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Status" data-en="Status">Status</label>
+            <select asp-for="Status" class="dh-select" asp-items="@Html.GetEnumSelectList<DormHub.Models.RoomStatus>()"></select>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Uwagi" data-en="Notes">Uwagi</label>
+            <textarea asp-for="Notes" class="dh-textarea" rows="2"></textarea>
+        </div>
+        <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
+            <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
+        </div>
+    </form>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

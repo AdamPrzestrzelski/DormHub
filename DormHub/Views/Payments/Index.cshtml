@@ -1,0 +1,69 @@
+@model IEnumerable<DormHub.Models.PaymentModel>
+@{ ViewData["Title"] = "Płatności"; }
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-wallet" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Płatności" data-en="Payments">Płatności</span></div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="dh-btn dh-btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            <span data-pl="Dodaj płatność" data-en="Add payment">Dodaj płatność</span>
+        </a>
+    }
+</div>
+
+<div class="dh-card dh-fade dh-fade-1">
+    <div style="overflow-x:auto;">
+        <table class="dh-table">
+            <thead>
+                <tr>
+                    <th data-pl="Mieszkaniec" data-en="Resident">Mieszkaniec</th>
+                    <th data-pl="Opis" data-en="Description">Opis</th>
+                    <th data-pl="Kwota" data-en="Amount">Kwota</th>
+                    <th data-pl="Termin" data-en="Due date">Termin</th>
+                    <th data-pl="Status" data-en="Status">Status</th>
+                    <th data-pl="Zapłacono" data-en="Paid on">Zapłacono</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td class="td-bold">@p.Resident?.FirstName @p.Resident?.LastName</td>
+                        <td class="td-muted">@(p.Description ?? "–")</td>
+                        <td style="font-weight:600;color:#fff;font-variant-numeric:tabular-nums;">@p.Amount.ToString("C")</td>
+                        <td class="td-muted">@p.DueDate.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            @{
+                                var (pc, pp, pe) = p.Status switch {
+                                    DormHub.Models.PaymentStatus.Paid    => ("dh-badge-green",  "Zapłacona",  "Paid"),
+                                    DormHub.Models.PaymentStatus.Overdue => ("dh-badge-red",    "Zaległa",    "Overdue"),
+                                    _                                     => ("dh-badge-yellow", "Oczekująca", "Pending")
+                                };
+                            }
+                            <span class="dh-badge @pc" data-pl="@pp" data-en="@pe">@pp</span>
+                        </td>
+                        <td class="td-muted">@(p.PaidAt.HasValue ? p.PaidAt.Value.ToString("dd.MM.yyyy") : "–")</td>
+                        <td>
+                            <div class="dh-table-actions">
+                                <a asp-action="Details" asp-route-id="@p.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
+                                @if (User.IsInRole("Admin") && p.Status != DormHub.Models.PaymentStatus.Paid)
+                                {
+                                    <form asp-action="MarkAsPaid" asp-route-id="@p.Id" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dh-btn dh-btn-success dh-btn-sm"><i class="fa-solid fa-check"></i></button>
+                                    </form>
+                                }
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Delete" asp-route-id="@p.Id" class="dh-btn dh-btn-danger dh-btn-sm"><i class="fa-solid fa-trash"></i></a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using DormHub.Models;
 
 namespace DormHub.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("wnioski")]
     public class ApplicationModelsController : Controller
     {
@@ -51,7 +53,9 @@ namespace DormHub.Controllers
         [HttpGet("dodaj")]
         public IActionResult Create()
         {
-            ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator");
+            ViewData["ApplicantId"] = new SelectList(
+                _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
+                "Id", "FullName");
             ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name");
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name");
             return View();
@@ -62,15 +66,21 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId")] ApplicationModel applicationModel)
+        public async Task<IActionResult> Create([Bind("ApplicantId,PreferredRoomTypeId,PreferredBuildingId")] ApplicationModel applicationModel)
         {
+            ModelState.Remove("Id");
             if (ModelState.IsValid)
             {
+                applicationModel.Id = Guid.NewGuid().ToString();
+                applicationModel.SubmittedAt = DateTime.Now;
+                applicationModel.Status = ApplicationStatus.Pending;
                 _context.Add(applicationModel);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator", applicationModel.ApplicantId);
+            ViewData["ApplicantId"] = new SelectList(
+                _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
+                "Id", "FullName", applicationModel.ApplicantId);
             ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name", applicationModel.PreferredBuildingId);
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", applicationModel.PreferredRoomTypeId);
             return View(applicationModel);
@@ -79,17 +89,12 @@ namespace DormHub.Controllers
         [HttpGet("edytuj/{id}")]
         public async Task<IActionResult> Edit(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var applicationModel = await _context.Applications.FindAsync(id);
-            if (applicationModel == null)
-            {
-                return NotFound();
-            }
-            ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator", applicationModel.ApplicantId);
+            if (applicationModel == null) return NotFound();
+            ViewData["ApplicantId"] = new SelectList(
+                _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
+                "Id", "FullName", applicationModel.ApplicantId);
             ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name", applicationModel.PreferredBuildingId);
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", applicationModel.PreferredRoomTypeId);
             return View(applicationModel);
@@ -100,7 +105,7 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId")] ApplicationModel applicationModel)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId,Status,AdminNotes")] ApplicationModel applicationModel)
         {
             if (id != applicationModel.Id)
             {
@@ -172,6 +177,30 @@ namespace DormHub.Controllers
         private bool ApplicationModelExists(string id)
         {
             return _context.Applications.Any(e => e.Id == id);
+        }
+
+        [HttpPost("zatwierdz/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Accept(string id, string? adminNotes)
+        {
+            var app = await _context.Applications.FindAsync(id);
+            if (app == null) return NotFound();
+            app.Status = ApplicationStatus.Accepted;
+            app.AdminNotes = adminNotes;
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost("odrzuc/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reject(string id, string? adminNotes)
+        {
+            var app = await _context.Applications.FindAsync(id);
+            if (app == null) return NotFound();
+            app.Status = ApplicationStatus.Rejected;
+            app.AdminNotes = adminNotes;
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

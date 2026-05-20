@@ -1,0 +1,24 @@
+@model DormHub.Models.AnnouncementModel
+
+@{
+    ViewData["Title"] = "Usuń ogłoszenie";
+}
+
+<h1>🗑️ Usuń ogłoszenie</h1>
+<hr />
+<div class="alert alert-danger">Czy na pewno chcesz usunąć to ogłoszenie?</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Tytuł</dt>
+    <dd class="col-sm-9">@Model.Title</dd>
+    <dt class="col-sm-3">Autor</dt>
+    <dd class="col-sm-9">@Model.Author?.FirstName @Model.Author?.LastName</dd>
+    <dt class="col-sm-3">Opublikowano</dt>
+    <dd class="col-sm-9">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+</dl>
+
+<form asp-action="Delete">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger">Tak, usuń</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Anuluj</a>
+</form>

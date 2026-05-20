@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using DormHub.Models;
 
 namespace DormHub.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("budynki")]
     public class BuildingModelsController : Controller
     {
@@ -55,7 +57,7 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address")] BuildingModel buildingModel)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,TotalFloors,PhoneNumber,Description,IsActive")] BuildingModel buildingModel)
         {
             if (ModelState.IsValid)
             {
@@ -87,7 +89,7 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address")] BuildingModel buildingModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,TotalFloors,PhoneNumber,Description,IsActive")] BuildingModel buildingModel)
         {
             if (id != buildingModel.Id)
             {

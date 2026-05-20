@@ -1,65 +1,99 @@
-﻿@model IEnumerable<DormHub.Models.FaultModel>
+@model IEnumerable<DormHub.Models.FaultModel>
+@{ ViewData["Title"] = "Usterki"; }
 
-@{
-    ViewData["Title"] = "Index";
-}
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-wrench" style="color:var(--orange);margin-right:.5rem;"></i> <span data-pl="Usterki" data-en="Maintenance">Usterki</span></div>
+    <a asp-action="Create" class="dh-btn dh-btn-primary">
+        <i class="fa-solid fa-plus"></i>
+        <span data-pl="Zgłoś usterkę" data-en="Report fault">Zgłoś usterkę</span>
+    </a>
+</div>
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Room)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReportedBy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReportedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsResolved)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolvedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Room.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReportedBy.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReportedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsResolved)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResolvedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="dh-card dh-fade dh-fade-1">
+    <div style="overflow-x:auto;">
+        <table class="dh-table">
+            <thead>
+                <tr>
+                    <th data-pl="Pokój" data-en="Room">Pokój</th>
+                    <th data-pl="Kategoria" data-en="Category">Kategoria</th>
+                    <th data-pl="Opis" data-en="Description">Opis</th>
+                    <th data-pl="Priorytet" data-en="Priority">Priorytet</th>
+                    <th data-pl="Data" data-en="Date">Data</th>
+                    <th data-pl="Status" data-en="Status">Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="td-mono">@item.Room?.RoomNumber</td>
+                        <td class="td-muted">
+                            @{
+                                var catIcon = item.Category switch {
+                                    DormHub.Models.FaultCategory.Plumbing   => "fa-droplet",
+                                    DormHub.Models.FaultCategory.Electrical => "fa-bolt",
+                                    DormHub.Models.FaultCategory.Furniture  => "fa-couch",
+                                    DormHub.Models.FaultCategory.Windows    => "fa-window-maximize",
+                                    DormHub.Models.FaultCategory.Internet   => "fa-wifi",
+                                    _                                        => "fa-box"
+                                };
+                                var catPl = item.Category switch {
+                                    DormHub.Models.FaultCategory.Plumbing   => "Hydraulika",
+                                    DormHub.Models.FaultCategory.Electrical => "Elektryka",
+                                    DormHub.Models.FaultCategory.Furniture  => "Meble",
+                                    DormHub.Models.FaultCategory.Windows    => "Okna/Drzwi",
+                                    DormHub.Models.FaultCategory.Internet   => "Internet/TV",
+                                    _                                        => "Inne"
+                                };
+                                var catEn = item.Category switch {
+                                    DormHub.Models.FaultCategory.Plumbing   => "Plumbing",
+                                    DormHub.Models.FaultCategory.Electrical => "Electrical",
+                                    DormHub.Models.FaultCategory.Furniture  => "Furniture",
+                                    DormHub.Models.FaultCategory.Windows    => "Windows/Doors",
+                                    DormHub.Models.FaultCategory.Internet   => "Internet/TV",
+                                    _                                        => "Other"
+                                };
+                            }
+                            <i class="fa-solid @catIcon" style="color:var(--orange);margin-right:6px;"></i>
+                            <span data-pl="@catPl" data-en="@catEn">@catPl</span>
+                        </td>
+                        <td class="td-bold">@(item.Description.Length > 45 ? item.Description.Substring(0,45)+"…" : item.Description)</td>
+                        <td>
+                            @{
+                                var (pc, pp, pe) = item.Priority switch {
+                                    DormHub.Models.FaultPriority.Critical => ("dh-badge-red",    "Krytyczny", "Critical"),
+                                    DormHub.Models.FaultPriority.High     => ("dh-badge-yellow", "Wysoki",    "High"),
+                                    DormHub.Models.FaultPriority.Medium   => ("dh-badge-orange", "Średni",    "Medium"),
+                                    _                                      => ("dh-badge-gray",   "Niski",     "Low")
+                                };
+                            }
+                            <span class="dh-badge @pc" data-pl="@pp" data-en="@pe">@pp</span>
+                        </td>
+                        <td class="td-muted">@item.ReportedAt.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            @if (item.IsResolved)
+                            {
+                                <span class="dh-badge dh-badge-green" data-pl="Rozwiązana" data-en="Resolved">Rozwiązana</span>
+                            }
+                            else
+                            {
+                                <span class="dh-badge dh-badge-gray" data-pl="Otwarta" data-en="Open"><span class="dot"></span>Otwarta</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="dh-table-actions">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-pen"></i></a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="dh-btn dh-btn-danger dh-btn-sm"><i class="fa-solid fa-trash"></i></a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

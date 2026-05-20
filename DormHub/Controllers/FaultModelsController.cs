@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using DormHub.Models;
 
 namespace DormHub.Controllers
 {
+    [Authorize]
     [Route("usterki")]
     public class FaultModelsController : Controller
     {
@@ -60,7 +62,7 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,RoomId,ReportedById,Description,ReportedAt,IsResolved,ResolvedAt")] FaultModel faultModel)
+        public async Task<IActionResult> Create([Bind("Id,RoomId,ReportedById,Description,ReportedAt,Priority,Category,IsResolved,ResolvedAt,ResolutionNotes,ResolvedById")] FaultModel faultModel)
         {
             if (ModelState.IsValid)
             {
@@ -88,6 +90,7 @@ namespace DormHub.Controllers
             }
             ViewData["ReportedById"] = new SelectList(_context.Residents, "Id", "Discriminator", faultModel.ReportedById);
             ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id", faultModel.RoomId);
+            ViewData["ResolvedById"] = new SelectList(_context.Persons, "Id", "Email", faultModel.ResolvedById);
             return View(faultModel);
         }
 
@@ -96,7 +99,7 @@ namespace DormHub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomId,ReportedById,Description,ReportedAt,IsResolved,ResolvedAt")] FaultModel faultModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomId,ReportedById,Description,ReportedAt,Priority,Category,IsResolved,ResolvedAt,ResolutionNotes,ResolvedById")] FaultModel faultModel)
         {
             if (id != faultModel.Id)
             {
@@ -125,6 +128,7 @@ namespace DormHub.Controllers
             }
             ViewData["ReportedById"] = new SelectList(_context.Residents, "Id", "Discriminator", faultModel.ReportedById);
             ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "Id", faultModel.RoomId);
+            ViewData["ResolvedById"] = new SelectList(_context.Persons, "Id", "Email", faultModel.ResolvedById);
             return View(faultModel);
         }
 

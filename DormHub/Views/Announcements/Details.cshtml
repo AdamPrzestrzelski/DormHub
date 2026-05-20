@@ -1,0 +1,36 @@
+@model DormHub.Models.AnnouncementModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">← Powrót do ogłoszeń</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div>
+            @if (Model.IsPinned)
+            {
+                <span class="badge bg-warning text-dark me-2">📌 Przypięte</span>
+            }
+            @if (Model.Building != null)
+            {
+                <span class="badge bg-secondary me-2">@Model.Building.Name</span>
+            }
+            <strong class="fs-5">@Model.Title</strong>
+        </div>
+        <span class="text-muted small">@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</span>
+    </div>
+    <div class="card-body">
+        <p class="card-text" style="white-space: pre-wrap;">@Model.Content</p>
+    </div>
+    <div class="card-footer bg-white text-muted small">
+        Autor: @Model.Author?.FirstName @Model.Author?.LastName
+        @if (Model.ExpiresAt.HasValue)
+        {
+            <span class="ms-3">· Ważne do: @Model.ExpiresAt.Value.ToString("dd.MM.yyyy")</span>
+        }
+    </div>
+</div>
