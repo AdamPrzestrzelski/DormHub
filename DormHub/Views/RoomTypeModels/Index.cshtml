@@ -1,13 +1,37 @@
 @model IEnumerable<DormHub.Models.RoomTypeModel>
-@{ ViewData["Title"] = "Typy pokojów"; }
+@{
+    ViewData["Title"] = "Typy pokojów";
+    var eurRate = ViewData["EurRate"] as decimal?;
+    var usdRate = ViewData["UsdRate"] as decimal?;
+    var cnyRate = ViewData["CnyRate"] as decimal?;
+    var ilsRate = ViewData["IlsRate"] as decimal?;
+    var rateDate = ViewData["RateDate"] as string;
+}
 
 <div class="dh-page-header dh-fade">
-    <div class="dh-page-title"><i class="fa-solid fa-layer-group" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Typy pokojów" data-en="Room Types">Typy pokojów</span></div>
+    <div class="dh-page-title">
+        <i class="fa-solid fa-layer-group" style="color:var(--orange);margin-right:.5rem;"></i>
+        <span data-pl="Typy pokojów" data-en="Room Types">Typy pokojów</span>
+    </div>
     <a asp-action="Create" class="dh-btn dh-btn-primary">
         <i class="fa-solid fa-plus"></i>
         <span data-pl="Dodaj typ" data-en="Add type">Dodaj typ</span>
     </a>
 </div>
+
+@if (rateDate != null)
+{
+    <div class="dh-fade dh-fade-1" style="margin-bottom:.75rem;">
+        <span style="font-size:.8rem;color:var(--text-muted);">
+            <i class="fa-solid fa-chart-line" style="color:var(--orange);margin-right:.35rem;"></i>
+            Kursy NBP z dnia <strong>@rateDate</strong>:
+            @if (eurRate.HasValue) { <span style="margin:0 .5rem;">🇪🇺 1 EUR = <strong>@eurRate.Value.ToString("F4")</strong> PLN</span> }
+            @if (usdRate.HasValue) { <span style="margin:0 .5rem;">🇺🇸 1 USD = <strong>@usdRate.Value.ToString("F4")</strong> PLN</span> }
+            @if (cnyRate.HasValue) { <span style="margin:0 .5rem;">🇨🇳 1 CNY = <strong>@cnyRate.Value.ToString("F4")</strong> PLN</span> }
+            @if (ilsRate.HasValue) { <span>🇮🇱 1 ILS = <strong>@ilsRate.Value.ToString("F4")</strong> PLN</span> }
+        </span>
+    </div>
+}
 
 <div class="dh-card dh-fade dh-fade-1">
     <div style="overflow-x:auto;">
@@ -16,6 +40,7 @@
                 <tr>
                     <th data-pl="Nazwa" data-en="Name">Nazwa</th>
                     <th data-pl="Pojemność" data-en="Capacity">Pojemność</th>
+                    <th data-pl="Cena / miesiąc" data-en="Price / month">Cena / miesiąc</th>
                     <th></th>
                 </tr>
             </thead>
@@ -25,6 +50,39 @@
                     <tr>
                         <td class="td-bold">@item.Name</td>
                         <td class="td-muted">@item.Capacity <span data-pl="os." data-en="pers.">os.</span></td>
+                        <td>
+                            <div style="display:flex;flex-direction:column;gap:.15rem;">
+                                <span style="font-weight:600;">@item.PricePerMonth.ToString("N2") PLN</span>
+                                @if (eurRate.HasValue)
+                                {
+                                    <span class="td-muted" style="font-size:.82rem;">
+                                        ≈ @(Math.Round(item.PricePerMonth / eurRate.Value, 2).ToString("N2")) EUR
+                                    </span>
+                                }
+                                @if (usdRate.HasValue)
+                                {
+                                    <span class="td-muted" style="font-size:.82rem;">
+                                        ≈ @(Math.Round(item.PricePerMonth / usdRate.Value, 2).ToString("N2")) USD
+                                    </span>
+                                }
+                                @if (cnyRate.HasValue)
+                                {
+                                    <span class="td-muted" style="font-size:.82rem;">
+                                        ≈ @(Math.Round(item.PricePerMonth / cnyRate.Value, 2).ToString("N2")) CNY
+                                    </span>
+                                }
+                                @if (ilsRate.HasValue)
+                                {
+                                    <span class="td-muted" style="font-size:.82rem;">
+                                        ≈ @(Math.Round(item.PricePerMonth / ilsRate.Value, 2).ToString("N2")) ILS
+                                    </span>
+                                }
+                                @if (!eurRate.HasValue && !usdRate.HasValue && !cnyRate.HasValue && !ilsRate.HasValue)
+                                {
+                                    <span class="td-muted" style="font-size:.78rem;color:var(--danger);">brak kursu NBP</span>
+                                }
+                            </div>
+                        </td>
                         <td>
                             <div class="dh-table-actions">
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-pen"></i></a>

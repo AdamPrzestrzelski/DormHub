@@ -22,7 +22,7 @@ namespace DormHub.Controllers
         private int CurrentUserId() =>
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        [Route("")]
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             IQueryable<PaymentModel> query = _context.Payments

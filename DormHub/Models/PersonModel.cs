@@ -26,9 +26,6 @@ namespace DormHub.Models
         [Phone(ErrorMessage = "Bledny numer telefonu")]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        // NOTE: Discriminator is managed by EF Core automatically (TPH).
-        // Do NOT add a public Discriminator property – it conflicts with EF shadow property.
-
         [Required(ErrorMessage = "Haslo jest wymagane")]
         public string PasswordHash { get; set; } = string.Empty;
 

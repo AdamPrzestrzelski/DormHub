@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DormHub.Data;
 using DormHub.Models;
+using DormHub.Services;
 
 namespace DormHub.Controllers
 {
@@ -16,32 +17,43 @@ namespace DormHub.Controllers
     public class RoomTypeModelsController : Controller
     {
         private readonly DormDbContext _context;
+        private readonly CurrencyService _currency;
 
-        public RoomTypeModelsController(DormDbContext context)
+        public RoomTypeModelsController(DormDbContext context, CurrencyService currency)
         {
             _context = context;
+            _currency = currency;
         }
 
-        [Route("")]
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.RoomTypes.ToListAsync());
+            var types = await _context.RoomTypes.ToListAsync();
+
+            var (eurRate, usdRate, cnyRate, ilsRate, rateDate) = await GetRatesAsync();
+            ViewData["EurRate"]  = eurRate;
+            ViewData["UsdRate"]  = usdRate;
+            ViewData["CnyRate"]  = cnyRate;
+            ViewData["IlsRate"]  = ilsRate;
+            ViewData["RateDate"] = rateDate;
+
+            return View(types);
         }
 
         [HttpGet("szczegoly/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var roomTypeModel = await _context.RoomTypes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (roomTypeModel == null)
-            {
-                return NotFound();
-            }
+            var roomTypeModel = await _context.RoomTypes.FirstOrDefaultAsync(m => m.Id == id);
+            if (roomTypeModel == null) return NotFound();
+
+            var (eur, usd, cny, ils, date) = await _currency.ConvertPlnAsync(roomTypeModel.PricePerMonth);
+            ViewData["PriceEur"]  = eur;
+            ViewData["PriceUsd"]  = usd;
+            ViewData["PriceCny"]  = cny;
+            ViewData["PriceIls"]  = ils;
+            ViewData["RateDate"]  = date;
 
             return View(roomTypeModel);
         }
@@ -52,12 +64,9 @@ namespace DormHub.Controllers
             return View();
         }
 
-        // POST: RoomTypeModels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Capacity")] RoomTypeModel roomTypeModel)
+        public async Task<IActionResult> Create([Bind("Id,Name,Capacity,PricePerMonth")] RoomTypeModel roomTypeModel)
         {
             if (ModelState.IsValid)
             {
@@ -71,30 +80,18 @@ namespace DormHub.Controllers
         [HttpGet("edytuj/{id}")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var roomTypeModel = await _context.RoomTypes.FindAsync(id);
-            if (roomTypeModel == null)
-            {
-                return NotFound();
-            }
+            if (roomTypeModel == null) return NotFound();
             return View(roomTypeModel);
         }
 
-        // POST: RoomTypeModels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Capacity")] RoomTypeModel roomTypeModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Capacity,PricePerMonth")] RoomTypeModel roomTypeModel)
         {
-            if (id != roomTypeModel.Id)
-            {
-                return NotFound();
-            }
+            if (id != roomTypeModel.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -105,14 +102,8 @@ namespace DormHub.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RoomTypeModelExists(roomTypeModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!RoomTypeModelExists(roomTypeModel.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -122,22 +113,14 @@ namespace DormHub.Controllers
         [HttpGet("usun/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var roomTypeModel = await _context.RoomTypes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (roomTypeModel == null)
-            {
-                return NotFound();
-            }
+            var roomTypeModel = await _context.RoomTypes.FirstOrDefaultAsync(m => m.Id == id);
+            if (roomTypeModel == null) return NotFound();
 
             return View(roomTypeModel);
         }
 
-        // POST: RoomTypeModels/Delete/5
         [HttpPost("usun/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -155,6 +138,17 @@ namespace DormHub.Controllers
         private bool RoomTypeModelExists(int id)
         {
             return _context.RoomTypes.Any(e => e.Id == id);
+        }
+
+        private async Task<(decimal? eur, decimal? usd, decimal? cny, decimal? ils, string? date)> GetRatesAsync()
+        {
+            var table = await _currency.GetTableAsync();
+            if (table == null) return (null, null, null, null, null);
+            var eur = table.Rates.FirstOrDefault(r => r.Code == "EUR")?.Mid;
+            var usd = table.Rates.FirstOrDefault(r => r.Code == "USD")?.Mid;
+            var cny = table.Rates.FirstOrDefault(r => r.Code == "CNY")?.Mid;
+            var ils = table.Rates.FirstOrDefault(r => r.Code == "ILS")?.Mid;
+            return (eur, usd, cny, ils, table.EffectiveDate);
         }
     }
 }

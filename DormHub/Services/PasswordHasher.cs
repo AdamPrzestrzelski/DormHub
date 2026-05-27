@@ -3,11 +3,11 @@ using System.Security.Cryptography;
 
 namespace DormHub.Services
 {
-    // Prosty hasher u¿ywaj¹cy PBKDF2 (Rfc2898). Przechowuje salt i hash w formacie: salt:hash (oba Base64).
+
     public static class PasswordHasher
     {
-        private const int SaltSize = 16; // 128 bit
-        private const int KeySize = 32;  // 256 bit
+        private const int SaltSize = 16; 
+        private const int KeySize = 32;
         private const int Iterations = 100_000;
 
         public static string Hash(string password)

@@ -25,7 +25,7 @@ namespace DormHub.Controllers
         private bool IsAdminOrStaff() =>
             User.IsInRole("Admin") || User.IsInRole("Staff");
 
-        [Route("")]
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             IQueryable<FaultModel> query = _context.Faults

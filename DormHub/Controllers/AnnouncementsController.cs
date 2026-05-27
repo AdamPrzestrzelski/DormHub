@@ -18,7 +18,7 @@ namespace DormHub.Controllers
             _context = context;
         }
 
-        [Route("")]
+        [HttpGet("")]
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {

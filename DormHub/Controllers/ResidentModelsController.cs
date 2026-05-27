@@ -22,7 +22,7 @@ namespace DormHub.Controllers
             _context = context;
         }
 
-        [Route("")]
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             var residents = _context.Residents.Include(r => r.Room);
@@ -40,11 +40,9 @@ namespace DormHub.Controllers
             return View(residentModel);
         }
 
-        // GET: Dodaj mieszkańca – wybierz z istniejących osób
         [HttpGet("dodaj")]
         public IActionResult Create()
         {
-            // Lista osób które NIE są jeszcze mieszkańcami (nie mają rekordu w Residents)
             var existingResidentIds = _context.Residents.Select(r => r.Id).ToHashSet();
             var availablePersons = _context.Persons
                 .Where(p => !existingResidentIds.Contains(p.Id))
@@ -56,12 +54,10 @@ namespace DormHub.Controllers
             return View();
         }
 
-        // POST: Konwertuje PersonModel na ResidentModel przez UPDATE discriminatora
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int PersonId, int? RoomId, DateTime MoveInDate, DateTime? MoveOutDate)
         {
-            // Walidacja
             var person = await _context.Persons.FindAsync(PersonId);
             if (person == null)
             {
@@ -75,8 +71,6 @@ namespace DormHub.Controllers
                 goto ReturnView;
             }
 
-            // Bezpieczna konwersja: UPDATE discriminatora + pol mieszkanca w jednym zapytaniu
-            // (bez Delete + Insert = brak ryzyka utraty danych)
             await _context.Database.ExecuteSqlRawAsync(
                 "UPDATE [Persons] SET [Discriminator] = 'ResidentModel', [RoomId] = {0}, [MoveInDate] = {1}, [MoveOutDate] = {2} WHERE [Id] = {3}",
                 (object?)RoomId ?? DBNull.Value,
@@ -84,7 +78,6 @@ namespace DormHub.Controllers
                 (object?)MoveOutDate ?? DBNull.Value,
                 PersonId);
 
-            // Automatyczna aktualizacja statusu pokoju
             if (RoomId.HasValue)
             {
                 await UpdateRoomStatusAsync(RoomId.Value);

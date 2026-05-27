@@ -139,7 +139,6 @@ namespace DormHub.Controllers
             return View();
         }
 
-        // Optional: endpoint to create a test user (development only)
         [HttpPost]
         public async Task<IActionResult> CreateTestUser(string email, string password, string role = "User")
         {

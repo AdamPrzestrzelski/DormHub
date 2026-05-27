@@ -1,30 +1,79 @@
-﻿@model DormHub.Models.RoomTypeModel
-
+@model DormHub.Models.RoomTypeModel
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Szczegóły typu pokoju";
+    var priceEur = ViewData["PriceEur"] as decimal?;
+    var priceUsd = ViewData["PriceUsd"] as decimal?;
+    var priceCny = ViewData["PriceCny"] as decimal?;
+    var priceIls = ViewData["PriceIls"] as decimal?;
+    var rateDate = ViewData["RateDate"] as string;
 }
 
-<h1>Details</h1>
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-layer-group" style="color:var(--orange);margin-right:.5rem;"></i>
+        <span data-pl="Szczegóły typu pokoju" data-en="Room Type Details">Szczegóły typu pokoju</span>
+    </div>
+    <div style="display:flex;gap:.5rem;">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="dh-btn dh-btn-primary">
+            <i class="fa-solid fa-pen"></i> <span data-pl="Edytuj" data-en="Edit">Edytuj</span>
+        </a>
+        <a asp-action="Index" class="dh-btn dh-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span>
+        </a>
+    </div>
+</div>
 
-<div>
-    <h4>RoomTypeModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Capacity)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Capacity)
+<div class="dh-card dh-fade dh-fade-1" style="max-width:520px;">
+    <dl style="display:grid;grid-template-columns:auto 1fr;gap:.75rem 1.5rem;align-items:center;">
+        <dt class="td-muted" style="font-size:.85rem;font-weight:500;">Nazwa</dt>
+        <dd style="font-weight:600;font-size:1.1rem;margin:0;">@Model.Name</dd>
+
+        <dt class="td-muted" style="font-size:.85rem;font-weight:500;">Pojemność</dt>
+        <dd style="margin:0;">@Model.Capacity os.</dd>
+
+        <dt class="td-muted" style="font-size:.85rem;font-weight:500;">Cena / miesiąc</dt>
+        <dd style="margin:0;">
+            <div style="display:flex;flex-direction:column;gap:.3rem;">
+                <span style="font-size:1.25rem;font-weight:700;color:var(--orange);">
+                    @Model.PricePerMonth.ToString("N2") <span style="font-size:.9rem;font-weight:500;color:var(--text-muted);">PLN</span>
+                </span>
+                @if (priceEur.HasValue)
+                {
+                    <span style="font-size:.95rem;color:var(--text-muted);">
+                        🇪🇺 ≈ <strong>@priceEur.Value.ToString("N2")</strong> EUR
+                    </span>
+                }
+                @if (priceUsd.HasValue)
+                {
+                    <span style="font-size:.95rem;color:var(--text-muted);">
+                        🇺🇸 ≈ <strong>@priceUsd.Value.ToString("N2")</strong> USD
+                    </span>
+                }
+                @if (priceCny.HasValue)
+                {
+                    <span style="font-size:.95rem;color:var(--text-muted);">
+                        🇨🇳 ≈ <strong>@priceCny.Value.ToString("N2")</strong> CNY
+                    </span>
+                }
+                @if (priceIls.HasValue)
+                {
+                    <span style="font-size:.95rem;color:var(--text-muted);">
+                        🇮🇱 ≈ <strong>@priceIls.Value.ToString("N2")</strong> ILS
+                    </span>
+                }
+                @if (rateDate != null)
+                {
+                    <span style="font-size:.78rem;color:var(--text-muted);margin-top:.2rem;">
+                        <i class="fa-solid fa-calendar-days"></i> Kurs NBP z dnia @rateDate
+                    </span>
+                }
+                @if (!priceEur.HasValue && !priceUsd.HasValue && !priceCny.HasValue && !priceIls.HasValue)
+                {
+                    <span style="font-size:.8rem;color:var(--danger);">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Nie udało się pobrać kursów z NBP
+                    </span>
+                }
+            </div>
         </dd>
     </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
 </div>

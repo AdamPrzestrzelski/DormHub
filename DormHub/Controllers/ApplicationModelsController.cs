@@ -22,7 +22,7 @@ namespace DormHub.Controllers
             _context = context;
         }
 
-        [Route("")]
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             var dormDbContext = _context.Applications.Include(a => a.Applicant).Include(a => a.PreferredBuilding).Include(a => a.PreferredRoomType);
@@ -61,9 +61,6 @@ namespace DormHub.Controllers
             return View();
         }
 
-        // POST: ApplicationModels/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ApplicantId,PreferredRoomTypeId,PreferredBuildingId")] ApplicationModel applicationModel)
@@ -101,9 +98,6 @@ namespace DormHub.Controllers
             return View(applicationModel);
         }
 
-        // POST: ApplicationModels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId,StatusId,AdminNotes")] ApplicationModel applicationModel)
@@ -160,7 +154,6 @@ namespace DormHub.Controllers
             return View(applicationModel);
         }
 
-        // POST: ApplicationModels/Delete/5
         [HttpPost("usun/{id}"), ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)

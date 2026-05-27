@@ -28,7 +28,7 @@ namespace DormHub.Models
 
         public bool IsPinned { get; set; } = false;
 
-        // null = dla wszystkich budynków
+        // null = do wszystkich budynków
         public int? BuildingId { get; set; }
         [ForeignKey("BuildingId")]
         public BuildingModel? Building { get; set; }

@@ -22,7 +22,7 @@ namespace DormHub.Controllers
             _context = context;
         }
 
-        [Route("")]
+        [HttpGet("")]
         public async Task<IActionResult> Index()
         {
             var rooms = _context.Rooms

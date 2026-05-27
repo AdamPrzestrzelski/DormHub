@@ -31,6 +31,7 @@ namespace DormHub.Controllers
             _context = context;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var vm = new DashboardViewModel
@@ -65,11 +66,13 @@ namespace DormHub.Controllers
             return View(vm);
         }
 
+        [HttpGet]
         public IActionResult Privacy()
         {
             return View();
         }
 
+        [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
