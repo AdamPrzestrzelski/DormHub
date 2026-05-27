@@ -13,15 +13,9 @@ namespace DormHub.Models
         [Required(ErrorMessage = "Adres wymagany")]
         public string Address { get; set; }
 
-        [Range(1, 50, ErrorMessage = "Liczba pięter musi być między 1 a 50")]
         public int TotalFloors { get; set; } = 1;
 
         [Phone(ErrorMessage = "Nieprawidłowy numer telefonu")]
         public string? PhoneNumber { get; set; }
-
-        [MaxLength(1000)]
-        public string? Description { get; set; }
-
-        public bool IsActive { get; set; } = true;
     }
 }

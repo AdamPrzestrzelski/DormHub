@@ -29,16 +29,6 @@
             <label class="dh-label" data-pl="Telefon" data-en="Phone">Telefon</label>
             <input asp-for="PhoneNumber" class="dh-input" />
         </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Opis" data-en="Description">Opis</label>
-            <textarea asp-for="Description" class="dh-textarea" rows="3"></textarea>
-        </div>
-        <div class="dh-form-group">
-            <label class="dh-check">
-                <input asp-for="IsActive" type="checkbox" />
-                <span style="font-size:.88rem;color:var(--muted);" data-pl="Budynek aktywny" data-en="Building active">Budynek aktywny</span>
-            </label>
-        </div>
         <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
             <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>

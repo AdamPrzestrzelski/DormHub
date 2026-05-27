@@ -56,10 +56,12 @@ namespace DormHub.Controllers
 
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,RoomNumber,BuildingId,TypeId,StatusId,Floor")] RoomModel roomModel)
+        public async Task<IActionResult> Create([Bind("Id,RoomNumber,BuildingId,TypeId")] RoomModel roomModel)
         {
             if (ModelState.IsValid)
             {
+                roomModel.StatusId = 1;
+                roomModel.Floor = roomModel.RoomNumber / 100;
                 _context.Add(roomModel);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -84,13 +86,14 @@ namespace DormHub.Controllers
 
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomNumber,BuildingId,TypeId,StatusId,Floor")] RoomModel roomModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomNumber,BuildingId,TypeId,StatusId")] RoomModel roomModel)
         {
             if (id != roomModel.Id) return NotFound();
             if (ModelState.IsValid)
             {
                 try
                 {
+                    roomModel.Floor = roomModel.RoomNumber / 100;
                     _context.Update(roomModel);
                     await _context.SaveChangesAsync();
                 }

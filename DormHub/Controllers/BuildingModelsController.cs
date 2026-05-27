@@ -54,7 +54,7 @@ namespace DormHub.Controllers
 
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address,TotalFloors,PhoneNumber,Description,IsActive")] BuildingModel buildingModel)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,TotalFloors,PhoneNumber")] BuildingModel buildingModel)
         {
             if (ModelState.IsValid)
             {
@@ -83,7 +83,7 @@ namespace DormHub.Controllers
 
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,TotalFloors,PhoneNumber,Description,IsActive")] BuildingModel buildingModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,TotalFloors,PhoneNumber")] BuildingModel buildingModel)
         {
             if (id != buildingModel.Id)
             {

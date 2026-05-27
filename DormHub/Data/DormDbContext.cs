@@ -54,6 +54,10 @@ namespace DormHub.Data
                 .Property(p => p.Amount)
                 .HasPrecision(10, 2);
 
+            modelBuilder.Entity<RoomTypeModel>()
+                .Property(r => r.PricePerMonth)
+                .HasPrecision(10, 2);
+
             modelBuilder.Entity<AnnouncementModel>()
                 .HasOne(a => a.Author)
                 .WithMany()
@@ -66,14 +70,13 @@ namespace DormHub.Data
                 .HasForeignKey(a => a.BuildingId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Seed: Enum_RoomStatus
             modelBuilder.Entity<RoomStatusModel>().HasData(
                 new RoomStatusModel { Id = 1, Name = "Dostepny",   NameEn = "Available" },
                 new RoomStatusModel { Id = 2, Name = "Zajety",     NameEn = "Occupied" },
-                new RoomStatusModel { Id = 3, Name = "W remoncie", NameEn = "Under Maintenance" }
+                new RoomStatusModel { Id = 3, Name = "W remoncie", NameEn = "Under Maintenance" },
+                new RoomStatusModel { Id = 4, Name = "Częściowo zajęty", NameEn = "Partially Occupied" }
             );
 
-            // Seed: Enum_FaultPriority
             modelBuilder.Entity<FaultPriorityModel>().HasData(
                 new FaultPriorityModel { Id = 1, Name = "Niski",    NameEn = "Low" },
                 new FaultPriorityModel { Id = 2, Name = "Sredni",   NameEn = "Medium" },
@@ -81,7 +84,6 @@ namespace DormHub.Data
                 new FaultPriorityModel { Id = 4, Name = "Krytyczny",NameEn = "Critical" }
             );
 
-            // Seed: Enum_FaultCategory
             modelBuilder.Entity<FaultCategoryModel>().HasData(
                 new FaultCategoryModel { Id = 1, Name = "Hydraulika",  NameEn = "Plumbing" },
                 new FaultCategoryModel { Id = 2, Name = "Elektryka",   NameEn = "Electrical" },
@@ -91,14 +93,12 @@ namespace DormHub.Data
                 new FaultCategoryModel { Id = 6, Name = "Inne",        NameEn = "Other" }
             );
 
-            // Seed: Enum_ApplicationStatus
             modelBuilder.Entity<ApplicationStatusModel>().HasData(
                 new ApplicationStatusModel { Id = 1, Name = "Oczekujacy",    NameEn = "Pending" },
                 new ApplicationStatusModel { Id = 2, Name = "Zaakceptowany", NameEn = "Accepted" },
                 new ApplicationStatusModel { Id = 3, Name = "Odrzucony",     NameEn = "Rejected" }
             );
 
-            // Seed: Enum_PaymentStatus
             modelBuilder.Entity<PaymentStatusModel>().HasData(
                 new PaymentStatusModel { Id = 1, Name = "Oczekujaca", NameEn = "Pending" },
                 new PaymentStatusModel { Id = 2, Name = "Zaplacona",  NameEn = "Paid" },

@@ -28,8 +28,5 @@ namespace DormHub.Models
 
         [DataType(DataType.DateTime)]
         public DateTime SubmittedAt { get; set; } = DateTime.Now;
-
-        [MaxLength(500)]
-        public string? AdminNotes { get; set; }
     }
 }

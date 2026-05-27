@@ -32,10 +32,6 @@
             <label class="dh-label" data-pl="Status" data-en="Status">Status</label>
             <select asp-for="StatusId" class="dh-select" asp-items="ViewBag.StatusId"></select>
         </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Notatki admina" data-en="Admin notes">Notatki admina</label>
-            <textarea asp-for="AdminNotes" class="dh-textarea" rows="3"></textarea>
-        </div>
         <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
             <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
