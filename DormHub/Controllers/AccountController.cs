@@ -83,13 +83,13 @@ namespace DormHub.Controllers
             var user = await _db.Persons.FirstOrDefaultAsync(p => p.Email == model.Email);
             if (user == null || !user.IsActive)
             {
-                ModelState.AddModelError(string.Empty, "Nieprawid³owy login lub has³o.");
+                ModelState.AddModelError(string.Empty, "Nieprawidlowy login lub haslo.");
                 return View(model);
             }
 
             if (!PasswordHasher.Verify(model.Password, user.PasswordHash))
             {
-                ModelState.AddModelError(string.Empty, "Nieprawid³owy login lub has³o.");
+                ModelState.AddModelError(string.Empty, "Nieprawidlowy login lub haslo.");
                 return View(model);
             }
 

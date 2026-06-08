@@ -152,7 +152,7 @@ namespace DormHub.Controllers
             var residentModel = await _context.Residents.FindAsync(id);
             int? roomId = residentModel?.RoomId;
             if (residentModel != null) _context.Residents.Remove(residentModel);
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             if (roomId.HasValue) await UpdateRoomStatusAsync(roomId.Value);
             return RedirectToAction(nameof(Index));
         }
@@ -166,7 +166,13 @@ namespace DormHub.Controllers
 
             var currentCount = await _context.Residents.CountAsync(r => r.RoomId == roomId);
             var capacity = room.RoomType?.Capacity ?? 1;
-            room.StatusId = currentCount >= capacity ? 2 : 1;
+
+            if (room.StatusId == 3) return; //remont
+
+            if (currentCount == 0) room.StatusId = 1; //wolny
+            else if (currentCount < capacity) room.StatusId = 4; //czescizajety
+            else room.StatusId = 2; //zajety
+
             await _context.SaveChangesAsync();
         }
     }

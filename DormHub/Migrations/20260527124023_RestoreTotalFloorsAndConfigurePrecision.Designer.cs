@@ -4,6 +4,7 @@ using DormHub.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DormHub.Migrations
 {
     [DbContext(typeof(DormDbContext))]
-    partial class DormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260527124023_RestoreTotalFloorsAndConfigurePrecision")]
+    partial class RestoreTotalFloorsAndConfigurePrecision
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -413,6 +416,11 @@ namespace DormHub.Migrations
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -427,6 +435,12 @@ namespace DormHub.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("MoveinDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("MoveoutDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -443,35 +457,10 @@ namespace DormHub.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Persons");
-                });
 
-            modelBuilder.Entity("DormHub.Models.ResidentModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasDiscriminator().HasValue("PersonModel");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("MoveInDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("MoveOutDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PersonId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("RoomId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PersonId");
-
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("Residents");
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("DormHub.Models.RoomModel", b =>
@@ -545,12 +534,6 @@ namespace DormHub.Migrations
                             Id = 3,
                             Name = "W remoncie",
                             NameEn = "Under Maintenance"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Częściowo zajęty",
-                            NameEn = "Partially Occupied"
                         });
                 });
 
@@ -576,6 +559,24 @@ namespace DormHub.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RoomTypes");
+                });
+
+            modelBuilder.Entity("DormHub.Models.ResidentModel", b =>
+                {
+                    b.HasBaseType("DormHub.Models.PersonModel");
+
+                    b.Property<DateTime>("MoveInDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("MoveOutDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasDiscriminator().HasValue("ResidentModel");
                 });
 
             modelBuilder.Entity("DormHub.Models.AnnouncementModel", b =>
@@ -641,7 +642,7 @@ namespace DormHub.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DormHub.Models.PersonModel", "ReportedBy")
+                    b.HasOne("DormHub.Models.ResidentModel", "ReportedBy")
                         .WithMany()
                         .HasForeignKey("ReportedById")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -688,24 +689,6 @@ namespace DormHub.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("DormHub.Models.ResidentModel", b =>
-                {
-                    b.HasOne("DormHub.Models.PersonModel", "Person")
-                        .WithMany()
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DormHub.Models.RoomModel", "Room")
-                        .WithMany("Residents")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Person");
-
-                    b.Navigation("Room");
-                });
-
             modelBuilder.Entity("DormHub.Models.RoomModel", b =>
                 {
                     b.HasOne("DormHub.Models.BuildingModel", "Building")
@@ -731,6 +714,17 @@ namespace DormHub.Migrations
                     b.Navigation("RoomType");
 
                     b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("DormHub.Models.ResidentModel", b =>
+                {
+                    b.HasOne("DormHub.Models.RoomModel", "Room")
+                        .WithMany("Residents")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("DormHub.Models.RoomModel", b =>

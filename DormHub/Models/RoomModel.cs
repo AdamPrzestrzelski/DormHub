@@ -26,8 +26,8 @@ namespace DormHub.Models
         [ForeignKey("StatusId")]
         public RoomStatusModel? Status { get; set; }
 
-        [Range(0, 50)]
-        public int Floor { get; set; } = 1;
+        [Required]
+        public int Floor { get; set; }
 
         public List<ResidentModel>? Residents { get; set; }
     }

@@ -60,6 +60,10 @@ namespace DormHub.Data
                 .Property(p => p.Amount)
                 .HasPrecision(10, 2);
 
+            modelBuilder.Entity<RoomTypeModel>()
+                .Property(r => r.PricePerMonth)
+                .HasPrecision(10, 2);
+
             modelBuilder.Entity<AnnouncementModel>()
                 .HasOne(a => a.Author)
                 .WithMany()
@@ -75,7 +79,8 @@ namespace DormHub.Data
             modelBuilder.Entity<RoomStatusModel>().HasData(
                 new RoomStatusModel { Id = 1, Name = "Dostepny",   NameEn = "Available" },
                 new RoomStatusModel { Id = 2, Name = "Zajety",     NameEn = "Occupied" },
-                new RoomStatusModel { Id = 3, Name = "W remoncie", NameEn = "Under Maintenance" }
+                new RoomStatusModel { Id = 3, Name = "W remoncie", NameEn = "Under Maintenance" },
+                new RoomStatusModel { Id = 4, Name = "Częściowo zajęty", NameEn = "Partially Occupied" }
             );
 
             modelBuilder.Entity<FaultPriorityModel>().HasData(

@@ -100,7 +100,7 @@ namespace DormHub.Controllers
 
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId,StatusId,AdminNotes")] ApplicationModel applicationModel)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,ApplicantId,PreferredRoomTypeId,PreferredBuildingId,StatusId")] ApplicationModel applicationModel)
         {
             if (id != applicationModel.Id)
             {
@@ -177,24 +177,22 @@ namespace DormHub.Controllers
 
         [HttpPost("zatwierdz/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Accept(string id, string? adminNotes)
+        public async Task<IActionResult> Accept(string id)
         {
             var app = await _context.Applications.FindAsync(id);
             if (app == null) return NotFound();
             app.StatusId = 2;
-            app.AdminNotes = adminNotes;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost("odrzuc/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reject(string id, string? adminNotes)
+        public async Task<IActionResult> Reject(string id)
         {
             var app = await _context.Applications.FindAsync(id);
             if (app == null) return NotFound();
             app.StatusId = 3;
-            app.AdminNotes = adminNotes;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
