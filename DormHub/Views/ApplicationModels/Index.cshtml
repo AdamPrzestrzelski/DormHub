@@ -19,7 +19,6 @@
                     <th data-pl="Budynek" data-en="Building">Budynek</th>
                     <th data-pl="Data złożenia" data-en="Submitted">Data złożenia</th>
                     <th data-pl="Status" data-en="Status">Status</th>
-                    <th data-pl="Notatki" data-en="Notes">Notatki</th>
                     <th></th>
                 </tr>
             </thead>
@@ -41,7 +40,6 @@
                             }
                             <span class="dh-badge @sc">@(item.Status?.Name ?? "–")</span>
                         </td>
-                        <td class="td-muted" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@(item.AdminNotes ?? "–")</td>
                         <td>
                             <div class="dh-table-actions">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>

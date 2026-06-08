@@ -10,16 +10,10 @@
     <form asp-action="Edit">
         <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
         <input type="hidden" asp-for="Id" />
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div class="dh-form-group">
-                <label class="dh-label" data-pl="Numer pokoju" data-en="Room number">Numer pokoju</label>
-                <input asp-for="RoomNumber" class="dh-input" />
-                <div class="dh-form-error"><span asp-validation-for="RoomNumber"></span></div>
-            </div>
-            <div class="dh-form-group">
-                <label class="dh-label" data-pl="Piętro" data-en="Floor">Piętro</label>
-                <input asp-for="Floor" class="dh-input" type="number" min="0" />
-            </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Numer pokoju" data-en="Room number">Numer pokoju</label>
+            <input asp-for="RoomNumber" class="dh-input" />
+            <div class="dh-form-error"><span asp-validation-for="RoomNumber"></span></div>
         </div>
         <div class="dh-form-group">
             <label class="dh-label" data-pl="Budynek" data-en="Building">Budynek</label>

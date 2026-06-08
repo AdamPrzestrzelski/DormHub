@@ -18,7 +18,6 @@
                     <th data-pl="Adres" data-en="Address">Adres</th>
                     <th data-pl="Piętra" data-en="Floors">Piętra</th>
                     <th data-pl="Telefon" data-en="Phone">Telefon</th>
-                    <th data-pl="Status" data-en="Status">Status</th>
                     <th></th>
                 </tr>
             </thead>
@@ -30,16 +29,6 @@
                         <td class="td-muted">@item.Address</td>
                         <td class="td-muted">@item.TotalFloors</td>
                         <td class="td-muted">@(item.PhoneNumber ?? "–")</td>
-                        <td>
-                            @if (item.IsActive)
-                            {
-                                <span class="dh-badge dh-badge-green" data-pl="Aktywny" data-en="Active">Aktywny</span>
-                            }
-                            else
-                            {
-                                <span class="dh-badge dh-badge-gray" data-pl="Nieaktywny" data-en="Inactive">Nieaktywny</span>
-                            }
-                        </td>
                         <td>
                             <div class="dh-table-actions">
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-pen"></i></a>

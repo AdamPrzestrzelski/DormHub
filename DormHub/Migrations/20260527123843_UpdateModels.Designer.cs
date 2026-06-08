@@ -4,6 +4,7 @@ using DormHub.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DormHub.Migrations
 {
     [DbContext(typeof(DormDbContext))]
-    partial class DormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260527123843_UpdateModels")]
+    partial class UpdateModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -531,12 +534,6 @@ namespace DormHub.Migrations
                             Id = 3,
                             Name = "W remoncie",
                             NameEn = "Under Maintenance"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Częściowo zajęty",
-                            NameEn = "Partially Occupied"
                         });
                 });
 
@@ -556,8 +553,7 @@ namespace DormHub.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PricePerMonth")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -574,7 +570,7 @@ namespace DormHub.Migrations
                     b.Property<DateTime?>("MoveOutDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("RoomId")
+                    b.Property<int>("RoomId")
                         .HasColumnType("int");
 
                     b.HasIndex("RoomId");
@@ -724,7 +720,8 @@ namespace DormHub.Migrations
                     b.HasOne("DormHub.Models.RoomModel", "Room")
                         .WithMany("Residents")
                         .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Room");
                 });
