@@ -26,9 +26,9 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="td-bold">@item.FirstName @item.LastName</td>
+                        <td class="td-bold">@item.Person?.FirstName @item.Person?.LastName</td>
                         <td class="td-muted">@(item.Room?.RoomNumber.ToString() ?? "–")</td>
-                        <td class="td-muted">@item.Email</td>
+                        <td class="td-muted">@item.Person?.Email</td>
                         <td class="td-muted">@item.MoveInDate.ToString("dd.MM.yyyy")</td>
                         <td class="td-muted">@(item.MoveOutDate.HasValue ? item.MoveOutDate.Value.ToString("dd.MM.yyyy") : "–")</td>
                         <td>

@@ -31,8 +31,10 @@ namespace DormHub.Controllers
 
             if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
             {
-                var uid = CurrentUserId();
-                query = query.Where(p => p.ResidentId == uid);
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
+                if (resident == null)
+                    return View(new List<PaymentModel>());
+                query = query.Where(p => p.ResidentId == resident.Id);
             }
 
             return View(await query.OrderByDescending(p => p.DueDate).ToListAsync());
@@ -48,8 +50,12 @@ namespace DormHub.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (payment == null) return NotFound();
 
-            if (!User.IsInRole("Admin") && !User.IsInRole("Staff") && payment.ResidentId != CurrentUserId())
-                return Forbid();
+            if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
+            {
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
+                if (resident == null || payment.ResidentId != resident.Id)
+                    return Forbid();
+            }
 
             return View(payment);
         }
@@ -60,7 +66,9 @@ namespace DormHub.Controllers
             if (User.IsInRole("Admin") || User.IsInRole("Staff"))
             {
                 ViewData["ResidentId"] = new SelectList(
-                    _context.Residents.Select(r => new { r.Id, FullName = r.FirstName + " " + r.LastName }),
+                    _context.Residents
+                        .Where(r => r.Person != null)
+                        .Select(r => new { r.Id, FullName = r.Person.FirstName + " " + r.Person.LastName }),
                     "Id", "FullName");
             }
             ViewData["StatusId"] = new SelectList(_context.PaymentStatuses, "Id", "Name");
@@ -74,7 +82,10 @@ namespace DormHub.Controllers
         {
             if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
             {
-                payment.ResidentId = CurrentUserId();
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
+                if (resident == null)
+                    return Forbid();
+                payment.ResidentId = resident.Id;
                 ModelState.Remove("ResidentId");
             }
 
@@ -94,7 +105,9 @@ namespace DormHub.Controllers
             if (User.IsInRole("Admin") || User.IsInRole("Staff"))
             {
                 ViewData["ResidentId"] = new SelectList(
-                    _context.Residents.Select(r => new { r.Id, FullName = r.FirstName + " " + r.LastName }),
+                    _context.Residents
+                        .Where(r => r.Person != null)
+                        .Select(r => new { r.Id, FullName = r.Person.FirstName + " " + r.Person.LastName }),
                     "Id", "FullName", payment.ResidentId);
             }
             return View(payment);

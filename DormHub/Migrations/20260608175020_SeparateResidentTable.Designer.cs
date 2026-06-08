@@ -4,6 +4,7 @@ using DormHub.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DormHub.Migrations
 {
     [DbContext(typeof(DormDbContext))]
-    partial class DormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260608175020_SeparateResidentTable")]
+    partial class SeparateResidentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -446,6 +449,12 @@ namespace DormHub.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("MoveinDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("MoveoutDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

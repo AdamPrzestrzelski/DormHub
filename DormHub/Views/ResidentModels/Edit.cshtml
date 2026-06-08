@@ -10,28 +10,11 @@
     <form asp-action="Edit">
         <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
         <input type="hidden" asp-for="Id" />
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-            <div class="dh-form-group">
-                <label class="dh-label" data-pl="Imię" data-en="First name">Imię</label>
-                <input asp-for="FirstName" class="dh-input" />
-                <div class="dh-form-error"><span asp-validation-for="FirstName"></span></div>
-            </div>
-            <div class="dh-form-group">
-                <label class="dh-label" data-pl="Nazwisko" data-en="Last name">Nazwisko</label>
-                <input asp-for="LastName" class="dh-input" />
-            </div>
-        </div>
+        <input type="hidden" asp-for="PersonId" />
+
         <div class="dh-form-group">
-            <label class="dh-label" data-pl="Data urodzenia" data-en="Date of birth">Data urodzenia</label>
-            <input asp-for="DateOfBirth" class="dh-input" type="date" />
-        </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="E-mail" data-en="Email">E-mail</label>
-            <input asp-for="Email" class="dh-input" type="email" />
-        </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Telefon" data-en="Phone">Telefon</label>
-            <input asp-for="PhoneNumber" class="dh-input" />
+            <label class="dh-label">Osoba</label>
+            <input class="dh-input" value="@Model.Person?.FirstName @Model.Person?.LastName" disabled />
         </div>
         <div class="dh-form-group">
             <label class="dh-label" data-pl="Pokój" data-en="Room">Pokój</label>
@@ -48,10 +31,6 @@
                 <label class="dh-label" data-pl="Data wymeldowania" data-en="Move-out date">Data wymeldowania</label>
                 <input asp-for="MoveOutDate" class="dh-input" type="date" />
             </div>
-        </div>
-        <div class="dh-form-group">
-            <label class="dh-label" data-pl="Nowe hasło (puste = bez zmiany)" data-en="New password (empty = keep current)">Nowe hasło (puste = bez zmiany)</label>
-            <input name="newPassword" type="password" class="dh-input" />
         </div>
         <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>

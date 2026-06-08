@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DormHub.Models
-{
+{   
+    [Table("Enum_RoomStatus")]
     public class RoomStatusModel
     {
         [Key]

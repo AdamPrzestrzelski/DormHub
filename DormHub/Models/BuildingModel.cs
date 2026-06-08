@@ -19,9 +19,5 @@ namespace DormHub.Models
         [Phone(ErrorMessage = "Nieprawidłowy numer telefonu")]
         public string? PhoneNumber { get; set; }
 
-        [MaxLength(1000)]
-        public string? Description { get; set; }
-
-        public bool IsActive { get; set; } = true;
     }
 }

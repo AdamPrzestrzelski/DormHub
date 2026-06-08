@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DormHub.Data;
 using DormHub.Models;
+using DormHub.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DormHub.Services;
 
 namespace DormHub.Controllers
 {
@@ -56,7 +55,7 @@ namespace DormHub.Controllers
                 DateOfBirth = model.DateOfBirth,
                 Email = model.Email.Trim(),
                 PhoneNumber = model.PhoneNumber?.Trim(),
-                PasswordHash = CreatePasswordHash(model.Password),
+                PasswordHash = PasswordHasher.Hash(model.Password),
                 Role = "User",
                 IsActive = true
             };
@@ -165,20 +164,6 @@ namespace DormHub.Controllers
             return Ok();
         }
 
-        private static string CreatePasswordHash(string password)
-        {
-            const int saltSize = 16;
-            const int iterations = 100_000;
-            const int hashSize = 32;
 
-            using var rng = RandomNumberGenerator.Create();
-            var salt = new byte[saltSize];
-            rng.GetBytes(salt);
-
-            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
-            var hash = pbkdf2.GetBytes(hashSize);
-
-            return Convert.ToBase64String(salt) + ":" + Convert.ToBase64String(hash);
-        }
     }
 }
