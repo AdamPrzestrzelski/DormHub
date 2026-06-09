@@ -27,17 +27,6 @@ namespace DormHub.Models
         public string? NameEn { get; set; }
     }
 
-    [Table("Enum_RoomStatus")]
-    public class RoomStatusModel
-    {
-        [Key] 
-        public int Id { get; set; }
-
-        [Required] 
-        public string Name { get; set; } = string.Empty;
-
-        public string? NameEn { get; set; }
-    }
 
     [Table("Enum_FaultPriority")]
     public class FaultPriorityModel

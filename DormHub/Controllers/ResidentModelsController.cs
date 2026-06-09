@@ -52,8 +52,8 @@ namespace DormHub.Controllers
                 .Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName + " (" + p.Email + ")" })
                 .ToList();
 
-            ViewData["PersonId"] = new SelectList(availablePersons, "Id", "FullName");
-            ViewData["RoomId"]   = new SelectList(_context.Rooms, "Id", "RoomNumber");
+            ViewData["PersonId"]   = new SelectList(availablePersons, "Id", "FullName");
+            ViewData["BuildingId"] = new SelectList(_context.Buildings.OrderBy(b => b.Name), "Id", "Name");
             return View();
         }
 
@@ -86,8 +86,8 @@ namespace DormHub.Controllers
                 .Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName + " (" + p.Email + ")" })
                 .ToList();
 
-            ViewData["PersonId"] = new SelectList(availablePersons, "Id", "FullName", residentModel.PersonId);
-            ViewData["RoomId"]   = new SelectList(_context.Rooms, "Id", "RoomNumber", residentModel.RoomId);
+            ViewData["PersonId"]   = new SelectList(availablePersons, "Id", "FullName", residentModel.PersonId);
+            ViewData["BuildingId"] = new SelectList(_context.Buildings.OrderBy(b => b.Name), "Id", "Name");
             return View(residentModel);
         }
 
