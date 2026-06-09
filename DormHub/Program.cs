@@ -1,4 +1,5 @@
 using DormHub.Data;
+using DormHub.Hubs;
 using DormHub.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddSignalR();
 builder.Services.AddHttpClient<CurrencyService>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -55,6 +57,8 @@ app.UseSwaggerUI(c =>
 });
 
 app.MapRazorPages();
+
+app.MapHub<ChatHub>("/chathub");
 
 app.MapControllerRoute(
     name: "default",

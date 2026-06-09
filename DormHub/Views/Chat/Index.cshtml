@@ -1,0 +1,263 @@
+@{
+    ViewData["Title"] = "Czat";
+    var userName = User.Identity?.Name ?? "Anonim";
+}
+
+<div class="dh-chat-page dh-fade">
+
+    
+    <div class="dh-page-header">
+        <div>
+            <h1 class="dh-page-title">
+                <i class="fa-solid fa-comments" style="color:var(--orange);margin-right:8px;"></i>
+                <span data-pl="Czat akademika" data-en="Dorm Chat">Czat akademika</span>
+            </h1>
+            <p style="color:var(--muted);font-size:.88rem;margin:4px 0 0;">
+                <span data-pl="Globalny czat dla wszystkich zalogowanych mieszkańców"
+                      data-en="Global chat for all logged-in residents">
+                    Globalny czat dla wszystkich zalogowanych mieszkańców
+                </span>
+            </p>
+        </div>
+        <div class="dh-chat-status" id="chat-status">
+            <span class="dh-badge dh-badge-gray">
+                <span class="dot"></span>
+                <span data-pl="Łączenie..." data-en="Connecting...">Łączenie...</span>
+            </span>
+        </div>
+    </div>
+
+    
+    <div class="dh-card dh-chat-card">
+
+        
+        <div class="dh-chat-messages" id="chat-messages">
+            <div class="dh-chat-empty" id="chat-empty">
+                <i class="fa-regular fa-comments"></i>
+                <p data-pl="Brak wiadomości. Napisz coś pierwszy!"
+                   data-en="No messages yet. Be the first to write!">
+                    Brak wiadomości. Napisz coś pierwszy!
+                </p>
+            </div>
+        </div>
+
+        
+        <div class="dh-chat-input-area">
+            <div class="dh-chat-input-wrapper">
+                <input type="text"
+                       id="chat-input"
+                       class="dh-input dh-chat-input"
+                       placeholder="Napisz wiadomość..."
+                       data-pl-placeholder="Napisz wiadomość..."
+                       data-en-placeholder="Write a message..."
+                       maxlength="500"
+                       autocomplete="off" />
+                <button id="chat-send" class="dh-btn dh-btn-primary dh-chat-send" disabled>
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="dh-chat-input-hint">
+                <span data-pl="Enter aby wysłać" data-en="Enter to send">Enter aby wysłać</span>
+                <span id="char-counter" class="dh-chat-char-counter">0 / 500</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script>
+        (function () {
+            const currentUser = '@Html.Raw(userName)';
+            const messagesContainer = document.getElementById('chat-messages');
+            const chatEmpty = document.getElementById('chat-empty');
+            const chatInput = document.getElementById('chat-input');
+            const chatSend = document.getElementById('chat-send');
+            const chatStatus = document.getElementById('chat-status');
+            const charCounter = document.getElementById('char-counter');
+
+            
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/chathub')
+                .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+                .build();
+
+            function setStatus(type, textPl, textEn) {
+                const badgeClass = type === 'green' ? 'dh-badge-green'
+                                 : type === 'red'   ? 'dh-badge-red'
+                                 : 'dh-badge-gray';
+                chatStatus.innerHTML =
+                    `<span class="dh-badge ${badgeClass}">` +
+                    `<span class="dot"></span>` +
+                    `<span data-pl="${textPl}" data-en="${textEn}">${textPl}</span>` +
+                    `</span>`;
+
+                
+                const lang = localStorage.getItem('dh-lang') || 'pl';
+                chatStatus.querySelectorAll('[data-pl][data-en]').forEach(el => {
+                    el.textContent = el.getAttribute('data-' + lang);
+                });
+            }
+
+            
+            connection.on('ReceiveMessage', (user, text, time) => {
+                chatEmpty.style.display = 'none';
+                appendMessage(user, text, time, user === currentUser);
+            });
+
+            
+            connection.on('UserJoined', (user) => {
+                appendSystemMessage(user, true);
+            });
+
+            connection.on('UserLeft', (user) => {
+                appendSystemMessage(user, false);
+            });
+
+            
+            connection.onreconnecting(() => {
+                setStatus('gray', 'Ponowne łączenie...', 'Reconnecting...');
+                chatSend.disabled = true;
+            });
+
+            connection.onreconnected(() => {
+                setStatus('green', 'Połączono', 'Connected');
+                chatSend.disabled = chatInput.value.trim().length === 0;
+            });
+
+            connection.onclose(() => {
+                setStatus('red', 'Rozłączono', 'Disconnected');
+                chatSend.disabled = true;
+            });
+
+            connection.start()
+                .then(() => {
+                    setStatus('green', 'Połączono', 'Connected');
+                    chatSend.disabled = chatInput.value.trim().length === 0;
+                })
+                .catch(err => {
+                    console.error('SignalR error:', err);
+                    setStatus('red', 'Błąd połączenia', 'Connection error');
+                });
+
+            function sendMessage() {
+                const text = chatInput.value.trim();
+                if (!text || connection.state !== signalR.HubConnectionState.Connected) return;
+
+                connection.invoke('SendMessage', text)
+                    .catch(err => console.error('Send error:', err));
+
+                chatInput.value = '';
+                charCounter.textContent = '0 / 500';
+                chatSend.disabled = true;
+                chatInput.focus();
+            }
+
+            chatSend.addEventListener('click', sendMessage);
+
+            chatInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            chatInput.addEventListener('input', () => {
+                const len = chatInput.value.length;
+                charCounter.textContent = len + ' / 500';
+                chatSend.disabled = chatInput.value.trim().length === 0
+                    || connection.state !== signalR.HubConnectionState.Connected;
+
+                if (len >= 480) {
+                    charCounter.style.color = '#ef4444';
+                } else if (len >= 400) {
+                    charCounter.style.color = '#eab308';
+                } else {
+                    charCounter.style.color = '';
+                }
+            });
+
+            // ── Helpers ──
+            function appendMessage(user, text, time, isMine) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'dh-chat-msg' + (isMine ? ' dh-chat-msg-mine' : '');
+
+                const avatar = document.createElement('div');
+                avatar.className = 'dh-chat-avatar';
+                avatar.textContent = getInitials(user);
+                if (isMine) avatar.classList.add('dh-chat-avatar-mine');
+
+                const bubble = document.createElement('div');
+                bubble.className = 'dh-chat-bubble' + (isMine ? ' dh-chat-bubble-mine' : '');
+
+                const header = document.createElement('div');
+                header.className = 'dh-chat-bubble-header';
+
+                const nameEl = document.createElement('span');
+                nameEl.className = 'dh-chat-username';
+                nameEl.textContent = user;
+
+                const timeEl = document.createElement('span');
+                timeEl.className = 'dh-chat-time';
+                timeEl.textContent = time;
+
+                header.appendChild(nameEl);
+                header.appendChild(timeEl);
+
+                const body = document.createElement('div');
+                body.className = 'dh-chat-text';
+                body.textContent = text;
+
+                bubble.appendChild(header);
+                bubble.appendChild(body);
+
+                if (isMine) {
+                    wrapper.appendChild(bubble);
+                    wrapper.appendChild(avatar);
+                } else {
+                    wrapper.appendChild(avatar);
+                    wrapper.appendChild(bubble);
+                }
+
+                messagesContainer.appendChild(wrapper);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            function appendSystemMessage(user, joined) {
+                const el = document.createElement('div');
+                el.className = 'dh-chat-system';
+
+                const lang = localStorage.getItem('dh-lang') || 'pl';
+                const action = joined
+                    ? (lang === 'pl' ? 'dołączył/a do czatu' : 'joined the chat')
+                    : (lang === 'pl' ? 'opuścił/a czat' : 'left the chat');
+
+                const icon = joined ? 'fa-arrow-right-to-bracket' : 'fa-arrow-right-from-bracket';
+
+                el.innerHTML =
+                    `<i class="fa-solid ${icon}"></i> ` +
+                    `<strong>${escapeHtml(user)}</strong> ${action}`;
+
+                messagesContainer.appendChild(el);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            function getInitials(name) {
+                return name.split(' ')
+                    .map(w => w.charAt(0))
+                    .join('')
+                    .substring(0, 2)
+                    .toUpperCase();
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+        })();
+    </script>
+}

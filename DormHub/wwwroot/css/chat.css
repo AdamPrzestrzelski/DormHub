@@ -1,0 +1,203 @@
+
+
+.dh-chat-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 96px - 4rem); 
+}
+
+.dh-chat-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.dh-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    scroll-behavior: smooth;
+}
+
+.dh-chat-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 1rem;
+    color: var(--muted);
+}
+.dh-chat-empty i {
+    font-size: 3rem;
+    opacity: .3;
+}
+.dh-chat-empty p {
+    font-size: .9rem;
+    margin: 0;
+}
+
+.dh-chat-msg {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    max-width: 75%;
+    animation: chatMsgIn .3s cubic-bezier(.16,1,.3,1) forwards;
+}
+
+.dh-chat-msg-mine {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+@keyframes chatMsgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.dh-chat-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .68rem;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+    letter-spacing: .03em;
+}
+.dh-chat-avatar-mine {
+    background: rgba(255,107,0,.15);
+    border-color: rgba(255,107,0,.3);
+    color: var(--orange);
+}
+
+.dh-chat-bubble {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px 16px 16px 4px;
+    padding: .75rem 1rem;
+    min-width: 120px;
+    position: relative;
+}
+.dh-chat-bubble-mine {
+    background: rgba(255,107,0,.08);
+    border-color: rgba(255,107,0,.2);
+    border-radius: 16px 16px 4px 16px;
+}
+
+.dh-chat-bubble-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+.dh-chat-username {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--orange);
+}
+.dh-chat-msg-mine .dh-chat-username {
+    color: #fff;
+}
+.dh-chat-time {
+    font-size: .68rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+.dh-chat-text {
+    font-size: .88rem;
+    color: var(--text);
+    line-height: 1.55;
+    word-break: break-word;
+}
+
+.dh-chat-system {
+    text-align: center;
+    font-size: .76rem;
+    color: var(--muted);
+    padding: .6rem 0;
+    animation: chatMsgIn .3s cubic-bezier(.16,1,.3,1) forwards;
+}
+.dh-chat-system i {
+    margin-right: 4px;
+    color: var(--orange);
+    font-size: .7rem;
+}
+.dh-chat-system strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.dh-chat-input-area {
+    padding: 1rem 1.5rem 1.25rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.dh-chat-input-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.dh-chat-input {
+    flex: 1;
+    border-radius: 30px !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+}
+
+.dh-chat-send {
+    width: 44px;
+    height: 44px;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all .2s;
+}
+.dh-chat-send:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.dh-chat-send:not(:disabled):hover {
+    transform: scale(1.08);
+}
+.dh-chat-send i {
+    font-size: .9rem;
+}
+
+.dh-chat-input-hint {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .4rem .25rem 0;
+    font-size: .72rem;
+    color: #525252;
+}
+
+.dh-chat-char-counter {
+    font-variant-numeric: tabular-nums;
+    transition: color .2s;
+}
+
+.dh-chat-status .dh-badge {
+    font-size: .74rem;
+    padding: 4px 12px;
+}
