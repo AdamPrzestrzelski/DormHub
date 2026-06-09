@@ -1,0 +1,181 @@
+@model IEnumerable<DormHub.Models.ResourceBookingModel>
+@{
+    ViewData["Title"] = "Moje rezerwacje";
+    bool isAdmin = User.IsInRole("Admin");
+    var now = DateTime.Now;
+
+    string CatIcon(string? cat) => cat switch {
+        "Pralka"    => "fa-shirt",
+        "Suszarka"  => "fa-wind",
+        "Zelazko"   => "fa-fire-flame-simple",
+        "Odkurzacz" => "fa-broom",
+        _           => "fa-box-open"
+    };
+}
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-calendar-check" style="color:var(--blue);margin-right:.5rem;"></i>
+        <span data-pl="@(isAdmin ? "Wszystkie rezerwacje" : "Moje rezerwacje")"
+              data-en="@(isAdmin ? "All bookings" : "My bookings")">
+            @(isAdmin ? "Wszystkie rezerwacje" : "Moje rezerwacje")
+        </span>
+    </div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span data-pl="Zasoby" data-en="Resources">Zasoby</span>
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="dh-validation-summary dh-fade">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80;padding:.75rem 1rem;border-radius:8px;margin-bottom:1rem;" class="dh-fade">
+        <i class="fa-solid fa-circle-check"></i> @TempData["Success"]
+    </div>
+}
+
+@{
+    var upcoming = Model.Where(b => !b.IsCancelled && (b.BookingDate.Date > now.Date || (b.BookingDate.Date == now.Date && b.EndTime > now.TimeOfDay))).ToList();
+    var past     = Model.Where(b => !b.IsCancelled && (b.BookingDate.Date < now.Date || (b.BookingDate.Date == now.Date && b.EndTime <= now.TimeOfDay))).ToList();
+    var cancelled = Model.Where(b => b.IsCancelled).ToList();
+}
+
+
+<div class="dh-card dh-fade dh-fade-1" style="margin-bottom:1.25rem;">
+    <div style="font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+        <i class="fa-solid fa-hourglass-half" style="color:var(--blue);"></i>
+        <span data-pl="Nadchodzące" data-en="Upcoming">Nadchodzące</span>
+        <span class="dh-badge dh-badge-gray" style="margin-left:auto;">@upcoming.Count</span>
+    </div>
+
+    @if (!upcoming.Any())
+    {
+        <p style="color:var(--muted);font-size:.85rem;" data-pl="Brak nadchodzących rezerwacji." data-en="No upcoming bookings.">Brak nadchodzących rezerwacji.</p>
+    }
+    else
+    {
+        <div style="overflow-x:auto;">
+            <table class="dh-table">
+                <thead>
+                    <tr>
+                        <th data-pl="Zasób" data-en="Resource">Zasób</th>
+                        @if (isAdmin) { <th data-pl="Mieszkaniec" data-en="Resident">Mieszkaniec</th> }
+                        <th data-pl="Budynek" data-en="Building">Budynek</th>
+                        <th data-pl="Data" data-en="Date">Data</th>
+                        <th data-pl="Godziny" data-en="Time">Godziny</th>
+                        <th data-pl="Uwagi" data-en="Notes">Uwagi</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in upcoming.OrderBy(x => x.BookingDate).ThenBy(x => x.StartTime))
+                    {
+                        <tr>
+                            <td>
+                                <i class="fa-solid @CatIcon(b.Resource?.Category)" style="color:var(--blue);margin-right:6px;"></i>
+                                @b.Resource?.Name
+                            </td>
+                            @if (isAdmin)
+                            {
+                                <td class="td-muted">@b.Resident?.Person?.FirstName @b.Resident?.Person?.LastName</td>
+                            }
+                            <td class="td-muted">@b.Resource?.Building?.Name</td>
+                            <td class="td-mono">@b.BookingDate.ToString("dd.MM.yyyy")</td>
+                            <td class="td-mono">
+                                @DateTime.Today.Add(b.StartTime).ToString("HH:mm") –
+                                @DateTime.Today.Add(b.EndTime).ToString("HH:mm")
+                            </td>
+                            <td class="td-muted" style="font-size:.8rem;font-style:italic;">@(b.Notes ?? "–")</td>
+                            <td>
+                                <form asp-action="Cancel" asp-route-id="@b.Id" method="post" style="margin:0;"
+                                      onsubmit="return confirm('Anulować tę rezerwację?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dh-btn dh-btn-danger dh-btn-sm">
+                                        <i class="fa-solid fa-xmark"></i>
+                                        <span data-pl="Anuluj" data-en="Cancel">Anuluj</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
+<div class="dh-card dh-fade dh-fade-2">
+    <div style="font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+        <i class="fa-solid fa-clock-rotate-left" style="color:var(--muted);"></i>
+        <span data-pl="Historia" data-en="History">Historia</span>
+        <span class="dh-badge dh-badge-gray" style="margin-left:auto;">@past.Count</span>
+    </div>
+
+    @if (!past.Any())
+    {
+        <p style="color:var(--muted);font-size:.85rem;" data-pl="Brak historii rezerwacji." data-en="No past bookings.">Brak historii rezerwacji.</p>
+    }
+    else
+    {
+        <div style="overflow-x:auto;">
+            <table class="dh-table">
+                <thead>
+                    <tr>
+                        <th data-pl="Zasób" data-en="Resource">Zasób</th>
+                        @if (isAdmin) { <th data-pl="Mieszkaniec" data-en="Resident">Mieszkaniec</th> }
+                        <th data-pl="Budynek" data-en="Building">Budynek</th>
+                        <th data-pl="Data" data-en="Date">Data</th>
+                        <th data-pl="Godziny" data-en="Time">Godziny</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in past.OrderByDescending(x => x.BookingDate).ThenByDescending(x => x.StartTime))
+                    {
+                        <tr style="opacity:.65;">
+                            <td>
+                                <i class="fa-solid @CatIcon(b.Resource?.Category)" style="color:var(--muted);margin-right:6px;"></i>
+                                @b.Resource?.Name
+                            </td>
+                            @if (isAdmin)
+                            {
+                                <td class="td-muted">@b.Resident?.Person?.FirstName @b.Resident?.Person?.LastName</td>
+                            }
+                            <td class="td-muted">@b.Resource?.Building?.Name</td>
+                            <td class="td-mono">@b.BookingDate.ToString("dd.MM.yyyy")</td>
+                            <td class="td-mono">
+                                @DateTime.Today.Add(b.StartTime).ToString("HH:mm") –
+                                @DateTime.Today.Add(b.EndTime).ToString("HH:mm")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (cancelled.Any())
+{
+    <details class="dh-fade" style="margin-top:1rem;">
+        <summary style="cursor:pointer;color:var(--muted);font-size:.85rem;padding:.4rem 0;">
+            <i class="fa-solid fa-ban"></i>
+            <span data-pl="Anulowane (@cancelled.Count)" data-en="Cancelled (@cancelled.Count)">Anulowane (@cancelled.Count)</span>
+        </summary>
+        <div class="dh-card" style="margin-top:.5rem;opacity:.55;">
+            @foreach (var b in cancelled.OrderByDescending(x => x.BookingDate))
+            {
+                <div style="display:flex;gap:1rem;padding:.35rem 0;border-bottom:1px solid var(--border);font-size:.82rem;color:var(--muted);">
+                    <span><i class="fa-solid fa-ban"></i></span>
+                    <span>@b.Resource?.Name</span>
+                    <span>@b.BookingDate.ToString("dd.MM.yyyy")</span>
+                    <span>@DateTime.Today.Add(b.StartTime).ToString("HH:mm") – @DateTime.Today.Add(b.EndTime).ToString("HH:mm")</span>
+                </div>
+            }
+        </div>
+    </details>
+}
