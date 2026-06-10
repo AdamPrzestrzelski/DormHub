@@ -18,17 +18,14 @@ namespace DormHub.Models
         [ForeignKey("TypeId")]
         public ApplicationTypeModel? Type { get; set; }
 
-        // 1. wybór (preferowany typ pokoju)
         public int? PreferredRoomTypeId { get; set; }
         [ForeignKey("PreferredRoomTypeId")]
         public RoomTypeModel? PreferredRoomType { get; set; }
 
-        // 2. wybór (priorytet niższy)
         public int? SecondRoomTypeId { get; set; }
         [ForeignKey("SecondRoomTypeId")]
         public RoomTypeModel? SecondRoomType { get; set; }
 
-        // 3. wybór (priorytet najniższy)
         public int? ThirdRoomTypeId { get; set; }
         [ForeignKey("ThirdRoomTypeId")]
         public RoomTypeModel? ThirdRoomType { get; set; }

@@ -33,7 +33,6 @@ namespace DormHub.Controllers
                 .Include(a => a.PreferredRoomType)
                 .OrderByDescending(a => a.SubmittedAt);
 
-            // Mieszkańcy z aktywnym przydziałem pokoju – do obsługi przycisku "ten sam pokój"
             var today = DateTime.Today;
             ViewBag.ResidentsWithRoom = await _context.Residents
                 .Where(r => r.RoomId != null && (r.MoveOutDate == null || r.MoveOutDate >= today))
@@ -211,7 +210,6 @@ namespace DormHub.Controllers
             app.StatusId = ApplicationStatuses.Accepted;
             await _context.SaveChangesAsync();
 
-            // Skutki zależne od typu wniosku
             switch (app.TypeId)
             {
                 case ApplicationTypes.Checkout:
@@ -255,7 +253,6 @@ namespace DormHub.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Akceptuje wniosek o miejsce w nowym roku i przedłuża pobyt w tym samym pokoju.
         [HttpPost("ten-sam-pokoj/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignSameRoom(string id)
@@ -281,7 +278,6 @@ namespace DormHub.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Akceptacja z przydziałem pokoju (wniosek o miejsce / zmianę pokoju / nowy rok).
         [HttpGet("przydziel/{id}")]
         public async Task<IActionResult> AssignRoom(string id)
         {

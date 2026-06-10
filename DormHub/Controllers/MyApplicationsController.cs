@@ -22,8 +22,6 @@ namespace DormHub.Controllers
             _context = context;
         }
 
-        // ─────────────────────────── helpers ───────────────────────────
-
         private int? GetPersonId()
         {
             var idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -71,8 +69,6 @@ namespace DormHub.Controllers
             ViewData["Buildings"] = new SelectList(_context.Buildings.OrderBy(b => b.Name), "Id", "Name", vm.PreferredBuildingId);
         }
 
-        // ─────────────────────────── Index ───────────────────────────
-
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
@@ -97,8 +93,6 @@ namespace DormHub.Controllers
             return View(apps);
         }
 
-        // ─────────────────────────── Create (GET) ───────────────────────────
-
         [HttpGet("nowy/{type:int}")]
         public async Task<IActionResult> Create(int type)
         {
@@ -115,7 +109,6 @@ namespace DormHub.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Walidacja uprawnień
             if (type == ApplicationTypes.Place && isResident)
             {
                 TempData["Error"] = "Masz już miejsce w akademiku — wybierz inny typ wniosku.";
@@ -145,8 +138,6 @@ namespace DormHub.Controllers
             LoadRoomTypeDropdowns(vm);
             return View(vm);
         }
-
-        // ─────────────────────────── Create (POST) ───────────────────────────
 
         [HttpPost("nowy/{type:int}")]
         [ValidateAntiForgeryToken]
@@ -181,7 +172,6 @@ namespace DormHub.Controllers
 
             ConfigureViewModelForType(vm, resident, applyDefaults: false);
 
-            // Walidacja zależna od typu
             if ((type == ApplicationTypes.RoomChange || type == ApplicationTypes.NextYear)
                 && vm.PreferredRoomTypeId == null)
             {
@@ -240,7 +230,6 @@ namespace DormHub.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Ustawia flagi widoku i (opcjonalnie) domyślne daty dla danego typu wniosku
         private void ConfigureViewModelForType(SelfApplicationViewModel vm, ResidentModel? resident, bool applyDefaults = true)
         {
             switch (vm.TypeId)

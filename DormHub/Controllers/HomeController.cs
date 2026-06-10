@@ -22,7 +22,6 @@ namespace DormHub.Controllers
         public List<AnnouncementModel> RecentAnnouncements { get; set; } = new();
         public List<FaultModel> RecentFaults { get; set; } = new();
 
-        // Dane mieszkańca (gdy zalogowany użytkownik mieszka w akademiku)
         public bool HasRoom { get; set; }
         public string? MyRoomLabel { get; set; }
         public int MyRoommates { get; set; }

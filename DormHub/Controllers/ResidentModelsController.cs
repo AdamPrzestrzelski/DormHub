@@ -172,13 +172,11 @@ namespace DormHub.Controllers
             var capacity = room.RoomType?.Capacity ?? 1;
 
             if (currentCount == 0) room.StatusId = 1; //wolny
-            else if (currentCount < capacity) room.StatusId = 4; //czescizajety
+            else if (currentCount < capacity) room.StatusId = 4; //czesciowo zajety
             else room.StatusId = 2; //zajety
 
             await _context.SaveChangesAsync();
         }
-
-        // ─────────── Ręczne przypisanie / zmiana pokoju przez admina ───────────
 
         [HttpGet("przydziel/{id}")]
         public async Task<IActionResult> AssignRoom(int? id)
@@ -242,7 +240,6 @@ namespace DormHub.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Przydzielenie pokoju osobie, która nie jest jeszcze mieszkańcem (tworzy mieszkańca).
         [HttpGet("przydziel-osobie/{personId}")]
         public async Task<IActionResult> AssignRoomToPerson(int personId)
         {
