@@ -1,5 +1,6 @@
 using DormHub.Data;
 using DormHub.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace DormHub.Controllers.Api
     [ApiController]
     [Route("api/rooms")]
     [Produces("application/json")]
+    [Authorize]
     public class RoomsApiController : ControllerBase
     {
         private readonly DormDbContext _db;
