@@ -1,0 +1,152 @@
+@{
+    ViewData["Title"] = "Zarezerwuj zasób";
+    var resource   = (DormHub.Models.ResourceModel)ViewBag.Resource;
+    var selDate    = (DateTime)ViewBag.SelectedDate;
+    var existing   = (List<DormHub.Models.ResourceBookingModel>)ViewBag.ExistingBookings;
+
+    string CatIcon(string cat) => cat switch {
+        "Pralka"    => "fa-shirt",
+        "Suszarka"  => "fa-wind",
+        "Zelazko"   => "fa-fire-flame-simple",
+        "Odkurzacz" => "fa-broom",
+        _           => "fa-box-open"
+    };
+    string CatLabel(string cat) => cat switch {
+        "Zelazko"  => "Żelazko",
+        _          => cat
+    };
+}
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid @CatIcon(resource.Category)" style="color:var(--blue);margin-right:.5rem;"></i>
+        @resource.Name
+    </div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span data-pl="Powrót" data-en="Back">Powrót</span>
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="dh-validation-summary dh-fade">@TempData["Error"]</div>
+}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;" class="dh-fade dh-fade-1">
+
+    
+    <div class="dh-card">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;">
+            <span class="dh-badge dh-badge-gray">@CatLabel(resource.Category)</span>
+            <span style="color:var(--muted);font-size:.85rem;">@resource.Building?.Name</span>
+        </div>
+
+        <form method="post" asp-action="Book" asp-route-id="@resource.Id">
+            @Html.AntiForgeryToken()
+
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Data rezerwacji" data-en="Booking date">Data rezerwacji</label>
+                <input type="date" name="bookingDate" id="bookingDate"
+                       value="@selDate.ToString("yyyy-MM-dd")"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       class="dh-input"
+                       onchange="this.form.submit()" />
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                <div class="dh-form-group">
+                    <label class="dh-label" data-pl="Od (godzina)" data-en="From (time)">Od</label>
+                    <input type="time" name="startTime" class="dh-input" required step="900" />
+                </div>
+                <div class="dh-form-group">
+                    <label class="dh-label" data-pl="Do (godzina)" data-en="To (time)">Do</label>
+                    <input type="time" name="endTime" class="dh-input" required step="900" />
+                </div>
+            </div>
+
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Uwagi (opcjonalne)" data-en="Notes (optional)">Uwagi (opcjonalne)</label>
+                <input type="text" name="notes" class="dh-input" maxlength="300" placeholder="np. pranie delikatne" />
+            </div>
+
+            <button type="submit" class="dh-btn dh-btn-primary" style="width:100%;justify-content:center;">
+                <i class="fa-solid fa-calendar-plus"></i>
+                <span data-pl="Potwierdź rezerwację" data-en="Confirm booking">Potwierdź rezerwację</span>
+            </button>
+        </form>
+    </div>
+
+    
+    <div class="dh-card">
+        <div style="font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+            <i class="fa-solid fa-calendar-day" style="color:var(--blue);"></i>
+            <span data-pl="Zajęte terminy" data-en="Occupied slots">Zajęte terminy</span>
+            <span class="dh-badge dh-badge-gray" style="margin-left:auto;">@selDate.ToString("dd.MM.yyyy")</span>
+        </div>
+
+        @if (!existing.Any())
+        {
+            <div style="text-align:center;padding:2rem 0;color:var(--muted);">
+                <i class="fa-solid fa-calendar-check" style="font-size:2rem;opacity:.35;"></i>
+                <p style="margin-top:.75rem;" data-pl="Brak rezerwacji na ten dzień." data-en="No bookings for this day.">Brak rezerwacji na ten dzień.</p>
+            </div>
+        }
+        else
+        {
+            <div style="display:flex;flex-direction:column;gap:.5rem;">
+                @foreach (var b in existing)
+                {
+                    var startStr = DateTime.Today.Add(b.StartTime).ToString("HH:mm");
+                    var endStr   = DateTime.Today.Add(b.EndTime).ToString("HH:mm");
+                    <div class="dh-booking-slot">
+                        <div class="dh-booking-slot-time">
+                            <i class="fa-solid fa-clock"></i> @startStr – @endStr
+                        </div>
+                        <div class="dh-booking-slot-person">
+                            <i class="fa-solid fa-user" style="font-size:.7rem;"></i>
+                            @(b.Resident?.Person?.FirstName) @(b.Resident?.Person?.LastName)
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(b.Notes))
+                        {
+                            <div class="dh-booking-slot-note">@b.Notes</div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+.dh-booking-slot {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .6rem .85rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+.dh-booking-slot-time {
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--orange);
+    min-width: 110px;
+}
+.dh-booking-slot-person { font-size: .8rem; color: var(--muted); }
+.dh-booking-slot-note {
+    width: 100%;
+    font-size: .75rem;
+    color: var(--muted);
+    font-style: italic;
+    padding-top: 2px;
+}
+
+@@media (max-width: 680px) {
+    div[style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>

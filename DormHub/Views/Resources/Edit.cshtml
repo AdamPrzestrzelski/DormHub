@@ -1,0 +1,77 @@
+@model DormHub.Models.ResourceModel
+@{ ViewData["Title"] = "Edytuj zasób"; }
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-pen" style="color:var(--blue);margin-right:.5rem;"></i>
+        <span data-pl="Edytuj zasób" data-en="Edit resource">Edytuj zasób</span>
+    </div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span data-pl="Powrót" data-en="Back">Powrót</span>
+    </a>
+</div>
+
+<div class="dh-card dh-fade dh-fade-1" style="max-width:560px;">
+    <form asp-action="Edit">
+        <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
+        <input type="hidden" asp-for="Id" />
+
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Budynek" data-en="Building">Budynek</label>
+            <select asp-for="BuildingId" class="dh-select" asp-items="ViewBag.BuildingId">
+                <option value="">-- wybierz budynek --</option>
+            </select>
+            <div class="dh-form-error"><span asp-validation-for="BuildingId"></span></div>
+        </div>
+
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Kategoria" data-en="Category">Kategoria</label>
+            <select asp-for="Category" class="dh-select" asp-items="ViewBag.Categories" id="cat-select">
+                <option value="">-- wybierz kategorię --</option>
+            </select>
+            <div class="dh-form-error"><span asp-validation-for="Category"></span></div>
+        </div>
+
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Nazwa zasobu" data-en="Resource name">Nazwa zasobu</label>
+            <input asp-for="Name" class="dh-input" />
+            <div class="dh-form-error"><span asp-validation-for="Name"></span></div>
+        </div>
+
+        <div class="dh-form-group">
+            <label class="dh-label">
+                <span data-pl="Opis" data-en="Description">Opis</span>
+                <span id="desc-required-hint" style="color:var(--red,#f87171);display:none;"> *</span>
+            </label>
+            <textarea asp-for="Description" class="dh-textarea" rows="3"></textarea>
+            <div class="dh-form-error"><span asp-validation-for="Description"></span></div>
+        </div>
+
+        <div class="dh-form-group" style="display:flex;align-items:center;gap:.6rem;">
+            <input type="checkbox" asp-for="IsActive" id="chk-active" style="width:16px;height:16px;" />
+            <label for="chk-active" class="dh-label" style="margin:0;cursor:pointer;" data-pl="Aktywny" data-en="Active">Aktywny</label>
+        </div>
+
+        <div style="display:flex;gap:.75rem;margin-top:1.25rem;">
+            <button type="submit" class="dh-btn dh-btn-primary">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span data-pl="Zapisz" data-en="Save">Zapisz</span>
+            </button>
+            <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+    (function() {
+        var sel = document.getElementById('cat-select');
+        var hint = document.getElementById('desc-required-hint');
+        function toggle() { hint.style.display = (sel.value === 'Inne') ? '' : 'none'; }
+        sel.addEventListener('change', toggle);
+        toggle();
+    })();
+    </script>
+}
