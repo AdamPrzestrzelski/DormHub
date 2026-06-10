@@ -181,9 +181,15 @@ namespace DormHub.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            var resident = await _db.Residents
+                .Include(r => r.Room)
+                    .ThenInclude(room => room!.Building)
+                .FirstOrDefaultAsync(r => r.PersonId == userId);
+
             var model = new ProfileViewModel
             {
-                Person = user
+                Person   = user,
+                Resident = resident
             };
 
             return View(model);
