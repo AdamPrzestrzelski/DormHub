@@ -1,0 +1,127 @@
+@model DormHub.Models.ResidentModel
+@{
+    ViewData["Title"] = "Mój pokój";
+    var roommates = ViewBag.Roommates as List<DormHub.Models.ResidentModel> ?? new List<DormHub.Models.ResidentModel>();
+    int openFaults = ViewBag.OpenFaults ?? 0;
+    var room = Model?.Room;
+    var capacity = room?.RoomType?.Capacity ?? 0;
+    var occupants = roommates.Count + 1;
+    var statusBadge = room?.Status?.Id switch
+    {
+        1 => "dh-badge-green",
+        2 => "dh-badge-orange",
+        3 => "dh-badge-yellow",
+        4 => "dh-badge-blue",
+        _ => "dh-badge-gray"
+    };
+}
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-bed" style="color:var(--orange);margin-right:.5rem;"></i>
+        <span data-pl="Mój pokój" data-en="My room">Mój pokój</span>
+    </div>
+</div>
+
+@if (Model?.RoomId == null || room == null)
+{
+    <div class="dh-card dh-fade dh-fade-1" style="max-width:560px;">
+        <p class="td-muted" data-pl="Nie masz obecnie przypisanego pokoju." data-en="You currently have no room assigned.">
+            Nie masz obecnie przypisanego pokoju.
+        </p>
+        <a href="/moje-wnioski/nowy/1" class="dh-btn dh-btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            <span data-pl="Złóż wniosek o miejsce" data-en="Apply for a place">Złóż wniosek o miejsce</span>
+        </a>
+    </div>
+}
+else
+{
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;">
+
+        <!-- Informacje o pokoju -->
+        <div class="dh-card dh-fade dh-fade-1">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <h3 style="margin-top:0;">
+                    <i class="fa-solid fa-door-closed" style="margin-right:.4rem;color:var(--orange);"></i>
+                    <span data-pl="Pokój" data-en="Room">Pokój</span> #@room.RoomNumber
+                </h3>
+                <span class="dh-badge @statusBadge">@(room.Status?.Name ?? "–")</span>
+            </div>
+            <dl style="display:grid;grid-template-columns:auto 1fr;gap:.6rem 1.5rem;margin:.5rem 0 0;">
+                <dt class="td-muted" data-pl="Budynek" data-en="Building">Budynek</dt>
+                <dd>@(room.Building?.Name ?? "–")@(room.Building?.Address != null ? $" ({room.Building.Address})" : "")</dd>
+
+                <dt class="td-muted" data-pl="Piętro" data-en="Floor">Piętro</dt>
+                <dd>@room.Floor</dd>
+
+                <dt class="td-muted" data-pl="Typ" data-en="Type">Typ</dt>
+                <dd>@(room.RoomType?.Name ?? "–")</dd>
+
+                <dt class="td-muted" data-pl="Obłożenie" data-en="Occupancy">Obłożenie</dt>
+                <dd>@occupants / @capacity</dd>
+
+                <dt class="td-muted" data-pl="Zameldowanie" data-en="Move-in">Zameldowanie</dt>
+                <dd>@Model.MoveInDate.ToString("dd.MM.yyyy")</dd>
+
+                @if (Model.MoveOutDate != null)
+                {
+                    <dt class="td-muted" data-pl="Wymeldowanie" data-en="Move-out">Wymeldowanie</dt>
+                    <dd>@Model.MoveOutDate.Value.ToString("dd.MM.yyyy")</dd>
+                }
+            </dl>
+        </div>
+
+        <!-- Współlokatorzy -->
+        <div class="dh-card dh-fade dh-fade-2">
+            <h3 style="margin-top:0;">
+                <i class="fa-solid fa-user-group" style="margin-right:.4rem;color:var(--orange);"></i>
+                <span data-pl="Z kim mieszkasz" data-en="Roommates">Z kim mieszkasz</span>
+                <span class="td-muted" style="font-weight:400;">(@roommates.Count)</span>
+            </h3>
+            @if (!roommates.Any())
+            {
+                <p class="td-muted" data-pl="Mieszkasz sam/sama w tym pokoju." data-en="You live alone in this room.">Mieszkasz sam/sama w tym pokoju.</p>
+            }
+            else
+            {
+                <div style="display:flex;flex-direction:column;gap:.5rem;">
+                    @foreach (var mate in roommates)
+                    {
+                        <div style="display:flex;align-items:center;gap:.75rem;">
+                            <div style="width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="fa-solid fa-user" style="color:var(--muted);font-size:.8rem;"></i>
+                            </div>
+                            <div>
+                                <div class="td-bold">@(mate.Person == null ? "–" : mate.Person.FirstName + " " + mate.Person.LastName)</div>
+                                <div class="td-muted" style="font-size:.8rem;">@(mate.Person?.Email ?? "")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Szybkie akcje -->
+    <div class="dh-card dh-fade dh-fade-3" style="margin-top:1.25rem;">
+        <h3 style="margin-top:0;">
+            <i class="fa-solid fa-bolt" style="margin-right:.4rem;color:var(--orange);"></i>
+            <span data-pl="Szybkie akcje" data-en="Quick actions">Szybkie akcje</span>
+        </h3>
+        <div style="display:flex;flex-wrap:wrap;gap:.75rem;">
+            <a href="/usterki/dodaj" class="dh-btn dh-btn-primary">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <span data-pl="Zgłoś usterkę" data-en="Report a fault">Zgłoś usterkę</span>
+            </a>
+            <a href="/usterki" class="dh-btn dh-btn-ghost">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span data-pl="Usterki w pokoju" data-en="Room faults">Usterki w pokoju</span>
+                @if (openFaults > 0)
+                {
+                    <span class="dh-badge dh-badge-yellow" style="margin-left:.4rem;">@openFaults</span>
+                }
+            </a>
+        </div>
+    </div>
+}

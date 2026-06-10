@@ -45,6 +45,15 @@
                         <span data-pl="Dashboard" data-en="Dashboard">Dashboard</span>
                     </a>
                 </li>
+                @if (!isAdmin && (User.Identity?.IsAuthenticated ?? false))
+                {
+                    <li>
+                        <a href="/moj-pokoj" class="dh-nav-link @(currentPath.StartsWith("/moj-pokoj") ? "active" : "")">
+                            <i class="fa-solid fa-bed"></i>
+                            <span data-pl="Mój pokój" data-en="My room">Mój pokój</span>
+                        </a>
+                    </li>
+                }
                 <li>
                     <a href="/platnosci" class="dh-nav-link @(currentPath.StartsWith("/platnosci") ? "active" : "")">
                         <i class="fa-solid fa-wallet"></i>
@@ -89,12 +98,24 @@
                         <span data-pl="Zasoby" data-en="Resources">Zasoby</span>
                     </a>
                 </li>
-                <li>
-                    <a href="/wnioski" class="dh-nav-link @(currentPath.StartsWith("/wnioski") ? "active" : "")">
-                        <i class="fa-solid fa-clipboard-list"></i>
-                        <span data-pl="Wnioski" data-en="Applications">Wnioski</span>
-                    </a>
-                </li>
+                @if (isAdmin)
+                {
+                    <li>
+                        <a href="/wnioski" class="dh-nav-link @(currentPath.StartsWith("/wnioski") ? "active" : "")">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                            <span data-pl="Wnioski" data-en="Applications">Wnioski</span>
+                        </a>
+                    </li>
+                }
+                else if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li>
+                        <a href="/moje-wnioski" class="dh-nav-link @(currentPath.StartsWith("/moje-wnioski") ? "active" : "")">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                            <span data-pl="Moje wnioski" data-en="My applications">Moje wnioski</span>
+                        </a>
+                    </li>
+                }
             </ul>
         </div>
 

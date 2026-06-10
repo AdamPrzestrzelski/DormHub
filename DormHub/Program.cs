@@ -1,5 +1,6 @@
 using DormHub.Data;
 using DormHub.Hubs;
+using DormHub.Models;
 using DormHub.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,29 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+// Apply pending migrations and ensure a default admin account exists.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DormDbContext>();
+    db.Database.Migrate();
+
+    if (!db.Persons.Any(p => p.Role == "Admin"))
+    {
+        db.Persons.Add(new PersonModel
+        {
+            FirstName = "Admin",
+            LastName = "DormHub",
+            Email = "admin@dormhub.local",
+            PhoneNumber = "000000000",
+            DateOfBirth = DateOnly.FromDateTime(DateTime.Today.AddYears(-30)),
+            PasswordHash = PasswordHasher.Hash("root"),
+            Role = "Admin",
+            IsActive = true
+        });
+        db.SaveChanges();
+    }
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

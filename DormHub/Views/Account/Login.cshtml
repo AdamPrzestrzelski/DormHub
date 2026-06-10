@@ -59,6 +59,13 @@
         </button>
     </form>
 
+    <p style="text-align:center;margin-top:1.25rem;font-size:.9rem;color:var(--muted);">
+        <span data-pl="Nie masz konta?" data-en="No account yet?">Nie masz konta?</span>
+        <a asp-controller="Account" asp-action="Register" style="color:var(--orange);font-weight:600;text-decoration:none;">
+            <span data-pl="Zarejestruj się" data-en="Sign up">Zarejestruj się</span>
+        </a>
+    </p>
+
     <!-- Przełącznik języka -->
     <div style="display:flex;justify-content:center;gap:8px;margin-top:1.5rem;">
         <button class="dh-lang-btn active" id="lang-pl" onclick="setLang('pl')">PL</button>

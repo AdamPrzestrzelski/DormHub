@@ -40,8 +40,17 @@ namespace DormHub.Controllers
                 .Include(r => r.Building)
                 .Include(r => r.RoomType)
                 .Include(r => r.Status)
+                .Include(r => r.Residents!)
+                    .ThenInclude(res => res.Person)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (roomModel == null) return NotFound();
+
+            var today = DateTime.Today;
+            ViewBag.Occupants = (roomModel.Residents ?? new List<ResidentModel>())
+                .Where(res => res.MoveOutDate == null || res.MoveOutDate >= today)
+                .OrderBy(res => res.MoveInDate)
+                .ToList();
+
             return View(roomModel);
         }
 

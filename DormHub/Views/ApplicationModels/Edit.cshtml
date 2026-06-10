@@ -17,6 +17,10 @@
             </select>
         </div>
         <div class="dh-form-group">
+            <label class="dh-label" data-pl="Typ wniosku" data-en="Application type">Typ wniosku</label>
+            <select asp-for="TypeId" class="dh-select" asp-items="ViewBag.TypeId"></select>
+        </div>
+        <div class="dh-form-group">
             <label class="dh-label" data-pl="Preferowany typ pokoju" data-en="Preferred room type">Preferowany typ pokoju</label>
             <select asp-for="PreferredRoomTypeId" class="dh-select" asp-items="ViewBag.PreferredRoomTypeId">
                 <option value="">-- dowolny --</option>
@@ -27,6 +31,20 @@
             <select asp-for="PreferredBuildingId" class="dh-select" asp-items="ViewBag.PreferredBuildingId">
                 <option value="">-- dowolny --</option>
             </select>
+        </div>
+        <div style="display:flex;gap:.75rem;">
+            <div class="dh-form-group" style="flex:1;">
+                <label class="dh-label" data-pl="Data rozpoczęcia" data-en="Start date">Data rozpoczęcia</label>
+                <input asp-for="PreferredStartDate" class="dh-input" type="date" />
+            </div>
+            <div class="dh-form-group" style="flex:1;">
+                <label class="dh-label" data-pl="Data zakończenia" data-en="End date">Data zakończenia</label>
+                <input asp-for="PreferredEndDate" class="dh-input" type="date" />
+            </div>
+        </div>
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Opis / uwagi" data-en="Description / notes">Opis / uwagi</label>
+            <textarea asp-for="Description" class="dh-input" rows="3"></textarea>
         </div>
         <div class="dh-form-group">
             <label class="dh-label" data-pl="Status" data-en="Status">Status</label>

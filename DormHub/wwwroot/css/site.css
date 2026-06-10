@@ -328,6 +328,7 @@ body {
 .dh-badge-yellow { background: rgba(234,179,8,.1);  color: #eab308; border-color: rgba(234,179,8,.2);  }
 .dh-badge-red    { background: rgba(239,68,68,.1);  color: #ef4444; border-color: rgba(239,68,68,.2);  }
 .dh-badge-orange { background: rgba(255,107,0,.1);  color: var(--orange); border-color: rgba(255,107,0,.2); }
+.dh-badge-blue   { background: rgba(59,130,246,.1); color: #3b82f6; border-color: rgba(59,130,246,.2); }
 .dh-badge-gray   { background: rgba(115,115,115,.1);color: #a3a3a3; border-color: rgba(115,115,115,.2); }
 .dh-badge .dot   { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 

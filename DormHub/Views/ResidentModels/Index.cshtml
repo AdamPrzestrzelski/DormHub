@@ -9,6 +9,13 @@
     </a>
 </div>
 
+@if (TempData["Success"] != null)
+{
+    <div class="dh-card dh-fade" style="border-left:4px solid var(--green);margin-bottom:1rem;">
+        <i class="fa-solid fa-circle-check" style="color:var(--green);margin-right:.5rem;"></i>@TempData["Success"]
+    </div>
+}
+
 <div class="dh-card dh-fade dh-fade-1">
     <div style="overflow-x:auto;">
         <table class="dh-table">
@@ -33,6 +40,7 @@
                         <td class="td-muted">@(item.MoveOutDate.HasValue ? item.MoveOutDate.Value.ToString("dd.MM.yyyy") : "–")</td>
                         <td>
                             <div class="dh-table-actions">
+                                <a asp-action="AssignRoom" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm" title="Przydziel pokój"><i class="fa-solid fa-house-circle-check"></i></a>
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-pen"></i></a>
                                 <a asp-action="Details" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
                                 <a asp-action="Delete" asp-route-id="@item.Id" class="dh-btn dh-btn-danger dh-btn-sm"><i class="fa-solid fa-trash"></i></a>

@@ -1,5 +1,8 @@
 @model IEnumerable<DormHub.Models.ApplicationModel>
-@{ ViewData["Title"] = "Wnioski"; }
+@{
+    ViewData["Title"] = "Wnioski";
+    var residentsWithRoom = ViewBag.ResidentsWithRoom as List<int> ?? new List<int>();
+}
 
 <div class="dh-page-header dh-fade">
     <div class="dh-page-title"><i class="fa-solid fa-clipboard-list" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Wnioski" data-en="Applications">Wnioski</span></div>
@@ -9,14 +12,28 @@
     </a>
 </div>
 
+@if (TempData["Success"] != null)
+{
+    <div class="dh-card dh-fade" style="border-left:4px solid var(--green);margin-bottom:1rem;">
+        <i class="fa-solid fa-circle-check" style="color:var(--green);margin-right:.5rem;"></i>@TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="dh-card dh-fade" style="border-left:4px solid var(--red);margin-bottom:1rem;">
+        <i class="fa-solid fa-circle-exclamation" style="color:var(--red);margin-right:.5rem;"></i>@TempData["Error"]
+    </div>
+}
+
 <div class="dh-card dh-fade dh-fade-1">
     <div style="overflow-x:auto;">
         <table class="dh-table">
             <thead>
                 <tr>
                     <th data-pl="Wnioskodawca" data-en="Applicant">Wnioskodawca</th>
+                    <th data-pl="Typ wniosku" data-en="Type">Typ wniosku</th>
                     <th data-pl="Typ pokoju" data-en="Room type">Typ pokoju</th>
-                    <th data-pl="Budynek" data-en="Building">Budynek</th>
+                    <th data-pl="Okres" data-en="Period">Okres</th>
                     <th data-pl="Data złożenia" data-en="Submitted">Data złożenia</th>
                     <th data-pl="Status" data-en="Status">Status</th>
                     <th></th>
@@ -27,8 +44,18 @@
                 {
                     <tr>
                         <td class="td-bold">@(item.Applicant == null ? "–" : item.Applicant.FirstName + " " + item.Applicant.LastName)</td>
+                        <td class="td-muted">@(item.Type?.Name ?? "–")</td>
                         <td class="td-muted">@(item.PreferredRoomType?.Name ?? "–")</td>
-                        <td class="td-muted">@(item.PreferredBuilding?.Name ?? "–")</td>
+                        <td class="td-muted">
+                            @if (item.PreferredStartDate != null || item.PreferredEndDate != null)
+                            {
+                                @(item.PreferredStartDate?.ToString("dd.MM.yyyy") ?? "…") <text>–</text> @(item.PreferredEndDate?.ToString("dd.MM.yyyy") ?? "…")
+                            }
+                            else
+                            {
+                                <text>–</text>
+                            }
+                        </td>
                         <td class="td-muted">@item.SubmittedAt.ToString("dd.MM.yyyy")</td>
                         <td>
                             @{
@@ -45,10 +72,33 @@
                                 <a asp-action="Details" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
                                 @if (item.StatusId == 1)
                                 {
-                                    <form asp-action="Accept" asp-route-id="@item.Id" method="post" style="display:inline;">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="dh-btn dh-btn-success dh-btn-sm"><i class="fa-solid fa-check"></i></button>
-                                    </form>
+                                    var needsRoom = item.TypeId == DormHub.Models.ApplicationTypes.Place
+                                        || item.TypeId == DormHub.Models.ApplicationTypes.RoomChange
+                                        || item.TypeId == DormHub.Models.ApplicationTypes.NextYear;
+
+                                    @if (item.TypeId == DormHub.Models.ApplicationTypes.NextYear && residentsWithRoom.Contains(item.ApplicantId))
+                                    {
+                                        <form asp-action="AssignSameRoom" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dh-btn dh-btn-success dh-btn-sm" title="Przydziel ten sam pokój">
+                                                <i class="fa-solid fa-house-circle-check"></i>
+                                                <span data-pl="Ten sam pokój" data-en="Same room">Ten sam pokój</span>
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (needsRoom)
+                                    {
+                                        <a asp-action="AssignRoom" asp-route-id="@item.Id" class="dh-btn dh-btn-success dh-btn-sm" title="Akceptuj i przydziel pokój">
+                                            <i class="fa-solid fa-check"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Accept" asp-route-id="@item.Id" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dh-btn dh-btn-success dh-btn-sm"><i class="fa-solid fa-check"></i></button>
+                                        </form>
+                                    }
                                     <form asp-action="Reject" asp-route-id="@item.Id" method="post" style="display:inline;">
                                         @Html.AntiForgeryToken()
                                         <button type="submit" class="dh-btn dh-btn-danger dh-btn-sm"><i class="fa-solid fa-xmark"></i></button>

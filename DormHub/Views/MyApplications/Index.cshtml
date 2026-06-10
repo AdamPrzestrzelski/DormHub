@@ -1,0 +1,118 @@
+@model IEnumerable<DormHub.Models.ApplicationModel>
+@{
+    ViewData["Title"] = "Moje wnioski";
+    bool isResident = ViewBag.IsResident ?? false;
+    string? currentRoom = ViewBag.CurrentRoom as string;
+}
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-clipboard-list" style="color:var(--orange);margin-right:.5rem;"></i>
+        <span data-pl="Moje wnioski" data-en="My applications">Moje wnioski</span>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dh-card dh-fade" style="border-left:4px solid var(--green);margin-bottom:1rem;">
+        <i class="fa-solid fa-circle-check" style="color:var(--green);margin-right:.5rem;"></i>@TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="dh-card dh-fade" style="border-left:4px solid var(--red);margin-bottom:1rem;">
+        <i class="fa-solid fa-circle-exclamation" style="color:var(--red);margin-right:.5rem;"></i>@TempData["Error"]
+    </div>
+}
+
+<div class="dh-card dh-fade dh-fade-1" style="margin-bottom:1.5rem;">
+    <h3 style="margin-top:0;" data-pl="Złóż nowy wniosek" data-en="Submit a new application">Złóż nowy wniosek</h3>
+    @if (isResident)
+    {
+        <p class="td-muted" style="margin-top:-.25rem;">
+            <i class="fa-solid fa-house-user" style="margin-right:.35rem;"></i>
+            <span data-pl="Twoje miejsce" data-en="Your place">Twoje miejsce</span>: <strong>@(currentRoom ?? "—")</strong>
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.5rem;">
+            <a href="/moje-wnioski/nowy/2" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-right-left"></i> <span data-pl="Zmiana pokoju" data-en="Room change">Zmiana pokoju</span></a>
+            <a href="/moje-wnioski/nowy/3" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-umbrella-beach"></i> <span data-pl="Przedłużenie na wakacje" data-en="Summer extension">Przedłużenie na wakacje</span></a>
+            <a href="/moje-wnioski/nowy/4" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-calendar-plus"></i> <span data-pl="Miejsce w nowym roku" data-en="Next academic year">Miejsce w nowym roku</span></a>
+            <a href="/moje-wnioski/nowy/5" class="dh-btn dh-btn-danger"><i class="fa-solid fa-right-from-bracket"></i> <span data-pl="Wymeldowanie" data-en="Check-out">Wymeldowanie</span></a>
+        </div>
+    }
+    else
+    {
+        <p class="td-muted" style="margin-top:-.25rem;" data-pl="Nie masz jeszcze miejsca w akademiku. Złóż wniosek, aby je otrzymać." data-en="You do not have a place in the dormitory yet. Submit an application to request one.">
+            Nie masz jeszcze miejsca w akademiku. Złóż wniosek, aby je otrzymać.
+        </p>
+        <a href="/moje-wnioski/nowy/1" class="dh-btn dh-btn-primary"><i class="fa-solid fa-plus"></i> <span data-pl="Wniosek o miejsce w akademiku" data-en="Apply for a dormitory place">Wniosek o miejsce w akademiku</span></a>
+    }
+</div>
+
+<div class="dh-card dh-fade dh-fade-2">
+    <h3 style="margin-top:0;" data-pl="Historia wniosków" data-en="Application history">Historia wniosków</h3>
+    @if (!Model.Any())
+    {
+        <p class="td-muted" data-pl="Brak złożonych wniosków." data-en="No applications submitted.">Brak złożonych wniosków.</p>
+    }
+    else
+    {
+        <div style="overflow-x:auto;">
+            <table class="dh-table">
+                <thead>
+                    <tr>
+                        <th data-pl="Typ" data-en="Type">Typ</th>
+                        <th data-pl="Szczegóły" data-en="Details">Szczegóły</th>
+                        <th data-pl="Okres" data-en="Period">Okres</th>
+                        <th data-pl="Data złożenia" data-en="Submitted">Data złożenia</th>
+                        <th data-pl="Status" data-en="Status">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="td-bold">@(item.Type?.Name ?? "–")</td>
+                            <td class="td-muted">
+                                @if (item.PreferredRoomType != null)
+                                {
+                                    <span>@item.PreferredRoomType.Name</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <div style="font-size:.8rem;">@item.Description</div>
+                                }
+                                @if (item.PreferredRoomType == null && string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <span>–</span>
+                                }
+                            </td>
+                            <td class="td-muted">
+                                @if (item.PreferredStartDate != null || item.PreferredEndDate != null)
+                                {
+                                    @(item.PreferredStartDate?.ToString("dd.MM.yyyy") ?? "…") <span>–</span> @(item.PreferredEndDate?.ToString("dd.MM.yyyy") ?? "…")
+                                }
+                                else
+                                {
+                                    <span>–</span>
+                                }
+                            </td>
+                            <td class="td-muted">@item.SubmittedAt.ToString("dd.MM.yyyy")</td>
+                            <td>
+                                @{
+                                    var sc = item.StatusId switch
+                                    {
+                                        2 => "dh-badge-green",
+                                        3 => "dh-badge-red",
+                                        _ => "dh-badge-yellow"
+                                    };
+                                }
+                                <span class="dh-badge @sc">@(item.Status?.Name ?? "–")</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

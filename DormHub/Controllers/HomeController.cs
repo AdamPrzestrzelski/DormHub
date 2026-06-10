@@ -21,7 +21,11 @@ namespace DormHub.Controllers
         public int PendingPayments { get; set; }
         public List<AnnouncementModel> RecentAnnouncements { get; set; } = new();
         public List<FaultModel> RecentFaults { get; set; } = new();
-        public ResidentModel? CurrentResident { get; set; }
+
+        // Dane mieszkańca (gdy zalogowany użytkownik mieszka w akademiku)
+        public bool HasRoom { get; set; }
+        public string? MyRoomLabel { get; set; }
+        public int MyRoommates { get; set; }
     }
 
     public class HomeController : Controller
@@ -65,14 +69,26 @@ namespace DormHub.Controllers
                     .ToListAsync()
             };
 
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (int.TryParse(userIdStr, out int userId) &&
-                !User.IsInRole("Admin") && !User.IsInRole("Staff"))
+            var personIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(personIdStr, out var personId))
             {
-                vm.CurrentResident = await _context.Residents
-                    .Include(r => r.Room)
-                        .ThenInclude(room => room!.Building)
-                    .FirstOrDefaultAsync(r => r.PersonId == userId);
+                var today = DateTime.Today;
+                var myResident = await _context.Residents
+                    .Include(r => r.Room).ThenInclude(rm => rm!.Building)
+                    .Where(r => r.PersonId == personId && r.RoomId != null &&
+                                (r.MoveOutDate == null || r.MoveOutDate >= today))
+                    .OrderByDescending(r => r.MoveInDate)
+                    .FirstOrDefaultAsync();
+
+                if (myResident?.Room != null)
+                {
+                    vm.HasRoom = true;
+                    vm.MyRoomLabel = $"#{myResident.Room.RoomNumber}" +
+                        (myResident.Room.Building != null ? $", {myResident.Room.Building.Name}" : "");
+                    vm.MyRoommates = await _context.Residents.CountAsync(r =>
+                        r.RoomId == myResident.RoomId && r.PersonId != personId &&
+                        (r.MoveOutDate == null || r.MoveOutDate >= today));
+                }
             }
 
             return View(vm);

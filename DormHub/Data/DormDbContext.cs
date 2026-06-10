@@ -13,6 +13,7 @@ namespace DormHub.Data
         public DbSet<RoomStatusModel>        RoomStatuses       { get; set; }
         public DbSet<ApplicationModel>       Applications       { get; set; }
         public DbSet<ApplicationStatusModel> ApplicationStatuses { get; set; }
+        public DbSet<ApplicationTypeModel>   ApplicationTypes   { get; set; }
         public DbSet<FaultModel>             Faults             { get; set; }
         public DbSet<FaultPriorityModel>     FaultPriorities    { get; set; }
         public DbSet<FaultCategoryModel>     FaultCategories    { get; set; }
@@ -95,6 +96,32 @@ namespace DormHub.Data
                 .WithMany()
                 .HasForeignKey(b => b.ResidentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ApplicationModel>()
+                .HasOne(a => a.SecondRoomType)
+                .WithMany()
+                .HasForeignKey(a => a.SecondRoomTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ApplicationModel>()
+                .HasOne(a => a.ThirdRoomType)
+                .WithMany()
+                .HasForeignKey(a => a.ThirdRoomTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ApplicationModel>()
+                .HasOne(a => a.PreferredRoomType)
+                .WithMany()
+                .HasForeignKey(a => a.PreferredRoomTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ApplicationTypeModel>().HasData(
+                new ApplicationTypeModel { Id = 1, Name = "Miejsce w akademiku",          NameEn = "Dormitory place" },
+                new ApplicationTypeModel { Id = 2, Name = "Zmiana pokoju",                NameEn = "Room change" },
+                new ApplicationTypeModel { Id = 3, Name = "Przedłużenie na wakacje",      NameEn = "Summer extension" },
+                new ApplicationTypeModel { Id = 4, Name = "Miejsce w nowym roku",         NameEn = "Next academic year" },
+                new ApplicationTypeModel { Id = 5, Name = "Wymeldowanie",                 NameEn = "Check-out" }
+            );
 
             modelBuilder.Entity<RoomStatusModel>().HasData(
                 new RoomStatusModel { Id = 1, Name = "Dostepny",   NameEn = "Available" },
