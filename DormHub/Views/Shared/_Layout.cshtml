@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DormHub.styles.css" asp-append-version="true" />
 </head>
 <body class="dh-layout">
@@ -63,6 +64,12 @@
                         <span data-pl="Ogłoszenia" data-en="Announcements">Ogłoszenia</span>
                     </a>
                 </li>
+                <li>
+                    <a href="/Chat" class="dh-nav-link @(currentPath.StartsWith("/Chat") ? "active" : "")">
+                        <i class="fa-solid fa-comments"></i>
+                        <span data-pl="Czat" data-en="Chat">Czat</span>
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -74,6 +81,12 @@
                     <a href="/usterki" class="dh-nav-link @(currentPath.StartsWith("/usterki") ? "active" : "")">
                         <i class="fa-solid fa-wrench"></i>
                         <span data-pl="Usterki" data-en="Maintenance">Usterki</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/zasoby" class="dh-nav-link @(currentPath.StartsWith("/zasoby") ? "active" : "")">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span data-pl="Zasoby" data-en="Resources">Zasoby</span>
                     </a>
                 </li>
                 <li>
@@ -131,7 +144,7 @@
     <div class="dh-sidebar-user">
         @if (User.Identity?.IsAuthenticated ?? false)
         {
-            <a href="#">
+            <a href="/Account/Profile">
                 <div style="width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                     <i class="fa-solid fa-user" style="color:var(--muted);font-size:.9rem;"></i>
                 </div>
@@ -166,7 +179,7 @@
 
             @if (User.Identity?.IsAuthenticated ?? false)
             {
-                <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0">
+                <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0" onsubmit="sessionStorage.clear();">
                     <button type="submit" class="dh-btn dh-btn-ghost dh-btn-sm">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span data-pl="Wyloguj" data-en="Logout">Wyloguj</span>
@@ -201,6 +214,13 @@
 (function () {
     var saved = localStorage.getItem('dh-lang') || 'pl';
     applyLang(saved);
+
+    @if (!(User.Identity?.IsAuthenticated ?? false))
+    {
+        <text>
+        sessionStorage.clear();
+        </text>
+    }
 })();
 
 function setLang(lang) {

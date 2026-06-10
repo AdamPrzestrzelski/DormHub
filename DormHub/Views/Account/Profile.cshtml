@@ -1,0 +1,198 @@
+@model DormHub.Models.ProfileViewModel
+@{
+    ViewData["Title"] = "Mój Profil";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<div class="dh-chat-page dh-fade">
+
+    <div class="dh-page-header">
+        <div>
+            <h1 class="dh-page-title">
+                <i class="fa-solid fa-user-gear" style="color:var(--orange);margin-right:8px;"></i>
+                <span data-pl="Mój Profil" data-en="My Profile">Mój Profil</span>
+            </h1>
+            <p style="color:var(--muted);font-size:.88rem;margin:4px 0 0;">
+                <span data-pl="Zarządzaj informacjami o swoim koncie oraz bezpieczeństwem"
+                      data-en="Manage your account information and security">
+                    Zarządzaj informacjami o swoim koncie oraz bezpieczeństwem
+                </span>
+            </p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="dh-badge dh-badge-green" style="padding: .85rem 1.25rem; width: 100%; margin-bottom: 1.5rem; border-radius: 12px; font-size: 0.88rem; justify-content: flex-start; gap: 10px;">
+            <i class="fa-solid fa-circle-check" style="font-size: 1.1rem;"></i>
+            <span>@TempData["SuccessMessage"]</span>
+        </div>
+    }
+
+    <div class="dh-grid-2-1">
+
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div class="dh-card">
+                <div class="dh-card-header">
+                    <h3 class="dh-card-title">
+                        <i class="fa-solid fa-address-card"></i>
+                        <span data-pl="Informacje o koncie" data-en="Account Information">Informacje o koncie</span>
+                    </h3>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 0.5rem;">
+                    <div>
+                        <div class="dh-label" data-pl="Imię i Nazwisko" data-en="First & Last Name">Imię i Nazwisko</div>
+                        <div style="font-size: 1.05rem; font-weight: 600; color: #fff;">@Model.Person.FirstName @Model.Person.LastName</div>
+                    </div>
+                    <div>
+                        <div class="dh-label" data-pl="Rola w systemie" data-en="System Role">Rola w systemie</div>
+                        <div style="font-size: 1rem; font-weight: 500;">
+                            <span class="dh-badge @(isAdmin ? "dh-badge-orange" : "dh-badge-gray")">
+                                <span class="dot"></span>
+                                <span data-pl="@(isAdmin ? "Administrator" : "Mieszkaniec")" data-en="@(isAdmin ? "Administrator" : "Resident")">@(isAdmin ? "Administrator" : "Mieszkaniec")</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dh-label" data-pl="Adres e-mail (Login)" data-en="Email Address (Login)">Adres e-mail (Login)</div>
+                        <div style="font-size: 1rem; color: #fff; word-break: break-all;">@Model.Person.Email</div>
+                    </div>
+                    <div>
+                        <div class="dh-label" data-pl="Numer telefonu" data-en="Phone Number">Numer telefonu</div>
+                        <div style="font-size: 1rem;">@(string.IsNullOrEmpty(Model.Person.PhoneNumber) ? "-" : Model.Person.PhoneNumber)</div>
+                    </div>
+                    <div>
+                        <div class="dh-label" data-pl="Data urodzenia" data-en="Date of Birth">Data urodzenia</div>
+                        <div style="font-size: 1rem;">@Model.Person.DateOfBirth.ToString("yyyy-MM-dd")</div>
+                    </div>
+                    <div>
+                        <div class="dh-label" data-pl="Status konta" data-en="Account Status">Status konta</div>
+                        <div>
+                            @if (Model.Person.IsActive)
+                            {
+                                <span class="dh-badge dh-badge-green">
+                                    <span class="dot"></span>
+                                    <span data-pl="Aktywne" data-en="Active">Aktywne</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="dh-badge dh-badge-red">
+                                    <span class="dot"></span>
+                                    <span data-pl="Nieaktywne" data-en="Inactive">Nieaktywne</span>
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dh-card">
+                <div class="dh-card-header">
+                    <h3 class="dh-card-title">
+                        <i class="fa-solid fa-envelope"></i>
+                        <span data-pl="Zmień adres e-mail (login)" data-en="Change email address (login)">Zmień adres e-mail (login)</span>
+                    </h3>
+                </div>
+
+                <form asp-controller="Account" asp-action="ChangeEmail" method="post">
+                    @Html.AntiForgeryToken()
+                    
+                    @if (ViewData.ModelState.ContainsKey("NewEmail") || ViewData.ModelState.ContainsKey("Password"))
+                    {
+                        <div asp-validation-summary="All" class="dh-validation-summary"></div>
+                    }
+
+                    <div class="dh-form-group">
+                        <label class="dh-label" data-pl="Nowy adres e-mail (login)" data-en="New email address (login)">Nowy adres e-mail (login)</label>
+                        <input asp-for="ChangeEmail.NewEmail" name="NewEmail" class="dh-input" type="email" placeholder="nowy@email.com" required />
+                        <span asp-validation-for="ChangeEmail.NewEmail" class="dh-form-error"></span>
+                    </div>
+
+                    <div class="dh-form-group">
+                        <label class="dh-label" data-pl="Aktualne hasło" data-en="Current password">Aktualne hasło</label>
+                        <input asp-for="ChangeEmail.Password" name="Password" class="dh-input" type="password" placeholder="••••••••" required />
+                        <span asp-validation-for="ChangeEmail.Password" class="dh-form-error"></span>
+                    </div>
+
+                    <button type="submit" class="dh-btn dh-btn-primary">
+                        <i class="fa-solid fa-envelope-circle-check"></i>
+                        <span data-pl="Zaktualizuj e-mail" data-en="Update email">Zaktualizuj e-mail</span>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <div>
+            <div class="dh-card" style="height: 100%;">
+                <div class="dh-card-header">
+                    <h3 class="dh-card-title">
+                        <i class="fa-solid fa-key"></i>
+                        <span data-pl="Zmień hasło" data-en="Change password">Zmień hasło</span>
+                    </h3>
+                </div>
+
+                <form asp-controller="Account" asp-action="ChangePassword" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @if (ViewData.ModelState.ContainsKey("CurrentPassword") || ViewData.ModelState.ContainsKey("NewPassword") || ViewData.ModelState.ContainsKey("ConfirmNewPassword"))
+                    {
+                        <div asp-validation-summary="All" class="dh-validation-summary"></div>
+                    }
+
+                    <div class="dh-form-group">
+                        <label class="dh-label" data-pl="Aktualne hasło" data-en="Current password">Aktualne hasło</label>
+                        <input asp-for="ChangePassword.CurrentPassword" name="CurrentPassword" class="dh-input" type="password" placeholder="••••••••" required />
+                        <span asp-validation-for="ChangePassword.CurrentPassword" class="dh-form-error"></span>
+                    </div>
+
+                    <div class="dh-form-group">
+                        <label class="dh-label" data-pl="Nowe hasło" data-en="New password">Nowe hasło</label>
+                        <input asp-for="ChangePassword.NewPassword" name="NewPassword" class="dh-input" type="password" placeholder="••••••••" required />
+                        <span asp-validation-for="ChangePassword.NewPassword" class="dh-form-error"></span>
+                    </div>
+
+                    <div class="dh-form-group">
+                        <label class="dh-label" data-pl="Potwierdź nowe hasło" data-en="Confirm new password">Potwierdź nowe hasło</label>
+                        <input asp-for="ChangePassword.ConfirmNewPassword" name="ConfirmNewPassword" class="dh-input" type="password" placeholder="••••••••" required />
+                        <span asp-validation-for="ChangePassword.ConfirmNewPassword" class="dh-form-error"></span>
+                    </div>
+
+                    <button type="submit" class="dh-btn dh-btn-primary">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span data-pl="Zaktualizuj hasło" data-en="Update password">Zaktualizuj hasło</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        (function() {
+            var currentLang = localStorage.getItem('dh-lang') || 'pl';
+            applyProfileLang(currentLang);
+        })();
+
+        function applyProfileLang(lang) {
+            document.querySelectorAll('[data-pl][data-en]').forEach(function(el) {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+        }
+
+        const originalSetLang = window.setLang;
+        if (originalSetLang) {
+            window.setLang = function(lang) {
+                originalSetLang(lang);
+                applyProfileLang(lang);
+            };
+        }
+    </script>
+}

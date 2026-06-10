@@ -36,7 +36,7 @@ namespace DormHub.Controllers
 
             if (!IsAdminOrStaff())
             {
-                var resident = await _context.Residents.FindAsync(CurrentUserId());
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
                 if (resident?.RoomId == null)
                     return View(new List<FaultModel>());
                 query = query.Where(f => f.RoomId == resident.RoomId);
@@ -59,7 +59,7 @@ namespace DormHub.Controllers
 
             if (!IsAdminOrStaff())
             {
-                var resident = await _context.Residents.FindAsync(CurrentUserId());
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
                 if (resident?.RoomId != fault.RoomId) return Forbid();
             }
 
@@ -71,7 +71,7 @@ namespace DormHub.Controllers
         {
             if (!IsAdminOrStaff())
             {
-                var resident = await _context.Residents.FindAsync(CurrentUserId());
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
                 if (resident?.RoomId == null)
                 {
                     TempData["Error"] = "Nie mozesz zglosic usterki – nie jestes przypisany do pokoju.";
@@ -86,7 +86,7 @@ namespace DormHub.Controllers
             {
                 ViewData["RoomId"]       = new SelectList(_context.Rooms, "Id", "RoomNumber");
                 ViewData["ReportedById"] = new SelectList(
-                    _context.Residents.Select(r => new { r.Id, FullName = r.FirstName + " " + r.LastName }),
+                    _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
                     "Id", "FullName");
             }
 
@@ -102,10 +102,10 @@ namespace DormHub.Controllers
 
             if (!IsAdminOrStaff())
             {
-                var resident = await _context.Residents.FindAsync(CurrentUserId());
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
                 if (resident == null || resident.RoomId == null) return Forbid();
                 faultModel.RoomId       = resident.RoomId.Value;
-                faultModel.ReportedById = resident.Id;
+                faultModel.ReportedById = CurrentUserId();
                 ModelState.Remove("RoomId");
                 ModelState.Remove("ReportedById");
             }
@@ -125,7 +125,7 @@ namespace DormHub.Controllers
             {
                 ViewData["RoomId"]       = new SelectList(_context.Rooms, "Id", "RoomNumber", faultModel.RoomId);
                 ViewData["ReportedById"] = new SelectList(
-                    _context.Residents.Select(r => new { r.Id, FullName = r.FirstName + " " + r.LastName }),
+                    _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
                     "Id", "FullName", faultModel.ReportedById);
             }
             return View(faultModel);
@@ -140,7 +140,7 @@ namespace DormHub.Controllers
             if (fault == null) return NotFound();
             ViewData["RoomId"]       = new SelectList(_context.Rooms, "Id", "RoomNumber", fault.RoomId);
             ViewData["ReportedById"] = new SelectList(
-                _context.Residents.Select(r => new { r.Id, FullName = r.FirstName + " " + r.LastName }),
+                _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
                 "Id", "FullName", fault.ReportedById);
             ViewData["PriorityId"]   = new SelectList(_context.FaultPriorities, "Id", "Name", fault.PriorityId);
             ViewData["CategoryId"]   = new SelectList(_context.FaultCategories,  "Id", "Name", fault.CategoryId);
@@ -172,7 +172,7 @@ namespace DormHub.Controllers
             }
             ViewData["RoomId"]       = new SelectList(_context.Rooms, "Id", "RoomNumber", faultModel.RoomId);
             ViewData["ReportedById"] = new SelectList(
-                _context.Residents.Select(r => new { r.Id, FullName = r.FirstName + " " + r.LastName }),
+                _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
                 "Id", "FullName", faultModel.ReportedById);
             ViewData["PriorityId"]   = new SelectList(_context.FaultPriorities, "Id", "Name", faultModel.PriorityId);
             ViewData["CategoryId"]   = new SelectList(_context.FaultCategories,  "Id", "Name", faultModel.CategoryId);

@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DormHub.Data;
 using DormHub.Models;
+using DormHub.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DormHub.Services;
 
 namespace DormHub.Controllers
 {
@@ -56,7 +56,7 @@ namespace DormHub.Controllers
                 DateOfBirth = model.DateOfBirth,
                 Email = model.Email.Trim(),
                 PhoneNumber = model.PhoneNumber?.Trim(),
-                PasswordHash = CreatePasswordHash(model.Password),
+                PasswordHash = PasswordHasher.Hash(model.Password),
                 Role = "User",
                 IsActive = true
             };
@@ -165,20 +165,138 @@ namespace DormHub.Controllers
             return Ok();
         }
 
-        private static string CreatePasswordHash(string password)
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Profile()
         {
-            const int saltSize = 16;
-            const int iterations = 100_000;
-            const int hashSize = 32;
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            using var rng = RandomNumberGenerator.Create();
-            var salt = new byte[saltSize];
-            rng.GetBytes(salt);
+            var user = await _db.Persons.FirstOrDefaultAsync(p => p.Id == userId);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
-            var hash = pbkdf2.GetBytes(hashSize);
+            var model = new ProfileViewModel
+            {
+                Person = user
+            };
 
-            return Convert.ToBase64String(salt) + ":" + Convert.ToBase64String(hash);
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = await _db.Persons.FirstOrDefaultAsync(p => p.Id == userId);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var profileVm = new ProfileViewModel { Person = user, ChangeEmail = model };
+                return View("Profile", profileVm);
+            }
+
+            if (!PasswordHasher.Verify(model.Password, user.PasswordHash))
+            {
+                ModelState.AddModelError(nameof(model.Password), "Nieprawidłowe hasło.");
+                var profileVm = new ProfileViewModel { Person = user, ChangeEmail = model };
+                return View("Profile", profileVm);
+            }
+
+            var trimmedEmail = model.NewEmail.Trim().ToLower();
+            if (trimmedEmail != user.Email.ToLower())
+            {
+                var exists = await _db.Persons.AnyAsync(p => p.Email.ToLower() == trimmedEmail);
+                if (exists)
+                {
+                    ModelState.AddModelError(nameof(model.NewEmail), "Ten adres e-mail jest już zajęty.");
+                    var profileVm = new ProfileViewModel { Person = user, ChangeEmail = model };
+                    return View("Profile", profileVm);
+                }
+
+                user.Email = model.NewEmail.Trim();
+                await _db.SaveChangesAsync();
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                    new Claim(ClaimTypes.Email, user.Email)
+                };
+
+                if (!string.IsNullOrEmpty(user.Role))
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, user.Role));
+                }
+
+                claims.Add(new Claim("PhoneNumber", user.PhoneNumber ?? string.Empty));
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity));
+
+                TempData["SuccessMessage"] = "Adres e-mail został pomyślnie zmieniony.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Wprowadzony e-mail jest taki sam jak aktualny.";
+            }
+
+            return RedirectToAction("Profile");
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var user = await _db.Persons.FirstOrDefaultAsync(p => p.Id == userId);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var profileVm = new ProfileViewModel { Person = user, ChangePassword = model };
+                return View("Profile", profileVm);
+            }
+
+            if (!PasswordHasher.Verify(model.CurrentPassword, user.PasswordHash))
+            {
+                ModelState.AddModelError(nameof(model.CurrentPassword), "Nieprawidłowe aktualne hasło.");
+                var profileVm = new ProfileViewModel { Person = user, ChangePassword = model };
+                return View("Profile", profileVm);
+            }
+
+            user.PasswordHash = PasswordHasher.Hash(model.NewPassword);
+            await _db.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Hasło zostało pomyślnie zmienione.";
+            return RedirectToAction("Profile");
         }
     }
 }

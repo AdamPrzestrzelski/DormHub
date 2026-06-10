@@ -63,6 +63,24 @@ namespace DormHub.Controllers.Api
             });
         }
 
+        [HttpGet("by-building/{buildingId:int}")]
+        [ProducesResponseType(typeof(IEnumerable<object>), 200)]
+        public async Task<IActionResult> GetByBuilding(int buildingId)
+        {
+            var rooms = await _db.Rooms
+                .Include(r => r.RoomType)
+                .Include(r => r.Status)
+                .Where(r => r.BuildingId == buildingId)
+                .OrderBy(r => r.RoomNumber)
+                .Select(r => new
+                {
+                    id    = r.Id,
+                    label = $"Pokój {r.RoomNumber} (p. {r.Floor}) – {(r.RoomType != null ? r.RoomType.Name : "?")} [{(r.Status != null ? r.Status.Name : "?")}]"
+                })
+                .ToListAsync();
+
+            return Ok(rooms);
+        }
 
         [HttpGet("available")]
         [ProducesResponseType(typeof(IEnumerable<RoomDto>), 200)]

@@ -21,10 +21,18 @@ namespace DormHub.Data
         public DbSet<PaymentModel>           Payments           { get; set; }
         public DbSet<PaymentStatusModel>     PaymentStatuses    { get; set; }
         public DbSet<AnnouncementModel>      Announcements      { get; set; }
+        public DbSet<ResourceModel>           Resources          { get; set; }
+        public DbSet<ResourceBookingModel>    ResourceBookings   { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ResidentModel>()
+                .HasOne(r => r.Person)
+                .WithMany()
+                .HasForeignKey(r => r.PersonId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ResidentModel>()
                 .HasOne(r => r.Room)
@@ -69,6 +77,24 @@ namespace DormHub.Data
                 .WithMany()
                 .HasForeignKey(a => a.BuildingId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ResourceModel>()
+                .HasOne(r => r.Building)
+                .WithMany()
+                .HasForeignKey(r => r.BuildingId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ResourceBookingModel>()
+                .HasOne(b => b.Resource)
+                .WithMany(r => r.Bookings)
+                .HasForeignKey(b => b.ResourceId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ResourceBookingModel>()
+                .HasOne(b => b.Resident)
+                .WithMany()
+                .HasForeignKey(b => b.ResidentId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<RoomStatusModel>().HasData(
                 new RoomStatusModel { Id = 1, Name = "Dostepny",   NameEn = "Available" },

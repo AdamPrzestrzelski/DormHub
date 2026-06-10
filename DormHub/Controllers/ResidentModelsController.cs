@@ -25,7 +25,9 @@ namespace DormHub.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
-            var residents = _context.Residents.Include(r => r.Room);
+            var residents = _context.Residents
+                .Include(r => r.Person)
+                .Include(r => r.Room);
             return View(await residents.ToListAsync());
         }
 
@@ -34,6 +36,7 @@ namespace DormHub.Controllers
         {
             if (id == null) return NotFound();
             var residentModel = await _context.Residents
+                .Include(r => r.Person)
                 .Include(r => r.Room)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (residentModel == null) return NotFound();
@@ -43,57 +46,49 @@ namespace DormHub.Controllers
         [HttpGet("dodaj")]
         public IActionResult Create()
         {
-            var existingResidentIds = _context.Residents.Select(r => r.Id).ToHashSet();
+            var existingPersonIds = _context.Residents.Select(r => r.PersonId).ToHashSet();
             var availablePersons = _context.Persons
-                .Where(p => !existingResidentIds.Contains(p.Id))
+                .Where(p => !existingPersonIds.Contains(p.Id))
                 .Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName + " (" + p.Email + ")" })
                 .ToList();
 
-            ViewData["PersonId"] = new SelectList(availablePersons, "Id", "FullName");
-            ViewData["RoomId"]   = new SelectList(_context.Rooms, "Id", "RoomNumber");
+            ViewData["PersonId"]   = new SelectList(availablePersons, "Id", "FullName");
+            ViewData["BuildingId"] = new SelectList(_context.Buildings.OrderBy(b => b.Name), "Id", "Name");
             return View();
         }
 
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int PersonId, int? RoomId, DateTime MoveInDate, DateTime? MoveOutDate)
+        public async Task<IActionResult> Create(
+            [Bind("PersonId,RoomId,MoveInDate,MoveOutDate")] ResidentModel residentModel)
         {
-            var person = await _context.Persons.FindAsync(PersonId);
-            if (person == null)
+            if (await _context.Residents.AnyAsync(r => r.PersonId == residentModel.PersonId))
             {
-                ModelState.AddModelError("PersonId", "Nie znaleziono wybranej osoby.");
-                goto ReturnView;
+                ModelState.AddModelError("PersonId", "Ta osoba jest już mieszkańcem.");
             }
 
-            if (await _context.Residents.AnyAsync(r => r.Id == PersonId))
+            if (ModelState.IsValid)
             {
-                ModelState.AddModelError("PersonId", "Ta osoba jest juz mieszkancem.");
-                goto ReturnView;
+                _context.Residents.Add(residentModel);
+                await _context.SaveChangesAsync();
+
+                if (residentModel.RoomId.HasValue)
+                {
+                    await UpdateRoomStatusAsync(residentModel.RoomId.Value);
+                }
+
+                return RedirectToAction(nameof(Index));
             }
 
-            await _context.Database.ExecuteSqlRawAsync(
-                "UPDATE [Persons] SET [Discriminator] = 'ResidentModel', [RoomId] = {0}, [MoveInDate] = {1}, [MoveOutDate] = {2} WHERE [Id] = {3}",
-                (object?)RoomId ?? DBNull.Value,
-                MoveInDate,
-                (object?)MoveOutDate ?? DBNull.Value,
-                PersonId);
-
-            if (RoomId.HasValue)
-            {
-                await UpdateRoomStatusAsync(RoomId.Value);
-            }
-
-            return RedirectToAction(nameof(Index));
-
-            ReturnView:
-            var existingResidentIds = _context.Residents.Select(r => r.Id).ToHashSet();
+            var existingPersonIds = _context.Residents.Select(r => r.PersonId).ToHashSet();
             var availablePersons = _context.Persons
-                .Where(p => !existingResidentIds.Contains(p.Id))
+                .Where(p => !existingPersonIds.Contains(p.Id))
                 .Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName + " (" + p.Email + ")" })
                 .ToList();
-            ViewData["PersonId"] = new SelectList(availablePersons, "Id", "FullName", PersonId);
-            ViewData["RoomId"]   = new SelectList(_context.Rooms, "Id", "RoomNumber", RoomId);
-            return View();
+
+            ViewData["PersonId"]   = new SelectList(availablePersons, "Id", "FullName", residentModel.PersonId);
+            ViewData["BuildingId"] = new SelectList(_context.Buildings.OrderBy(b => b.Name), "Id", "Name");
+            return View(residentModel);
         }
 
         [HttpGet("edytuj/{id}")]
@@ -109,28 +104,14 @@ namespace DormHub.Controllers
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
-            [Bind("RoomId,MoveInDate,MoveOutDate,Id,FirstName,LastName,DateOfBirth,Email,PhoneNumber")]
-            ResidentModel residentModel,
-            string? newPassword)
+            [Bind("Id,PersonId,RoomId,MoveInDate,MoveOutDate")] ResidentModel residentModel)
         {
             if (id != residentModel.Id) return NotFound();
-
-            ModelState.Remove("PasswordHash");
-            ModelState.Remove("Role");
-            ModelState.Remove("Discriminator");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var existing = await _context.Residents.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-                    if (existing == null) return NotFound();
-
-                    residentModel.PasswordHash = !string.IsNullOrEmpty(newPassword)
-                        ? DormHub.Services.PasswordHasher.Hash(newPassword)
-                        : existing.PasswordHash;
-                    residentModel.Role = existing.Role;
-
                     _context.Update(residentModel);
                     await _context.SaveChangesAsync();
                 }
@@ -139,8 +120,15 @@ namespace DormHub.Controllers
                     if (!_context.Residents.Any(e => e.Id == residentModel.Id)) return NotFound();
                     else throw;
                 }
+
+                if (residentModel.RoomId.HasValue)
+                {
+                    await UpdateRoomStatusAsync(residentModel.RoomId.Value);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "RoomNumber", residentModel.RoomId);
             return View(residentModel);
         }
@@ -150,6 +138,7 @@ namespace DormHub.Controllers
         {
             if (id == null) return NotFound();
             var residentModel = await _context.Residents
+                .Include(r => r.Person)
                 .Include(r => r.Room)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (residentModel == null) return NotFound();

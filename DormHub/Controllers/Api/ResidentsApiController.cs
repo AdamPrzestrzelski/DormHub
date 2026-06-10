@@ -18,12 +18,13 @@ namespace DormHub.Controllers.Api
         {
             var residents = await _db.Residents
                 .Include(r => r.Room)
+                .Include(r => r.Person)
                 .Select(r => new ResidentDto
                 {
                     Id          = r.Id,
-                    FirstName   = r.FirstName,
-                    LastName    = r.LastName,
-                    Email       = r.Email,
+                    FirstName   = r.Person != null ? r.Person.FirstName : "",
+                    LastName    = r.Person != null ? r.Person.LastName : "",
+                    Email       = r.Person != null ? r.Person.Email : "",
                     RoomNumber  = r.Room != null ? r.Room.RoomNumber : (int?)null,
                     MoveInDate  = r.MoveInDate,
                     MoveOutDate = r.MoveOutDate
@@ -39,6 +40,7 @@ namespace DormHub.Controllers.Api
         {
             var r = await _db.Residents
                 .Include(r => r.Room)
+                .Include(r => r.Person)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (r == null) return NotFound(new { message = $"Mieszkaniec o ID {id} nie istnieje." });
@@ -46,9 +48,9 @@ namespace DormHub.Controllers.Api
             return Ok(new ResidentDto
             {
                 Id          = r.Id,
-                FirstName   = r.FirstName,
-                LastName    = r.LastName,
-                Email       = r.Email,
+                FirstName   = r.Person?.FirstName ?? "",
+                LastName    = r.Person?.LastName ?? "",
+                Email       = r.Person?.Email ?? "",
                 RoomNumber  = r.Room?.RoomNumber,
                 MoveInDate  = r.MoveInDate,
                 MoveOutDate = r.MoveOutDate

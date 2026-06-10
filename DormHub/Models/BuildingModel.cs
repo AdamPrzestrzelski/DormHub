@@ -17,5 +17,6 @@ namespace DormHub.Models
 
         [Phone(ErrorMessage = "Nieprawidłowy numer telefonu")]
         public string? PhoneNumber { get; set; }
+
     }
 }

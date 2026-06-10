@@ -14,39 +14,117 @@
 </div>
 
 <div class="dh-card dh-fade dh-fade-1" style="max-width:540px;">
-    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1.25rem;" data-pl="Wybierz istniejącą osobę z systemu i przypisz jej pokój oraz daty zameldowania." data-en="Select an existing person and assign a room and check-in dates.">
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1.25rem;">
         Wybierz istniejącą osobę z systemu i przypisz jej pokój oraz daty zameldowania.
     </p>
-    <form method="post">
+    <form method="post" id="createResidentForm">
         @Html.AntiForgeryToken()
+
         <div class="dh-form-group">
-            <label class="dh-label" data-pl="Osoba" data-en="Person">Osoba</label>
-            <select name="PersonId" class="dh-select" asp-items="ViewBag.PersonId" required>
+            <label class="dh-label">Osoba</label>
+            <select name="PersonId" id="PersonId" class="dh-select" asp-items="ViewBag.PersonId" required>
                 <option value="">-- wybierz osobę --</option>
             </select>
         </div>
+
         <div class="dh-form-group">
-            <label class="dh-label" data-pl="Pokój" data-en="Room">Pokój</label>
-            <select name="RoomId" class="dh-select" asp-items="ViewBag.RoomId">
-                <option value="">-- brak / przydziel później --</option>
+            <label class="dh-label">
+                <i class="fa-solid fa-building" style="color:var(--orange);margin-right:5px;font-size:.85em;"></i>
+                Budynek
+            </label>
+            <select id="BuildingSelect" class="dh-select" asp-items="ViewBag.BuildingId">
+                <option value="">-- wybierz budynek --</option>
             </select>
         </div>
+
+        <div class="dh-form-group">
+            <label class="dh-label">
+                <i class="fa-solid fa-door-open" style="color:var(--orange);margin-right:5px;font-size:.85em;"></i>
+                Pokój
+                <span id="roomLoadingSpinner" style="display:none;margin-left:8px;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="color:var(--orange);font-size:.85em;"></i>
+                </span>
+            </label>
+            <select name="RoomId" id="RoomSelect" class="dh-select" disabled>
+                <option value="">-- najpierw wybierz budynek --</option>
+            </select>
+            <p id="roomHint" style="font-size:.78rem;color:var(--muted);margin-top:.35rem;">
+                Pokoje zostaną załadowane po wybraniu budynku.
+            </p>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
             <div class="dh-form-group">
-                <label class="dh-label" data-pl="Data zameldowania" data-en="Move-in date">Data zameldowania</label>
+                <label class="dh-label">Data zameldowania</label>
                 <input name="MoveInDate" class="dh-input" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
             </div>
             <div class="dh-form-group">
-                <label class="dh-label" data-pl="Data wymeldowania" data-en="Move-out date">Data wymeldowania</label>
+                <label class="dh-label">Data wymeldowania</label>
                 <input name="MoveOutDate" class="dh-input" type="date" />
             </div>
         </div>
+
         <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button type="submit" class="dh-btn dh-btn-primary">
                 <i class="fa-solid fa-floppy-disk"></i>
-                <span data-pl="Zapisz" data-en="Save">Zapisz</span>
+                <span>Zapisz</span>
             </button>
-            <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
+            <a asp-action="Index" class="dh-btn dh-btn-ghost">Anuluj</a>
         </div>
     </form>
 </div>
+
+@section Scripts {
+<script>
+(function () {
+    const buildingSelect = document.getElementById('BuildingSelect');
+    const roomSelect     = document.getElementById('RoomSelect');
+    const spinner        = document.getElementById('roomLoadingSpinner');
+    const hint           = document.getElementById('roomHint');
+
+    buildingSelect.addEventListener('change', async function () {
+        const buildingId = this.value;
+
+        roomSelect.innerHTML = '<option value="">-- wybierz pokój --</option>';
+        roomSelect.disabled  = true;
+        hint.textContent     = '';
+        hint.style.color     = 'var(--muted)';
+
+        if (!buildingId) {
+            roomSelect.innerHTML = '<option value="">-- najpierw wybierz budynek --</option>';
+            hint.textContent = 'Pokoje zostaną załadowane po wybraniu budynku.';
+            return;
+        }
+
+        spinner.style.display = 'inline';
+
+        try {
+            const resp = await fetch(`/api/rooms/by-building/${buildingId}`);
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const rooms = await resp.json();
+
+            roomSelect.innerHTML = '<option value="">-- brak / przydziel później --</option>';
+
+            if (rooms.length === 0) {
+                hint.textContent = 'Brak pokoi w tym budynku.';
+            } else {
+                rooms.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value       = r.id;
+                    opt.textContent = r.label;
+                    roomSelect.appendChild(opt);
+                });
+                hint.textContent = `Znaleziono: ${rooms.length} pokoi.`;
+            }
+
+            roomSelect.disabled = false;
+        } catch (e) {
+            hint.textContent = 'Nie udało się załadować pokoi. Spróbuj ponownie.';
+            hint.style.color = '#e55';
+        } finally {
+            spinner.style.display = 'none';
+        }
+    });
+})();
+</script>
+}

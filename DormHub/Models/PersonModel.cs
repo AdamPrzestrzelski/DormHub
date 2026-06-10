@@ -33,11 +33,5 @@ namespace DormHub.Models
         public string Role { get; set; } = string.Empty;
 
         public bool IsActive { get; set; } = true;
-
-        [DataType(DataType.Date)]
-        public DateTime? MoveinDate { get; set; }
-
-        [DataType(DataType.Date)]
-        public DateTime? MoveoutDate { get; set; }
     }
 }

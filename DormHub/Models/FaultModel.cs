@@ -16,7 +16,7 @@ namespace DormHub.Models
         [Required]
         public int ReportedById { get; set; }
         [ForeignKey("ReportedById")]
-        public ResidentModel? ReportedBy { get; set; }
+        public PersonModel? ReportedBy { get; set; }
 
         [Required(ErrorMessage = "Opis wymagany")]
         public string Description { get; set; } = string.Empty;

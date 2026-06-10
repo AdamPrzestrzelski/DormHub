@@ -413,11 +413,6 @@ namespace DormHub.Migrations
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -432,12 +427,6 @@ namespace DormHub.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("MoveinDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("MoveoutDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -454,10 +443,112 @@ namespace DormHub.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Persons");
+                });
 
-                    b.HasDiscriminator().HasValue("PersonModel");
+            modelBuilder.Entity("DormHub.Models.ResidentModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.UseTphMappingStrategy();
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("MoveInDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("MoveOutDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("Residents");
+                });
+
+            modelBuilder.Entity("DormHub.Models.ResourceBookingModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("ResidentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ResourceId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResidentId");
+
+                    b.HasIndex("ResourceId");
+
+                    b.ToTable("ResourceBookings");
+                });
+
+            modelBuilder.Entity("DormHub.Models.ResourceModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BuildingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BuildingId");
+
+                    b.ToTable("Resources");
                 });
 
             modelBuilder.Entity("DormHub.Models.RoomModel", b =>
@@ -504,10 +595,12 @@ namespace DormHub.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("NameEn")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.HasKey("Id");
 
@@ -562,24 +655,6 @@ namespace DormHub.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RoomTypes");
-                });
-
-            modelBuilder.Entity("DormHub.Models.ResidentModel", b =>
-                {
-                    b.HasBaseType("DormHub.Models.PersonModel");
-
-                    b.Property<DateTime>("MoveInDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("MoveOutDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("RoomId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("RoomId");
-
-                    b.HasDiscriminator().HasValue("ResidentModel");
                 });
 
             modelBuilder.Entity("DormHub.Models.AnnouncementModel", b =>
@@ -645,7 +720,7 @@ namespace DormHub.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DormHub.Models.ResidentModel", "ReportedBy")
+                    b.HasOne("DormHub.Models.PersonModel", "ReportedBy")
                         .WithMany()
                         .HasForeignKey("ReportedById")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -692,6 +767,54 @@ namespace DormHub.Migrations
                     b.Navigation("Status");
                 });
 
+            modelBuilder.Entity("DormHub.Models.ResidentModel", b =>
+                {
+                    b.HasOne("DormHub.Models.PersonModel", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DormHub.Models.RoomModel", "Room")
+                        .WithMany("Residents")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Person");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("DormHub.Models.ResourceBookingModel", b =>
+                {
+                    b.HasOne("DormHub.Models.ResidentModel", "Resident")
+                        .WithMany()
+                        .HasForeignKey("ResidentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DormHub.Models.ResourceModel", "Resource")
+                        .WithMany("Bookings")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Resident");
+
+                    b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("DormHub.Models.ResourceModel", b =>
+                {
+                    b.HasOne("DormHub.Models.BuildingModel", "Building")
+                        .WithMany()
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Building");
+                });
+
             modelBuilder.Entity("DormHub.Models.RoomModel", b =>
                 {
                     b.HasOne("DormHub.Models.BuildingModel", "Building")
@@ -719,14 +842,9 @@ namespace DormHub.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("DormHub.Models.ResidentModel", b =>
+            modelBuilder.Entity("DormHub.Models.ResourceModel", b =>
                 {
-                    b.HasOne("DormHub.Models.RoomModel", "Room")
-                        .WithMany("Residents")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Room");
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("DormHub.Models.RoomModel", b =>

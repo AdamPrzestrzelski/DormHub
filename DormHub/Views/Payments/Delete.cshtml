@@ -10,7 +10,7 @@
 
 <dl class="row">
     <dt class="col-sm-3">Mieszkaniec</dt>
-    <dd class="col-sm-9">@Model.Resident?.FirstName @Model.Resident?.LastName</dd>
+    <dd class="col-sm-9">@Model.Resident?.Person?.FirstName @Model.Resident?.Person?.LastName</dd>
     <dt class="col-sm-3">Opis</dt>
     <dd class="col-sm-9">@(Model.Description ?? "–")</dd>
     <dt class="col-sm-3">Kwota</dt>

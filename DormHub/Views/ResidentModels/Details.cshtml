@@ -1,66 +1,30 @@
-﻿@model DormHub.Models.ResidentModel
+@model DormHub.Models.ResidentModel
+@{ ViewData["Title"] = "Szczegóły mieszkańca"; }
 
-@{
-    ViewData["Title"] = "Details";
-}
-
-<h1>Details</h1>
-
-<div>
-    <h4>ResidentModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Room)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Room.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MoveInDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MoveInDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MoveOutDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MoveOutDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FirstName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FirstName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LastName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LastName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DateOfBirth)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DateOfBirth)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumber)
-        </dd>
-    </dl>
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-user" style="color:var(--orange);margin-right:.5rem;"></i>Szczegóły mieszkańca</div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> Powrót</a>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div class="dh-card dh-fade dh-fade-1" style="max-width:540px;">
+    <dl class="row">
+        <dt class="col-sm-4">Imię i nazwisko</dt>
+        <dd class="col-sm-8">@Model.Person?.FirstName @Model.Person?.LastName</dd>
+
+        <dt class="col-sm-4">E-mail</dt>
+        <dd class="col-sm-8">@Model.Person?.Email</dd>
+
+        <dt class="col-sm-4">Pokój</dt>
+        <dd class="col-sm-8">@(Model.Room?.RoomNumber.ToString() ?? "–")</dd>
+
+        <dt class="col-sm-4">Data zameldowania</dt>
+        <dd class="col-sm-8">@Model.MoveInDate.ToString("dd.MM.yyyy")</dd>
+
+        <dt class="col-sm-4">Data wymeldowania</dt>
+        <dd class="col-sm-8">@(Model.MoveOutDate.HasValue ? Model.MoveOutDate.Value.ToString("dd.MM.yyyy") : "–")</dd>
+    </dl>
+    <div style="display:flex;gap:.75rem;margin-top:1rem;">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-pen"></i> Edytuj</a>
+        <a asp-action="Index" class="dh-btn dh-btn-ghost">Powrót</a>
+    </div>
 </div>

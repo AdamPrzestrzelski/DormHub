@@ -127,7 +127,9 @@ namespace DormHub.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ApplicantId"] = new SelectList(_context.Persons, "Id", "Discriminator", applicationModel.ApplicantId);
+            ViewData["ApplicantId"] = new SelectList(
+                _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
+                "Id", "FullName", applicationModel.ApplicantId);
             ViewData["PreferredBuildingId"] = new SelectList(_context.Buildings, "Id", "Name", applicationModel.PreferredBuildingId);
             ViewData["PreferredRoomTypeId"] = new SelectList(_context.RoomTypes, "Id", "Name", applicationModel.PreferredRoomTypeId);
             return View(applicationModel);

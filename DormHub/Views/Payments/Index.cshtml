@@ -27,7 +27,7 @@
                 @foreach (var p in Model)
                 {
                     <tr>
-                        <td class="td-bold">@p.Resident?.FirstName @p.Resident?.LastName</td>
+                        <td class="td-bold">@p.Resident?.Person?.FirstName @p.Resident?.Person?.LastName</td>
                         <td class="td-muted">@(p.Description ?? "–")</td>
                         <td style="font-weight:600;color:#fff;font-variant-numeric:tabular-nums;">@p.Amount.ToString("C")</td>
                         <td class="td-muted">@p.DueDate.ToString("dd.MM.yyyy")</td>

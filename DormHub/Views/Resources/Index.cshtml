@@ -1,0 +1,155 @@
+@model IEnumerable<DormHub.Models.ResourceModel>
+@{
+    ViewData["Title"] = "Zasoby";
+    bool isAdmin = User.IsInRole("Admin");
+
+    string CatIcon(string cat) => cat switch {
+        "Pralka"    => "fa-shirt",
+        "Suszarka"  => "fa-wind",
+        "Zelazko"   => "fa-fire-flame-simple",
+        "Odkurzacz" => "fa-broom",
+        _           => "fa-box-open"
+    };
+    string CatColor(string cat) => cat switch {
+        "Pralka"    => "var(--blue)",
+        "Suszarka"  => "var(--teal, #14b8a6)",
+        "Zelazko"   => "var(--orange)",
+        "Odkurzacz" => "var(--purple, #a855f7)",
+        _           => "var(--muted)"
+    };
+    string CatLabel(string cat) => cat switch {
+        "Pralka"    => "Pralka",
+        "Suszarka"  => "Suszarka",
+        "Zelazko"   => "Żelazko",
+        "Odkurzacz" => "Odkurzacz",
+        _           => "Inne"
+    };
+}
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-box-open" style="color:var(--blue);margin-right:.5rem;"></i>
+        <span data-pl="Zasoby" data-en="Resources">Zasoby</span>
+    </div>
+    <div style="display:flex;gap:.5rem;">
+        <a asp-action="MyBookings" class="dh-btn dh-btn-ghost">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span data-pl="Moje rezerwacje" data-en="My bookings">Moje rezerwacje</span>
+        </a>
+        @if (isAdmin)
+        {
+            <a asp-action="Create" class="dh-btn dh-btn-primary">
+                <i class="fa-solid fa-plus"></i>
+                <span data-pl="Dodaj zasób" data-en="Add resource">Dodaj zasób</span>
+            </a>
+        }
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="dh-validation-summary dh-fade">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="dh-alert-success dh-fade" style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80;padding:.75rem 1rem;border-radius:8px;margin-bottom:1rem;">
+        <i class="fa-solid fa-circle-check"></i> @TempData["Success"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="dh-card dh-fade dh-fade-1" style="text-align:center;padding:3rem;">
+        <i class="fa-solid fa-box-open" style="font-size:3rem;color:var(--muted);opacity:.4;"></i>
+        <p style="color:var(--muted);margin-top:1rem;" data-pl="Brak zasobów w Twoim budynku." data-en="No resources in your building.">Brak zasobów w Twoim budynku.</p>
+    </div>
+}
+else
+{
+    
+    var grouped = Model.GroupBy(r => r.Building?.Name ?? "–");
+
+    foreach (var buildingGroup in grouped)
+    {
+        if (isAdmin)
+        {
+            <div style="margin-bottom:.25rem;margin-top:1.25rem;">
+                <span class="dh-nav-section-label" style="font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">
+                    <i class="fa-solid fa-building" style="margin-right:4px;"></i>@buildingGroup.Key
+                </span>
+            </div>
+        }
+
+        <div class="dh-resources-grid dh-fade dh-fade-1">
+            @foreach (var resource in buildingGroup.OrderBy(r => r.Category).ThenBy(r => r.Name))
+            {
+                <div class="dh-resource-card @(!resource.IsActive ? "dh-resource-inactive" : "")">
+                    <div class="dh-resource-card-icon" style="background:@(CatColor(resource.Category))1a;color:@(CatColor(resource.Category))">
+                        <i class="fa-solid @CatIcon(resource.Category)"></i>
+                    </div>
+                    <div class="dh-resource-card-body">
+                        <div class="dh-resource-card-name">@resource.Name</div>
+                        <div class="dh-resource-card-cat">@CatLabel(resource.Category)</div>
+                        @if (!string.IsNullOrWhiteSpace(resource.Description))
+                        {
+                            <div class="dh-resource-card-desc">@resource.Description</div>
+                        }
+                    </div>
+                    <div class="dh-resource-card-footer">
+                        @if (!resource.IsActive)
+                        {
+                            <span class="dh-badge dh-badge-gray" data-pl="Nieaktywny" data-en="Inactive">Nieaktywny</span>
+                        }
+                        else
+                        {
+                            <a asp-action="Book" asp-route-id="@resource.Id" class="dh-btn dh-btn-primary dh-btn-sm">
+                                <i class="fa-solid fa-calendar-plus"></i>
+                                <span data-pl="Rezerwuj" data-en="Book">Rezerwuj</span>
+                            </a>
+                        }
+                        @if (isAdmin)
+                        {
+                            <a asp-action="Edit" asp-route-id="@resource.Id" class="dh-btn dh-btn-ghost dh-btn-sm">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@resource.Id" class="dh-btn dh-btn-danger dh-btn-sm">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+
+<style>
+.dh-resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.dh-resource-card {
+    background: var(--surface1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    transition: border-color .2s, box-shadow .2s;
+}
+.dh-resource-card:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(99,102,241,.08); }
+.dh-resource-inactive { opacity: .55; }
+.dh-resource-card-icon {
+    width: 48px; height: 48px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+}
+.dh-resource-card-name { font-weight: 600; font-size: .95rem; }
+.dh-resource-card-cat  { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+.dh-resource-card-desc { font-size: .78rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+.dh-resource-card-footer { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: auto; }
+</style>
