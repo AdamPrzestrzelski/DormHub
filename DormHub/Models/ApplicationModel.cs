@@ -13,16 +13,41 @@ namespace DormHub.Models
         [ForeignKey("ApplicantId")]
         public PersonModel? Applicant { get; set; }
 
+        [Required]
+        public int TypeId { get; set; } = ApplicationTypes.Place;
+        [ForeignKey("TypeId")]
+        public ApplicationTypeModel? Type { get; set; }
+
+        // 1. wybór (preferowany typ pokoju)
         public int? PreferredRoomTypeId { get; set; }
         [ForeignKey("PreferredRoomTypeId")]
         public RoomTypeModel? PreferredRoomType { get; set; }
+
+        // 2. wybór (priorytet niższy)
+        public int? SecondRoomTypeId { get; set; }
+        [ForeignKey("SecondRoomTypeId")]
+        public RoomTypeModel? SecondRoomType { get; set; }
+
+        // 3. wybór (priorytet najniższy)
+        public int? ThirdRoomTypeId { get; set; }
+        [ForeignKey("ThirdRoomTypeId")]
+        public RoomTypeModel? ThirdRoomType { get; set; }
 
         public int? PreferredBuildingId { get; set; }
         [ForeignKey("PreferredBuildingId")]
         public BuildingModel? PreferredBuilding { get; set; }
 
+        [StringLength(1000)]
+        public string? Description { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? PreferredStartDate { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? PreferredEndDate { get; set; }
+
         [Required]
-        public int StatusId { get; set; } = 1;
+        public int StatusId { get; set; } = ApplicationStatuses.Pending;
         [ForeignKey("StatusId")]
         public ApplicationStatusModel? Status { get; set; }
 

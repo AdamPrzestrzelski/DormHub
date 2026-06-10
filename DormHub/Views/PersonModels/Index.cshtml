@@ -1,5 +1,8 @@
 @model IEnumerable<DormHub.Models.PersonModel>
-@{ ViewData["Title"] = "Osoby"; }
+@{
+    ViewData["Title"] = "Osoby";
+    var housed = ViewBag.HousedPersonIds as List<int> ?? new List<int>();
+}
 
 <div class="dh-page-header dh-fade">
     <div class="dh-page-title"><i class="fa-solid fa-users" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Osoby" data-en="Persons">Osoby</span></div>
@@ -8,6 +11,13 @@
         <span data-pl="Dodaj osobę" data-en="Add person">Dodaj osobę</span>
     </a>
 </div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="dh-card dh-fade" style="border-left:4px solid var(--green);margin-bottom:1rem;">
+        <i class="fa-solid fa-circle-check" style="color:var(--green);margin-right:.5rem;"></i>@TempData["Success"]
+    </div>
+}
 
 <div class="dh-card dh-fade dh-fade-1">
     <div style="overflow-x:auto;">
@@ -42,6 +52,10 @@
                         </td>
                         <td>
                             <div class="dh-table-actions">
+                                @if (item.Role != "Admin" && !housed.Contains(item.Id))
+                                {
+                                    <a asp-controller="ResidentModels" asp-action="AssignRoomToPerson" asp-route-personId="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm" title="Przydziel pokój"><i class="fa-solid fa-house-circle-check"></i></a>
+                                }
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-pen"></i></a>
                                 <a asp-action="Details" asp-route-id="@item.Id" class="dh-btn dh-btn-ghost dh-btn-sm"><i class="fa-solid fa-eye"></i></a>
                                 <a asp-action="Delete" asp-route-id="@item.Id" class="dh-btn dh-btn-danger dh-btn-sm"><i class="fa-solid fa-trash"></i></a>

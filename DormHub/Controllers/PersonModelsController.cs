@@ -25,6 +25,13 @@ namespace DormHub.Controllers
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
+            var today = DateTime.Today;
+            ViewBag.HousedPersonIds = await _context.Residents
+                .Where(r => r.RoomId != null && (r.MoveOutDate == null || r.MoveOutDate >= today))
+                .Select(r => r.PersonId)
+                .Distinct()
+                .ToListAsync();
+
             return View(await _context.Persons.ToListAsync());
         }
 

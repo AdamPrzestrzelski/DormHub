@@ -1,0 +1,110 @@
+@model DormHub.Models.SelfApplicationViewModel
+@{
+    ViewData["Title"] = "Nowy wniosek";
+}
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-clipboard-list" style="color:var(--orange);margin-right:.5rem;"></i>
+        <span>@Model.TypeName</span>
+    </div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
+</div>
+
+<div class="dh-card dh-fade dh-fade-1" style="max-width:620px;">
+    @if (!string.IsNullOrWhiteSpace(Model.Hint))
+    {
+        <p class="td-muted" style="margin-top:0;">
+            <i class="fa-solid fa-circle-info" style="margin-right:.4rem;color:var(--orange);"></i>@Model.Hint
+        </p>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.CurrentRoomInfo))
+    {
+        <p class="td-muted">
+            <i class="fa-solid fa-house-user" style="margin-right:.4rem;"></i>
+            <span data-pl="Obecne miejsce" data-en="Current place">Obecne miejsce</span>: <strong>@Model.CurrentRoomInfo</strong>
+        </p>
+    }
+
+    <form asp-action="Create" asp-route-type="@Model.TypeId" method="post">
+        <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
+        <input type="hidden" asp-for="TypeId" />
+
+        @if (Model.ShowSinglePreference)
+        {
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Preferowany typ pokoju" data-en="Preferred room type">Preferowany typ pokoju</label>
+                <select asp-for="PreferredRoomTypeId" class="dh-select" asp-items="ViewBag.RoomTypes1">
+                    <option value="">-- dowolny --</option>
+                </select>
+            </div>
+        }
+
+        @if (Model.ShowBuilding)
+        {
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Preferowany budynek" data-en="Preferred building">Preferowany budynek</label>
+                <select asp-for="PreferredBuildingId" class="dh-select" asp-items="ViewBag.Buildings">
+                    <option value="">-- dowolny --</option>
+                </select>
+            </div>
+        }
+
+        @if (Model.ShowRoomChoices)
+        {
+            <div class="dh-form-group">
+                <label class="dh-label">1. <span data-pl="wybór typu pokoju" data-en="choice (room type)">wybór typu pokoju</span></label>
+                <select asp-for="PreferredRoomTypeId" class="dh-select" asp-items="ViewBag.RoomTypes1">
+                    <option value="">-- wybierz --</option>
+                </select>
+                <div class="dh-form-error"><span asp-validation-for="PreferredRoomTypeId"></span></div>
+            </div>
+            <div class="dh-form-group">
+                <label class="dh-label">2. <span data-pl="wybór typu pokoju" data-en="choice (room type)">wybór typu pokoju</span></label>
+                <select asp-for="SecondRoomTypeId" class="dh-select" asp-items="ViewBag.RoomTypes2">
+                    <option value="">-- brak --</option>
+                </select>
+            </div>
+            <div class="dh-form-group">
+                <label class="dh-label">3. <span data-pl="wybór typu pokoju" data-en="choice (room type)">wybór typu pokoju</span></label>
+                <select asp-for="ThirdRoomTypeId" class="dh-select" asp-items="ViewBag.RoomTypes3">
+                    <option value="">-- brak --</option>
+                </select>
+            </div>
+        }
+
+        @if (Model.ShowPeriod)
+        {
+            <div style="display:flex;gap:.75rem;">
+                <div class="dh-form-group" style="flex:1;">
+                    <label class="dh-label" data-pl="Data rozpoczęcia" data-en="Start date">Data rozpoczęcia</label>
+                    <input asp-for="PreferredStartDate" class="dh-input" type="date" />
+                </div>
+                <div class="dh-form-group" style="flex:1;">
+                    <label class="dh-label" data-pl="Data zakończenia" data-en="End date">Data zakończenia</label>
+                    <input asp-for="PreferredEndDate" class="dh-input" type="date" />
+                </div>
+            </div>
+        }
+
+        @if (Model.ShowCheckoutDate)
+        {
+            <div class="dh-form-group">
+                <label class="dh-label" data-pl="Planowana data wymeldowania" data-en="Planned check-out date">Planowana data wymeldowania</label>
+                <input asp-for="PreferredEndDate" class="dh-input" type="date" />
+            </div>
+        }
+
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Opis / uwagi" data-en="Description / notes">Opis / uwagi</label>
+            <textarea asp-for="Description" class="dh-input" rows="3" placeholder="..."></textarea>
+            <div class="dh-form-error"><span asp-validation-for="Description"></span></div>
+        </div>
+
+        <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-paper-plane"></i> <span data-pl="Wyślij wniosek" data-en="Submit">Wyślij wniosek</span></button>
+            <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
+        </div>
+    </form>
+</div>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

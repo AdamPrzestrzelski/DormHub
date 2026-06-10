@@ -1,36 +1,84 @@
 ﻿@model DormHub.Models.RoomModel
-
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Szczegóły pokoju";
+    var occupants = ViewBag.Occupants as List<DormHub.Models.ResidentModel> ?? new List<DormHub.Models.ResidentModel>();
+    var capacity = Model.RoomType?.Capacity ?? 0;
+    var statusBadge = Model.Status?.Id switch
+    {
+        1 => "dh-badge-green",
+        2 => "dh-badge-orange",
+        3 => "dh-badge-yellow",
+        4 => "dh-badge-blue",
+        _ => "dh-badge-gray"
+    };
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>RoomModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RoomNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RoomNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Building)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Building.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RoomType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RoomType.Name)
-        </dd>
-    </dl>
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-door-open" style="color:var(--orange);margin-right:.5rem;"></i>
+        <span data-pl="Pokój" data-en="Room">Pokój</span> #@Model.RoomNumber
+    </div>
+    <div style="display:flex;gap:.5rem;">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-pen"></i> <span data-pl="Edytuj" data-en="Edit">Edytuj</span></a>
+        <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;">
+    <div class="dh-card dh-fade dh-fade-1">
+        <h3 style="margin-top:0;" data-pl="Informacje" data-en="Information">Informacje</h3>
+        <dl style="display:grid;grid-template-columns:auto 1fr;gap:.6rem 1.5rem;margin:0;">
+            <dt class="td-muted" data-pl="Numer" data-en="Number">Numer</dt>
+            <dd class="td-bold">#@Model.RoomNumber</dd>
+
+            <dt class="td-muted" data-pl="Budynek" data-en="Building">Budynek</dt>
+            <dd>@(Model.Building?.Name ?? "–")@(Model.Building?.Address != null ? $" ({Model.Building.Address})" : "")</dd>
+
+            <dt class="td-muted" data-pl="Piętro" data-en="Floor">Piętro</dt>
+            <dd>@Model.Floor</dd>
+
+            <dt class="td-muted" data-pl="Typ" data-en="Type">Typ</dt>
+            <dd>@(Model.RoomType?.Name ?? "–")</dd>
+
+            <dt class="td-muted" data-pl="Pojemność" data-en="Capacity">Pojemność</dt>
+            <dd>@occupants.Count / @capacity</dd>
+
+            <dt class="td-muted" data-pl="Status" data-en="Status">Status</dt>
+            <dd><span class="dh-badge @statusBadge">@(Model.Status?.Name ?? "–")</span></dd>
+        </dl>
+    </div>
+
+    <div class="dh-card dh-fade dh-fade-2">
+        <h3 style="margin-top:0;">
+            <i class="fa-solid fa-users" style="margin-right:.4rem;color:var(--orange);"></i>
+            <span data-pl="Mieszkańcy" data-en="Residents">Mieszkańcy</span>
+            <span class="td-muted" style="font-weight:400;">(@occupants.Count)</span>
+        </h3>
+        @if (!occupants.Any())
+        {
+            <p class="td-muted" data-pl="Brak mieszkańców w tym pokoju." data-en="No residents in this room.">Brak mieszkańców w tym pokoju.</p>
+        }
+        else
+        {
+            <table class="dh-table">
+                <thead>
+                    <tr>
+                        <th data-pl="Imię i nazwisko" data-en="Name">Imię i nazwisko</th>
+                        <th data-pl="Od" data-en="From">Od</th>
+                        <th data-pl="Do" data-en="To">Do</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var res in occupants)
+                    {
+                        <tr>
+                            <td class="td-bold">@(res.Person == null ? "–" : res.Person.FirstName + " " + res.Person.LastName)</td>
+                            <td class="td-muted">@res.MoveInDate.ToString("dd.MM.yyyy")</td>
+                            <td class="td-muted">@(res.MoveOutDate?.ToString("dd.MM.yyyy") ?? "—")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
 </div>

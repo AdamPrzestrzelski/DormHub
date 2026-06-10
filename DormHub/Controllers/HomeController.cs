@@ -3,6 +3,7 @@ using DormHub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace DormHub.Controllers
 {
@@ -20,6 +21,11 @@ namespace DormHub.Controllers
         public int PendingPayments { get; set; }
         public List<AnnouncementModel> RecentAnnouncements { get; set; } = new();
         public List<FaultModel> RecentFaults { get; set; } = new();
+
+        // Dane mieszkańca (gdy zalogowany użytkownik mieszka w akademiku)
+        public bool HasRoom { get; set; }
+        public string? MyRoomLabel { get; set; }
+        public int MyRoommates { get; set; }
     }
 
     public class HomeController : Controller
@@ -62,6 +68,28 @@ namespace DormHub.Controllers
                     .Take(5)
                     .ToListAsync()
             };
+
+            var personIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(personIdStr, out var personId))
+            {
+                var today = DateTime.Today;
+                var myResident = await _context.Residents
+                    .Include(r => r.Room).ThenInclude(rm => rm!.Building)
+                    .Where(r => r.PersonId == personId && r.RoomId != null &&
+                                (r.MoveOutDate == null || r.MoveOutDate >= today))
+                    .OrderByDescending(r => r.MoveInDate)
+                    .FirstOrDefaultAsync();
+
+                if (myResident?.Room != null)
+                {
+                    vm.HasRoom = true;
+                    vm.MyRoomLabel = $"#{myResident.Room.RoomNumber}" +
+                        (myResident.Room.Building != null ? $", {myResident.Room.Building.Name}" : "");
+                    vm.MyRoommates = await _context.Residents.CountAsync(r =>
+                        r.RoomId == myResident.RoomId && r.PersonId != personId &&
+                        (r.MoveOutDate == null || r.MoveOutDate >= today));
+                }
+            }
 
             return View(vm);
         }

@@ -1,36 +1,77 @@
 ﻿@model DormHub.Models.ApplicationModel
+@{ ViewData["Title"] = "Szczegóły wniosku"; }
 
-@{
-    ViewData["Title"] = "Details";
-}
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-clipboard-list" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Szczegóły wniosku" data-en="Application details">Szczegóły wniosku</span></div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
+</div>
 
-<h1>Details</h1>
+<div class="dh-card dh-fade dh-fade-1" style="max-width:620px;">
+    <dl style="display:grid;grid-template-columns:auto 1fr;gap:.6rem 1.5rem;margin:0;">
+        <dt class="td-muted" data-pl="Wnioskodawca" data-en="Applicant">Wnioskodawca</dt>
+        <dd class="td-bold">@(Model.Applicant == null ? "–" : Model.Applicant.FirstName + " " + Model.Applicant.LastName)</dd>
 
-<div>
-    <h4>ApplicationModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Applicant)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Applicant.FirstName) @Html.DisplayFor(model => model.Applicant.LastName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PreferredRoomType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PreferredRoomType.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PreferredBuilding)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PreferredBuilding.Address)
+        <dt class="td-muted" data-pl="Typ wniosku" data-en="Type">Typ wniosku</dt>
+        <dd>@(Model.Type?.Name ?? "–")</dd>
+
+        <dt class="td-muted" data-pl="1. wybór" data-en="1st choice">1. wybór</dt>
+        <dd>@(Model.PreferredRoomType?.Name ?? "–")</dd>
+
+        @if (Model.SecondRoomType != null)
+        {
+            <dt class="td-muted" data-pl="2. wybór" data-en="2nd choice">2. wybór</dt>
+            <dd>@Model.SecondRoomType.Name</dd>
+        }
+        @if (Model.ThirdRoomType != null)
+        {
+            <dt class="td-muted" data-pl="3. wybór" data-en="3rd choice">3. wybór</dt>
+            <dd>@Model.ThirdRoomType.Name</dd>
+        }
+
+        <dt class="td-muted" data-pl="Budynek" data-en="Building">Budynek</dt>
+        <dd>@(Model.PreferredBuilding?.Name ?? "–")</dd>
+
+        <dt class="td-muted" data-pl="Okres" data-en="Period">Okres</dt>
+        <dd>@(Model.PreferredStartDate?.ToString("dd.MM.yyyy") ?? "…") – @(Model.PreferredEndDate?.ToString("dd.MM.yyyy") ?? "…")</dd>
+
+        <dt class="td-muted" data-pl="Opis" data-en="Description">Opis</dt>
+        <dd>@(string.IsNullOrWhiteSpace(Model.Description) ? "–" : Model.Description)</dd>
+
+        <dt class="td-muted" data-pl="Data złożenia" data-en="Submitted">Data złożenia</dt>
+        <dd>@Model.SubmittedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+
+        <dt class="td-muted" data-pl="Status" data-en="Status">Status</dt>
+        <dd>
+            @{
+                var sc = Model.StatusId switch { 2 => "dh-badge-green", 3 => "dh-badge-red", _ => "dh-badge-yellow" };
+            }
+            <span class="dh-badge @sc">@(Model.Status?.Name ?? "–")</span>
         </dd>
     </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+    <div style="display:flex;gap:.75rem;margin-top:1.25rem;">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-pen"></i> <span data-pl="Edytuj" data-en="Edit">Edytuj</span></a>
+        @if (Model.StatusId == 1)
+        {
+            var needsRoom = Model.TypeId == DormHub.Models.ApplicationTypes.Place
+                || Model.TypeId == DormHub.Models.ApplicationTypes.RoomChange
+                || Model.TypeId == DormHub.Models.ApplicationTypes.NextYear;
+
+            @if (needsRoom)
+            {
+                <a asp-action="AssignRoom" asp-route-id="@Model.Id" class="dh-btn dh-btn-success"><i class="fa-solid fa-house-circle-check"></i> <span data-pl="Akceptuj i przydziel pokój" data-en="Accept & assign room">Akceptuj i przydziel pokój</span></a>
+            }
+            else
+            {
+                <form asp-action="Accept" asp-route-id="@Model.Id" method="post" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dh-btn dh-btn-success"><i class="fa-solid fa-check"></i> <span data-pl="Akceptuj" data-en="Accept">Akceptuj</span></button>
+                </form>
+            }
+            <form asp-action="Reject" asp-route-id="@Model.Id" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="dh-btn dh-btn-danger"><i class="fa-solid fa-xmark"></i> <span data-pl="Odrzuć" data-en="Reject">Odrzuć</span></button>
+            </form>
+        }
+    </div>
 </div>

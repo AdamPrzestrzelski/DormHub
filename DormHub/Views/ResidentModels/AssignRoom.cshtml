@@ -1,0 +1,61 @@
+@model DormHub.Models.AssignRoomViewModel
+@{
+    ViewData["Title"] = "Przydziel pokój";
+    var formAction = (string)(ViewBag.FormAction ?? "AssignRoom");
+    var routeId = ViewBag.RouteId;
+    var postUrl = formAction == "AssignRoomToPerson"
+        ? Url.Action("AssignRoomToPerson", "ResidentModels", new { personId = routeId })
+        : Url.Action("AssignRoom", "ResidentModels", new { id = routeId });
+}
+
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title">
+        <i class="fa-solid fa-house-circle-check" style="color:var(--orange);margin-right:.5rem;"></i>
+        <span data-pl="Przydziel pokój" data-en="Assign room">Przydziel pokój</span>
+    </div>
+    <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
+</div>
+
+<div class="dh-card dh-fade dh-fade-1" style="max-width:560px;">
+    <p class="td-muted" style="margin-top:0;">
+        <span data-pl="Mieszkaniec" data-en="Resident">Mieszkaniec</span>: <strong>@Model.ApplicantName</strong>
+    </p>
+    @if (!string.IsNullOrWhiteSpace(Model.CurrentRoomInfo))
+    {
+        <p class="td-muted">
+            <i class="fa-solid fa-house-user" style="margin-right:.4rem;"></i>
+            <span data-pl="Obecny pokój" data-en="Current room">Obecny pokój</span>: <strong>@Model.CurrentRoomInfo</strong>
+        </p>
+    }
+
+    <form action="@postUrl" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
+
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Pokój" data-en="Room">Pokój</label>
+            <select asp-for="RoomId" class="dh-select" asp-items="ViewBag.Rooms">
+                <option value="">-- wybierz pokój --</option>
+            </select>
+            <div class="dh-form-error"><span asp-validation-for="RoomId"></span></div>
+        </div>
+
+        <div style="display:flex;gap:.75rem;">
+            <div class="dh-form-group" style="flex:1;">
+                <label class="dh-label" data-pl="Data zameldowania" data-en="Move-in date">Data zameldowania</label>
+                <input asp-for="MoveInDate" class="dh-input" type="date" />
+                <div class="dh-form-error"><span asp-validation-for="MoveInDate"></span></div>
+            </div>
+            <div class="dh-form-group" style="flex:1;">
+                <label class="dh-label" data-pl="Data wymeldowania" data-en="Move-out date">Data wymeldowania</label>
+                <input asp-for="MoveOutDate" class="dh-input" type="date" />
+            </div>
+        </div>
+
+        <div style="display:flex;gap:.75rem;margin-top:1rem;">
+            <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
+            <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
+        </div>
+    </form>
+</div>
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
