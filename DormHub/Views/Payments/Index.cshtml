@@ -3,10 +3,16 @@
 
 <div class="dh-page-header dh-fade">
     <div class="dh-page-title"><i class="fa-solid fa-wallet" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Płatności" data-en="Payments">Płatności</span></div>
-    <a asp-action="Create" class="dh-btn dh-btn-primary">
-        <i class="fa-solid fa-plus"></i>
-        <span data-pl="Zgłoś płatność" data-en="Submit payment">Zgłoś płatność</span>
-    </a>
+    <div style="display:flex;gap:.5rem;">
+        <a asp-action="ExportPdf" class="dh-btn dh-btn-ghost">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span data-pl="Eksportuj PDF" data-en="Export PDF">Eksportuj PDF</span>
+        </a>
+        <a asp-action="Create" class="dh-btn dh-btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            <span data-pl="Zgłoś płatność" data-en="Submit payment">Zgłoś płatność</span>
+        </a>
+    </div>
 </div>
 
 <div class="dh-card dh-fade dh-fade-1">
