@@ -3,7 +3,6 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<!-- Welcome Banner -->
 <div class="dh-welcome dh-fade">
     <div class="dh-welcome-glow"></div>
     <div class="dh-welcome-text">
@@ -30,22 +29,55 @@
     </div>
 </div>
 
-<!-- Karty statystyk -->
 <div class="dh-stats-grid dh-fade dh-fade-1">
 
-    <!-- Wolne pokoje -->
-    <div class="dh-card dh-card-hover">
-        <div class="dh-stat-card-corner"></div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
-            <div class="dh-stat-icon"><i class="fa-solid fa-door-open"></i></div>
-            <span class="dh-badge dh-badge-green" data-pl="Wolne" data-en="Available">Wolne</span>
+    @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+    {   
+        <div class="dh-card dh-card-hover">
+            <div class="dh-stat-card-corner"></div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
+                <div class="dh-stat-icon"><i class="fa-solid fa-door-open"></i></div>
+                <span class="dh-badge dh-badge-green" data-pl="Wolne" data-en="Available">Wolne</span>
+            </div>
+            <div class="dh-stat-value">@Model.AvailableRooms</div>
+            <div class="dh-stat-label" data-pl="Wolne pokoje" data-en="Available rooms">Wolne pokoje</div>
+            <div class="dh-stat-sub">z @Model.TotalRooms <span data-pl="łącznie" data-en="total">łącznie</span></div>
         </div>
-        <div class="dh-stat-value">@Model.AvailableRooms</div>
-        <div class="dh-stat-label" data-pl="Wolne pokoje" data-en="Available rooms">Wolne pokoje</div>
-        <div class="dh-stat-sub">z @Model.TotalRooms <span data-pl="łącznie" data-en="total">łącznie</span></div>
-    </div>
+    }
+    else
+    {
+        <div class="dh-card dh-card-hover" onclick="location.href='/Account/Profile'" style="cursor:pointer;">
+            <div class="dh-stat-card-corner"></div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
+                <div class="dh-stat-icon"><i class="fa-solid fa-building"></i></div>
+                @if (Model.CurrentResident?.Room != null)
+                {
+                    <span class="dh-badge dh-badge-green" data-pl="Zameldowany" data-en="Checked in">Zameldowany</span>
+                }
+                else
+                {
+                    <span class="dh-badge dh-badge-gray" data-pl="Brak pokoju" data-en="No room">Brak pokoju</span>
+                }
+            </div>
+            @if (Model.CurrentResident?.Room != null)
+            {
+                <div class="dh-stat-value" style="font-size:1.8rem;">@Model.CurrentResident.Room.RoomNumber</div>
+                <div class="dh-stat-label" data-pl="Mój pokój" data-en="My room">Mój pokój</div>
+                <div class="dh-stat-sub">
+                    <i class="fa-solid fa-building" style="margin-right:4px;color:var(--orange);"></i>
+                    @(Model.CurrentResident.Room.Building?.Name ?? "–")
+                </div>
+            }
+            else
+            {
+                <div class="dh-stat-value" style="font-size:1.6rem;">–</div>
+                <div class="dh-stat-label" data-pl="Mój pokój" data-en="My room">Mój pokój</div>
+                <div class="dh-stat-sub" data-pl="Brak przypisania" data-en="Not assigned">Brak przypisania</div>
+            }
+        </div>
+    }
 
-    <!-- Usterki -->
+
     <div class="dh-card dh-card-hover" onclick="location.href='/usterki'">
         <div class="dh-stat-card-corner"></div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
@@ -70,7 +102,6 @@
         }
     </div>
 
-    <!-- Wnioski -->
     <div class="dh-card dh-card-hover" onclick="location.href='/wnioski'">
         <div class="dh-stat-card-corner"></div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
@@ -84,7 +115,6 @@
         <div class="dh-stat-label" data-pl="Oczekujące wnioski" data-en="Pending applications">Oczekujące wnioski</div>
     </div>
 
-    <!-- Płatności -->
     <div class="dh-card dh-card-hover" onclick="location.href='/platnosci'">
         <div class="dh-stat-card-corner"></div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
@@ -106,13 +136,10 @@
 
 </div>
 
-<!-- Główna siatka -->
 <div class="dh-grid-2-1 dh-fade dh-fade-2">
 
-    <!-- Lewa kolumna -->
     <div style="display:flex;flex-direction:column;gap:1.5rem;">
 
-        <!-- Ogłoszenia -->
         <div class="dh-card">
             <div class="dh-card-header">
                 <div class="dh-card-title">
@@ -150,7 +177,6 @@
             }
         </div>
 
-        <!-- Tabela ostatnich usterek -->
         <div class="dh-card">
             <div class="dh-card-header">
                 <div class="dh-card-title">
@@ -201,7 +227,6 @@
         </div>
     </div>
 
-    <!-- Prawa kolumna – szybkie linki -->
     <div class="dh-fade dh-fade-3" style="display:flex;flex-direction:column;gap:1.5rem;">
         <div class="dh-card">
             <div class="dh-card-title" style="margin-bottom:1rem;">
@@ -235,7 +260,6 @@
             </div>
         </div>
 
-        <!-- Ministat -->
         <div class="dh-card">
             <div class="dh-card-title" style="margin-bottom:1rem;">
                 <i class="fa-solid fa-chart-pie"></i>

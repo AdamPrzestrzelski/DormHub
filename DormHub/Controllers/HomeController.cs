@@ -3,6 +3,7 @@ using DormHub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace DormHub.Controllers
 {
@@ -20,6 +21,7 @@ namespace DormHub.Controllers
         public int PendingPayments { get; set; }
         public List<AnnouncementModel> RecentAnnouncements { get; set; } = new();
         public List<FaultModel> RecentFaults { get; set; } = new();
+        public ResidentModel? CurrentResident { get; set; }
     }
 
     public class HomeController : Controller
@@ -62,6 +64,16 @@ namespace DormHub.Controllers
                     .Take(5)
                     .ToListAsync()
             };
+
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userIdStr, out int userId) &&
+                !User.IsInRole("Admin") && !User.IsInRole("Staff"))
+            {
+                vm.CurrentResident = await _context.Residents
+                    .Include(r => r.Room)
+                        .ThenInclude(room => room!.Building)
+                    .FirstOrDefaultAsync(r => r.PersonId == userId);
+            }
 
             return View(vm);
         }
