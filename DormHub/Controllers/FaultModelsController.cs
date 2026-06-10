@@ -68,7 +68,7 @@ namespace DormHub.Controllers
         }
 
         [HttpGet("dodaj")]
-        public async Task<IAct  ionResult> Create()
+        public async Task<IActionResult> Create()
         {
             if (!IsAdminOrStaff())
             {
