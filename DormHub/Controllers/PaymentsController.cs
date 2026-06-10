@@ -26,7 +26,7 @@ namespace DormHub.Controllers
         public async Task<IActionResult> Index()
         {
             IQueryable<PaymentModel> query = _context.Payments
-                .Include(p => p.Resident)
+                .Include(p => p.Resident).ThenInclude(r => r.Person)
                 .Include(p => p.Status);
 
             if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
@@ -45,7 +45,7 @@ namespace DormHub.Controllers
         {
             if (id == null) return NotFound();
             var payment = await _context.Payments
-                .Include(p => p.Resident)
+                .Include(p => p.Resident).ThenInclude(r => r.Person)
                 .Include(p => p.Status)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (payment == null) return NotFound();
@@ -132,7 +132,7 @@ namespace DormHub.Controllers
         {
             if (id == null) return NotFound();
             var payment = await _context.Payments
-                .Include(p => p.Resident)
+                .Include(p => p.Resident).ThenInclude(r => r.Person)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (payment == null) return NotFound();
             return View(payment);

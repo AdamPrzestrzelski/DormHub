@@ -86,6 +86,21 @@
                             }
                         </div>
                     </div>
+                    @if (Model.Resident?.Room != null)
+                    {
+                        <div>
+                            <div class="dh-label" data-pl="Zakwaterowanie" data-en="Accommodation">Zakwaterowanie</div>
+                            <div style="font-size:1rem;font-weight:600;color:#fff;">
+                                <i class="fa-solid fa-building" style="color:var(--orange);margin-right:6px;font-size:.85em;"></i>
+                                @(Model.Resident.Room.Building?.Name ?? "–")
+                            </div>
+                            <div style="font-size:.9rem;color:var(--muted);margin-top:3px;">
+                                <i class="fa-solid fa-door-open" style="color:var(--orange);margin-right:6px;font-size:.8em;"></i>
+                                <span data-pl="Pokój" data-en="Room">Pokój</span>
+                                <strong style="color:#fff;margin-left:4px;">@Model.Resident.Room.RoomNumber</strong>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
 
