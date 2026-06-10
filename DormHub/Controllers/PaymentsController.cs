@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DormHub.Data;
 using DormHub.Models;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
 
 namespace DormHub.Controllers
 {
@@ -38,6 +40,59 @@ namespace DormHub.Controllers
             }
 
             return View(await query.OrderByDescending(p => p.DueDate).ToListAsync());
+        }
+
+        [HttpGet("eksport-pdf")]
+        public async Task<IActionResult> ExportPdf()
+        {
+            IQueryable<PaymentModel> query = _context.Payments
+                .Include(p => p.Resident).ThenInclude(r => r.Person)
+                .Include(p => p.Status);
+
+            if (!User.IsInRole("Admin") && !User.IsInRole("Staff"))
+            {
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
+                if (resident == null)
+                    return NotFound();
+                query = query.Where(p => p.ResidentId == resident.Id);
+            }
+
+            var payments = await query.OrderByDescending(p => p.DueDate).ToListAsync();
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(40);
+                    page.DefaultTextStyle(t => t.FontSize(11));
+
+                    page.Content().Column(col =>
+                    {
+                        col.Item().Text("DormHub – Lista płatności").FontSize(16).Bold();
+                        col.Item().Text($"Wygenerowano: {DateTime.Now:dd.MM.yyyy HH:mm}");
+                        col.Item().Text($"Liczba płatności: {payments.Count}");
+                        col.Item().Text("");
+
+                        foreach (var p in payments)
+                        {
+                            var fullName = $"{p.Resident?.Person?.FirstName} {p.Resident?.Person?.LastName}".Trim();
+                            if (string.IsNullOrWhiteSpace(fullName)) fullName = "–";
+
+                            col.Item().Text(
+                                $"Mieszkaniec: {fullName} | " +
+                                $"Opis: {(string.IsNullOrWhiteSpace(p.Description) ? "–" : p.Description)} | " +
+                                $"Kwota: {p.Amount:0.00} zł | " +
+                                $"Termin: {p.DueDate:dd.MM.yyyy} | " +
+                                $"Status: {(p.Status?.Name ?? "–")} | " +
+                                $"Zapłacono: {(p.PaidAt.HasValue ? p.PaidAt.Value.ToString("dd.MM.yyyy") : "–")}");
+                        }
+                    });
+                });
+            });
+
+            var pdfBytes = document.GeneratePdf();
+            return File(pdfBytes, "application/pdf", $"platnosci_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
         }
 
         [HttpGet("szczegoly/{id}")]
