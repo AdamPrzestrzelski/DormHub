@@ -105,9 +105,11 @@
             connection.on('ReceiveMessage', (user, text, time) => {
                 chatEmpty.style.display = 'none';
                 appendMessage(user, text, time, user === currentUser);
+                saveMessageToStorage(user, text, time);
             });
 
-            
+            loadMessagesFromStorage();
+
             connection.on('UserJoined', (user) => {
                 appendSystemMessage(user, true);
             });
@@ -180,6 +182,31 @@
             });
 
             // ── Helpers ──
+            function saveMessageToStorage(user, text, time) {
+                try {
+                    let messages = JSON.parse(sessionStorage.getItem('dh_chat_messages') || '[]');
+                    messages.push({ user, text, time });
+                    if (messages.length > 200) messages.shift();
+                    sessionStorage.setItem('dh_chat_messages', JSON.stringify(messages));
+                } catch (e) {
+                    console.error('Failed to save to sessionStorage', e);
+                }
+            }
+
+            function loadMessagesFromStorage() {
+                try {
+                    const messages = JSON.parse(sessionStorage.getItem('dh_chat_messages') || '[]');
+                    if (messages.length > 0) {
+                        chatEmpty.style.display = 'none';
+                        messages.forEach(msg => {
+                            appendMessage(msg.user, msg.text, msg.time, msg.user === currentUser);
+                        });
+                    }
+                } catch (e) {
+                    console.error('Failed to load from sessionStorage', e);
+                }
+            }
+
             function appendMessage(user, text, time, isMine) {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'dh-chat-msg' + (isMine ? ' dh-chat-msg-mine' : '');

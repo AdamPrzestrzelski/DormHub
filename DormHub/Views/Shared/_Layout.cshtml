@@ -173,7 +173,7 @@
 
             @if (User.Identity?.IsAuthenticated ?? false)
             {
-                <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0">
+                <form asp-controller="Account" asp-action="Logout" method="post" style="margin:0" onsubmit="sessionStorage.clear();">
                     <button type="submit" class="dh-btn dh-btn-ghost dh-btn-sm">
                         <i class="fa-solid fa-right-from-bracket"></i>
                         <span data-pl="Wyloguj" data-en="Logout">Wyloguj</span>
@@ -208,6 +208,13 @@
 (function () {
     var saved = localStorage.getItem('dh-lang') || 'pl';
     applyLang(saved);
+
+    @if (!(User.Identity?.IsAuthenticated ?? false))
+    {
+        <text>
+        sessionStorage.clear();
+        </text>
+    }
 })();
 
 function setLang(lang) {
