@@ -6,10 +6,11 @@
     <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
 </div>
 
-<div class="dh-card dh-fade dh-fade-1" style="max-width:620px;">
-    <form asp-action="Edit">
+<div class="dh-card dh-fade dh-fade-1" style="max-width:660px;">
+    <form asp-action="Edit" enctype="multipart/form-data">
         <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
         <input type="hidden" asp-for="Id"/>
+
         <div class="dh-form-group">
             <label class="dh-label" data-pl="Pokój" data-en="Room">Pokój</label>
             <select asp-for="RoomId" class="dh-select" asp-items="ViewBag.RoomId"></select>
@@ -56,10 +57,125 @@
                 <option value="">–</option>
             </select>
         </div>
+
+        
+        @if (Model.Photos != null && Model.Photos.Count > 0)
+        {
+            <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:1.25rem;margin-top:.25rem;margin-bottom:1.25rem;">
+                <div class="dh-label" style="margin-bottom:.75rem;">
+                    <i class="fa-solid fa-images" style="color:var(--orange);margin-right:.4rem;"></i>
+                    <span data-pl="Dodane zdjęcia" data-en="Attached photos">Dodane zdjęcia</span>
+                    <span style="opacity:.5;font-size:.8rem;margin-left:.4rem;">(@Model.Photos.Count)</span>
+                </div>
+                <div class="dh-photo-gallery">
+                    @foreach (var photo in Model.Photos)
+                    {
+                        <div class="dh-gallery-item">
+                            <img src="@Url.Action("Photo", "FaultModels", new { photoId = photo.Id })"
+                                 alt="Zdjęcie usterki"
+                                 class="dh-gallery-img"
+                                 onclick="openLightbox(this.src)"
+                                 title="@(photo.FileName ?? "zdjęcie")">
+                            <form asp-action="DeletePhoto" asp-route-photoId="@photo.Id" method="post" class="dh-gallery-delete-form">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="dh-gallery-delete-btn" title="Usuń zdjęcie"
+                                        onclick="return confirm('Usunąć to zdjęcie?')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        <div class="dh-form-group">
+            <label class="dh-label">
+                <i class="fa-solid fa-camera-plus" style="color:var(--orange);margin-right:.35rem;"></i>
+                <span data-pl="Dodaj zdjęcia" data-en="Add photos">Dodaj zdjęcia</span>
+                <span style="font-weight:400;opacity:.55;font-size:.8rem;margin-left:.3rem;">(opcjonalne, max 10 MB każde)</span>
+            </label>
+            <div class="dh-upload-zone" id="uploadZone">
+                <i class="fa-solid fa-camera" style="font-size:1.8rem;color:var(--orange);margin-bottom:.4rem;"></i>
+                <div data-pl="Przeciągnij zdjęcia lub kliknij" data-en="Drag photos or click">Przeciągnij zdjęcia lub kliknij</div>
+                <div style="font-size:.76rem;opacity:.5;margin-top:.2rem;">JPG, PNG, GIF, WEBP</div>
+                <input type="file" id="photosInput" name="photos" multiple accept="image/*" style="display:none;">
+            </div>
+            <div id="photoPreview" class="dh-photo-preview"></div>
+        </div>
+
         <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zapisz" data-en="Save">Zapisz</span></button>
             <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
         </div>
     </form>
 </div>
-@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
+
+<div id="lightbox" class="dh-lightbox" onclick="closeLightbox()">
+    <button class="dh-lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+    <img id="lightboxImg" src="" alt="Podgląd zdjęcia">
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        const zone = document.getElementById('uploadZone');
+        const input = document.getElementById('photosInput');
+        const preview = document.getElementById('photoPreview');
+
+        zone.addEventListener('click', () => input.click());
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dh-upload-zone--over'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dh-upload-zone--over'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('dh-upload-zone--over');
+            addFiles(e.dataTransfer.files);
+        });
+        input.addEventListener('change', () => addFiles(input.files));
+
+        let allFiles = [];
+
+        function addFiles(fileList) {
+            for (const f of fileList) {
+                if (!f.type.startsWith('image/')) continue;
+                allFiles.push(f);
+            }
+            renderPreviews();
+            syncInput();
+        }
+
+        function renderPreviews() {
+            preview.innerHTML = '';
+            allFiles.forEach((f, i) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'dh-photo-thumb';
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(f);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'dh-photo-remove';
+                btn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                btn.onclick = () => { allFiles.splice(i, 1); renderPreviews(); syncInput(); };
+                wrap.appendChild(img);
+                wrap.appendChild(btn);
+                preview.appendChild(wrap);
+            });
+        }
+
+        function syncInput() {
+            const dt = new DataTransfer();
+            allFiles.forEach(f => dt.items.add(f));
+            input.files = dt.files;
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+    </script>
+}

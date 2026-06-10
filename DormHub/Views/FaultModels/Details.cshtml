@@ -1,54 +1,143 @@
-﻿@model DormHub.Models.FaultModel
+@model DormHub.Models.FaultModel
+@{ ViewData["Title"] = "Szczegóły usterki"; }
 
-@{
-    ViewData["Title"] = "Details";
+<div class="dh-page-header dh-fade">
+    <div class="dh-page-title"><i class="fa-solid fa-wrench" style="color:var(--orange);margin-right:.5rem;"></i><span data-pl="Szczegóły usterki" data-en="Fault details">Szczegóły usterki</span></div>
+    <div style="display:flex;gap:.5rem;">
+        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-pen"></i> <span data-pl="Edytuj" data-en="Edit">Edytuj</span></a>
+        }
+        <a asp-action="Index" class="dh-btn dh-btn-ghost"><i class="fa-solid fa-arrow-left"></i> <span data-pl="Powrót" data-en="Back">Powrót</span></a>
+    </div>
+</div>
+
+<div class="dh-card dh-fade dh-fade-1" style="max-width:720px;">
+    @{
+        var catIcon = Model.CategoryId switch {
+            1 => "fa-droplet", 2 => "fa-bolt", 3 => "fa-couch",
+            4 => "fa-window-maximize", 5 => "fa-wifi", _ => "fa-box"
+        };
+        var priBadge = Model.PriorityId switch {
+            4 => "dh-badge-red", 3 => "dh-badge-yellow", 2 => "dh-badge-orange", _ => "dh-badge-gray"
+        };
+    }
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem 2rem;margin-bottom:1.5rem;">
+        <div>
+            <div class="dh-label" style="margin-bottom:.3rem;" data-pl="Pokój" data-en="Room">Pokój</div>
+            <div class="td-mono">@Model.Room?.RoomNumber</div>
+        </div>
+        <div>
+            <div class="dh-label" style="margin-bottom:.3rem;" data-pl="Zgłaszający" data-en="Reported by">Zgłaszający</div>
+            <div>@(Model.ReportedBy != null ? Model.ReportedBy.FirstName + " " + Model.ReportedBy.LastName : "–")</div>
+        </div>
+        <div>
+            <div class="dh-label" style="margin-bottom:.3rem;" data-pl="Kategoria" data-en="Category">Kategoria</div>
+            <div><i class="fa-solid @catIcon" style="color:var(--orange);margin-right:6px;"></i>@(Model.Category?.Name ?? "–")</div>
+        </div>
+        <div>
+            <div class="dh-label" style="margin-bottom:.3rem;" data-pl="Priorytet" data-en="Priority">Priorytet</div>
+            <span class="dh-badge @priBadge">@(Model.Priority?.Name ?? "–")</span>
+        </div>
+        <div>
+            <div class="dh-label" style="margin-bottom:.3rem;" data-pl="Data zgłoszenia" data-en="Reported at">Data zgłoszenia</div>
+            <div>@Model.ReportedAt.ToString("dd.MM.yyyy HH:mm")</div>
+        </div>
+        <div>
+            <div class="dh-label" style="margin-bottom:.3rem;" data-pl="Status" data-en="Status">Status</div>
+            @if (Model.IsResolved)
+            {
+                <span class="dh-badge dh-badge-green" data-pl="Rozwiązana" data-en="Resolved">Rozwiązana</span>
+            }
+            else
+            {
+                <span class="dh-badge dh-badge-gray" data-pl="Otwarta" data-en="Open"><span class="dot"></span>Otwarta</span>
+            }
+        </div>
+    </div>
+
+    <div style="margin-bottom:1.5rem;">
+        <div class="dh-label" style="margin-bottom:.4rem;" data-pl="Opis" data-en="Description">Opis</div>
+        <div style="background:var(--bg-secondary,rgba(255,255,255,.04));border-radius:.6rem;padding:.85rem 1rem;line-height:1.6;">@Model.Description</div>
+    </div>
+
+    @if (Model.IsResolved)
+    {
+        <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:1.2rem;margin-top:.5rem;">
+            <div class="dh-label" style="margin-bottom:.6rem;" data-pl="Informacje o rozwiązaniu" data-en="Resolution info">Informacje o rozwiązaniu</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem 2rem;">
+                <div>
+                    <div class="dh-label" style="font-size:.75rem;margin-bottom:.2rem;">Rozwiązał/-a</div>
+                    <div>@(Model.ResolvedBy != null ? Model.ResolvedBy.FirstName + " " + Model.ResolvedBy.LastName : "–")</div>
+                </div>
+                <div>
+                    <div class="dh-label" style="font-size:.75rem;margin-bottom:.2rem;">Data rozwiązania</div>
+                    <div>@(Model.ResolvedAt?.ToString("dd.MM.yyyy HH:mm") ?? "–")</div>
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.ResolutionNotes))
+            {
+                <div style="margin-top:.75rem;">
+                    <div class="dh-label" style="font-size:.75rem;margin-bottom:.2rem;">Notatki</div>
+                    <div style="opacity:.85;">@Model.ResolutionNotes</div>
+                </div>
+            }
+        </div>
+    }
+
+    
+    @if (Model.Photos != null && Model.Photos.Count > 0)
+    {
+        <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:1.4rem;margin-top:1.2rem;">
+            <div class="dh-label" style="margin-bottom:.8rem;">
+                <i class="fa-solid fa-images" style="color:var(--orange);margin-right:.4rem;"></i>
+                <span data-pl="Zdjęcia" data-en="Photos">Zdjęcia</span>
+                <span style="opacity:.5;font-size:.8rem;margin-left:.4rem;">(@Model.Photos.Count)</span>
+            </div>
+            <div class="dh-photo-gallery">
+                @foreach (var photo in Model.Photos)
+                {
+                    <div class="dh-gallery-item">
+                        <img src="@Url.Action("Photo", "FaultModels", new { photoId = photo.Id })"
+                             alt="Zdjęcie usterki"
+                             class="dh-gallery-img"
+                             onclick="openLightbox(this.src)"
+                             title="@(photo.FileName ?? "zdjęcie")">
+                        @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
+                        {
+                            <form asp-action="DeletePhoto" asp-route-photoId="@photo.Id" method="post" class="dh-gallery-delete-form">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="dh-gallery-delete-btn" title="Usuń zdjęcie"
+                                        onclick="return confirm('Usunąć to zdjęcie?')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+
+<div id="lightbox" class="dh-lightbox" onclick="closeLightbox()">
+    <button class="dh-lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+    <img id="lightboxImg" src="" alt="Podgląd zdjęcia">
+</div>
+
+@section Scripts {
+<script>
+    function openLightbox(src) {
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('lightbox').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
 }
-
-<h1>Details</h1>
-
-<div>
-    <h4>FaultModel</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Room)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Room.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReportedBy)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReportedBy.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ReportedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ReportedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsResolved)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsResolved)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ResolvedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ResolvedAt)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>

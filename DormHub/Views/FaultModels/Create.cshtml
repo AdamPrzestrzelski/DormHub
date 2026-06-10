@@ -12,7 +12,7 @@
 }
 
 <div class="dh-card dh-fade dh-fade-1" style="max-width:620px;">
-    <form asp-action="Create">
+    <form asp-action="Create" enctype="multipart/form-data">
         <div asp-validation-summary="ModelOnly" class="dh-validation-summary"></div>
 
         @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
@@ -50,10 +50,77 @@
             <textarea asp-for="Description" class="dh-textarea" rows="4" placeholder="Opisz problem..."></textarea>
             <div class="dh-form-error"><span asp-validation-for="Description"></span></div>
         </div>
+
+        <div class="dh-form-group">
+            <label class="dh-label" data-pl="Zdjęcia (opcjonalne)" data-en="Photos (optional)">Zdjęcia <span style="font-weight:400;opacity:.6;font-size:.82rem;">(opcjonalne, max 10 MB każde)</span></label>
+            <div class="dh-upload-zone" id="uploadZone">
+                <i class="fa-solid fa-camera" style="font-size:2rem;color:var(--orange);margin-bottom:.5rem;"></i>
+                <div data-pl="Przeciągnij zdjęcia lub kliknij" data-en="Drag photos or click">Przeciągnij zdjęcia lub kliknij</div>
+                <div style="font-size:.78rem;opacity:.55;margin-top:.25rem;">JPG, PNG, GIF, WEBP</div>
+                <input type="file" id="photosInput" name="photos" multiple accept="image/*" style="display:none;">
+            </div>
+            <div id="photoPreview" class="dh-photo-preview"></div>
+        </div>
+
         <div style="display:flex;gap:.75rem;margin-top:1rem;">
             <button type="submit" class="dh-btn dh-btn-primary"><i class="fa-solid fa-floppy-disk"></i> <span data-pl="Zgłoś" data-en="Submit">Zgłoś</span></button>
             <a asp-action="Index" class="dh-btn dh-btn-ghost" data-pl="Anuluj" data-en="Cancel">Anuluj</a>
         </div>
     </form>
 </div>
-@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        const zone = document.getElementById('uploadZone');
+        const input = document.getElementById('photosInput');
+        const preview = document.getElementById('photoPreview');
+
+        zone.addEventListener('click', () => input.click());
+
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dh-upload-zone--over'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('dh-upload-zone--over'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('dh-upload-zone--over');
+            addFiles(e.dataTransfer.files);
+        });
+
+        input.addEventListener('change', () => addFiles(input.files));
+
+        let allFiles = [];
+
+        function addFiles(fileList) {
+            for (const f of fileList) {
+                if (!f.type.startsWith('image/')) continue;
+                allFiles.push(f);
+            }
+            renderPreviews();
+            syncInput();
+        }
+
+        function renderPreviews() {
+            preview.innerHTML = '';
+            allFiles.forEach((f, i) => {
+                const wrap = document.createElement('div');
+                wrap.className = 'dh-photo-thumb';
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(f);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'dh-photo-remove';
+                btn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                btn.onclick = () => { allFiles.splice(i, 1); renderPreviews(); syncInput(); };
+                wrap.appendChild(img);
+                wrap.appendChild(btn);
+                preview.appendChild(wrap);
+            });
+        }
+
+        function syncInput() {
+            const dt = new DataTransfer();
+            allFiles.forEach(f => dt.items.add(f));
+            input.files = dt.files;
+        }
+    </script>
+}

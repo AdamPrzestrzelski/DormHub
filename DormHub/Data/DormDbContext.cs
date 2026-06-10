@@ -24,6 +24,7 @@ namespace DormHub.Data
         public DbSet<AnnouncementModel>      Announcements      { get; set; }
         public DbSet<ResourceModel>           Resources          { get; set; }
         public DbSet<ResourceBookingModel>    ResourceBookings   { get; set; }
+        public DbSet<FaultPhotoModel>         FaultPhotos        { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,6 +53,12 @@ namespace DormHub.Data
                 .WithMany()
                 .HasForeignKey(f => f.ResolvedById)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<FaultPhotoModel>()
+                .HasOne(p => p.Fault)
+                .WithMany(f => f.Photos)
+                .HasForeignKey(p => p.FaultId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PaymentModel>()
                 .HasOne(p => p.Resident)

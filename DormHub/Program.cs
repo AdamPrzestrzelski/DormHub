@@ -87,5 +87,5 @@ app.MapHub<ChatHub>("/chathub");
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+Console.WriteLine(DormHub.Services.PasswordHasher.Hash("wsadwsad"));
 app.Run();

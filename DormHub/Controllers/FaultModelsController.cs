@@ -54,6 +54,7 @@ namespace DormHub.Controllers
                 .Include(f => f.Room)
                 .Include(f => f.Priority)
                 .Include(f => f.Category)
+                .Include(f => f.Photos)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (fault == null) return NotFound();
 
@@ -67,7 +68,7 @@ namespace DormHub.Controllers
         }
 
         [HttpGet("dodaj")]
-        public async Task<IActionResult> Create()
+        public async Task<IAct  ionResult> Create()
         {
             if (!IsAdminOrStaff())
             {
@@ -95,7 +96,7 @@ namespace DormHub.Controllers
 
         [HttpPost("dodaj")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RoomId,ReportedById,Description,PriorityId,CategoryId")] FaultModel faultModel)
+        public async Task<IActionResult> Create([Bind("RoomId,ReportedById,Description,PriorityId,CategoryId")] FaultModel faultModel, List<IFormFile>? photos)
         {
             ModelState.Remove("Id");
             ModelState.Remove("ReportedAt");
@@ -116,6 +117,29 @@ namespace DormHub.Controllers
             {
                 _context.Add(faultModel);
                 await _context.SaveChangesAsync();
+
+                if (photos != null && photos.Count > 0)
+                {
+                    var allowed = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
+                    foreach (var file in photos)
+                    {
+                        if (file.Length == 0 || !allowed.Contains(file.ContentType.ToLower())) continue;
+                        if (file.Length > 10 * 1024 * 1024) continue;
+
+                        using var ms = new MemoryStream();
+                        await file.CopyToAsync(ms);
+                        _context.FaultPhotos.Add(new FaultPhotoModel
+                        {
+                            FaultId     = faultModel.Id,
+                            Data        = ms.ToArray(),
+                            ContentType = file.ContentType,
+                            FileName    = file.FileName,
+                            UploadedAt  = DateTime.Now
+                        });
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -136,7 +160,9 @@ namespace DormHub.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-            var fault = await _context.Faults.FindAsync(id);
+            var fault = await _context.Faults
+                .Include(f => f.Photos)
+                .FirstOrDefaultAsync(f => f.Id == id);
             if (fault == null) return NotFound();
             ViewData["RoomId"]       = new SelectList(_context.Rooms, "Id", "RoomNumber", fault.RoomId);
             ViewData["ReportedById"] = new SelectList(
@@ -153,7 +179,7 @@ namespace DormHub.Controllers
         [Authorize(Roles = "Admin,Staff")]
         [HttpPost("edytuj/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomId,ReportedById,Description,ReportedAt,PriorityId,CategoryId,IsResolved,ResolvedAt,ResolutionNotes,ResolvedById")] FaultModel faultModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,RoomId,ReportedById,Description,ReportedAt,PriorityId,CategoryId,IsResolved,ResolvedAt,ResolutionNotes,ResolvedById")] FaultModel faultModel, List<IFormFile>? photos)
         {
             if (id != faultModel.Id) return NotFound();
             if (ModelState.IsValid)
@@ -168,8 +194,32 @@ namespace DormHub.Controllers
                     if (!_context.Faults.Any(e => e.Id == faultModel.Id)) return NotFound();
                     else throw;
                 }
-                return RedirectToAction(nameof(Index));
+
+                if (photos != null && photos.Count > 0)
+                {
+                    var allowed = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
+                    foreach (var file in photos)
+                    {
+                        if (file.Length == 0 || !allowed.Contains(file.ContentType.ToLower())) continue;
+                        if (file.Length > 10 * 1024 * 1024) continue;
+
+                        using var ms = new MemoryStream();
+                        await file.CopyToAsync(ms);
+                        _context.FaultPhotos.Add(new FaultPhotoModel
+                        {
+                            FaultId     = faultModel.Id,
+                            Data        = ms.ToArray(),
+                            ContentType = file.ContentType,
+                            FileName    = file.FileName,
+                            UploadedAt  = DateTime.Now
+                        });
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+                return RedirectToAction(nameof(Edit), new { id = faultModel.Id });
             }
+
             ViewData["RoomId"]       = new SelectList(_context.Rooms, "Id", "RoomNumber", faultModel.RoomId);
             ViewData["ReportedById"] = new SelectList(
                 _context.Persons.Select(p => new { p.Id, FullName = p.FirstName + " " + p.LastName }),
@@ -206,6 +256,36 @@ namespace DormHub.Controllers
             if (fault != null) _context.Faults.Remove(fault);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet("zdjecie/{photoId}")]
+        public async Task<IActionResult> Photo(int photoId)
+        {
+            var photo = await _context.FaultPhotos
+                .Include(p => p.Fault)
+                .FirstOrDefaultAsync(p => p.Id == photoId);
+            if (photo == null) return NotFound();
+
+            if (!IsAdminOrStaff())
+            {
+                var resident = await _context.Residents.FirstOrDefaultAsync(r => r.PersonId == CurrentUserId());
+                if (resident?.RoomId != photo.Fault?.RoomId) return Forbid();
+            }
+
+            return File(photo.Data, photo.ContentType);
+        }
+
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpPost("usun-zdjecie/{photoId}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePhoto(int photoId)
+        {
+            var photo = await _context.FaultPhotos.FindAsync(photoId);
+            if (photo == null) return NotFound();
+            int faultId = photo.FaultId;
+            _context.FaultPhotos.Remove(photo);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = faultId });
         }
     }
 }

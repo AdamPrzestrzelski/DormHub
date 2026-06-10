@@ -45,5 +45,7 @@ namespace DormHub.Models
         public int? ResolvedById { get; set; }
         [ForeignKey("ResolvedById")]
         public PersonModel? ResolvedBy { get; set; }
+
+        public ICollection<FaultPhotoModel> Photos { get; set; } = new List<FaultPhotoModel>();
     }
 }
